@@ -1,0 +1,466 @@
+---
+// src/pages/about.astro
+// Career timeline + verified credentials + interactive retro terminal contact drawer
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DesktopWindow from '../components/DesktopWindow.astro';
+
+const careerSteps = [
+  {
+    period: '2023 — Present',
+    role: 'Senior Associate & CX Designer',
+    org: 'Pfizer',
+    location: 'Thessaloniki / Remote',
+    tag: 'Enterprise Healthcare',
+    highlights: [
+      'Leading customer experience research and interaction architecture for global digital health solutions.',
+      'Translating complex scientific, clinical, and regulatory workflows into cognitive-efficient software systems.',
+      'Pioneering AI transparency patterns and narrative-extraction architectures for research intelligence.',
+    ],
+  },
+  {
+    period: '2021 — 2023',
+    role: 'UX & Product Specialist',
+    org: 'Deloitte Digital',
+    location: 'Athens / Remote',
+    tag: 'Consultancy & Systems',
+    highlights: [
+      'Architected user research frameworks, service blueprints, and design systems for enterprise banking and public sector clients.',
+      'Facilitated cross-functional discovery workshops with C-suite and technical stakeholders.',
+      'Mentored junior designers and established standard operating procedures for usability testing and heuristic evaluation.',
+    ],
+  },
+  {
+    period: '2022 — 2023',
+    role: 'Lead Organizer',
+    org: 'WordCamp Europe 2023',
+    location: 'Athens, Greece',
+    tag: 'Community Leadership',
+    highlights: [
+      'Co-led operations, attendee experience, and accessibility initiatives for one of the largest open-source tech conferences in Europe (2,500+ attendees).',
+      'Orchestrated multi-track stage logistics, sponsor relations, and volunteer coordination across 30+ international teams.',
+    ],
+  },
+  {
+    period: '2020 — 2022',
+    role: 'MSc in Information & Communication Systems',
+    org: 'University of the Aegean',
+    location: 'Samos, Greece',
+    tag: 'Graduated: GPA 9.78 / 10',
+    highlights: [
+      'Specialisation: Human-Computer Interaction, Cultural Heritage UX, and Information Architecture.',
+      'Authored 4 peer-reviewed publications across MDPI Information and MDPI Digital.',
+      'Formulated the ACUX Typology visitor classification framework for personalized cultural experiences.',
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="About & Career Timeline — Fotis Pastrakis"
+  description="Senior UX Researcher & CX Designer at Pfizer. Former Deloitte. MSc GPA 9.78 / 10. Lead Organizer WordCamp Europe 2023."
+>
+  <div class="u-container about-page">
+    <!-- Header -->
+    <header class="about-header">
+      <div class="about-header__meta">
+        <span class="section-label" aria-hidden="true">fp://profile/curriculum_vitae</span>
+        <span class="u-mono u-text-xs u-text-faint">Status: Active / Thessaloniki</span>
+      </div>
+      <h1 class="about-header__title">Fotis Pastrakis</h1>
+      <p class="about-header__lead">
+        Senior CX Designer at Pfizer, researcher in Cultural HCI and clinical systems, and front-end systems architect. I design tools that help specialists do rigorous, high-stakes work without cognitive burnout.
+      </p>
+    </header>
+
+    <div class="about-grid">
+      <!-- Left Column: Bio & Core Principles -->
+      <section class="about-bio">
+        <DesktopWindow
+          title="executive_summary.txt"
+          fileBadge="bio.md"
+          figureTag="Fig. A1"
+          coordX={0.15}
+          coordY={0.88}
+        >
+          <div class="bio-content">
+            <h2 class="bio-content__heading">The Practice</h2>
+            <p>
+              I sit at the intersection of rigorous qualitative UX research, cognitive ergonomics, and modern web architectures. Over the past decade, I have focused on domains where interface mistakes carry real-world consequences: ICU clinical monitoring, chronic illness management, and civic operations.
+            </p>
+            <p>
+              My academic research with the University of the Aegean (i-Lab) addresses the taxonomy of Cultural UX and AI-driven Modular Information Architecture. My industry work at Pfizer and Deloitte scales these insights to enterprise platforms deployed globally.
+            </p>
+
+            <h3 class="bio-content__subheading">Core Principles</h3>
+            <ul class="principles-list">
+              <li>
+                <strong class="u-text-main">Calm Over Novelty:</strong> An interface is an instrument, not an amusement park. If an interaction increases pulse rate, it is broken.
+              </li>
+              <li>
+                <strong class="u-text-main">Architecture Before Pixels:</strong> OOUX, entity modeling, and token schemas survive redesigns. Aesthetic trends do not.
+              </li>
+              <li>
+                <strong class="u-text-main">Evidence Above Assertion:</strong> Usability testing with 8 gloved nurses in an ICU will overturn 6 months of boardroom debate in 45 minutes.
+              </li>
+            </ul>
+          </div>
+        </DesktopWindow>
+      </section>
+
+      <!-- Right Column: Career Timeline -->
+      <section class="about-timeline">
+        <DesktopWindow
+          title="career_chronology.log"
+          fileBadge="timeline.json"
+          figureTag="Fig. A2"
+          coordX={0.85}
+          coordY={0.42}
+        >
+          <div class="timeline-container">
+            {careerSteps.map((step) => (
+              <div class="timeline-entry u-border-1bit-bottom">
+                <div class="timeline-entry__header">
+                  <span class="timeline-entry__period u-mono u-text-xs u-text-accent">{step.period}</span>
+                  <span class="tag u-mono u-text-xs">{step.tag}</span>
+                </div>
+                <h3 class="timeline-entry__role">{step.role}</h3>
+                <p class="timeline-entry__org u-mono u-text-xs u-text-muted">
+                  {step.org} · <span class="u-text-faint">{step.location}</span>
+                </p>
+                <ul class="timeline-entry__bullets">
+                  {step.highlights.map(h => (
+                    <li class="u-text-sm u-text-muted">{h}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </DesktopWindow>
+      </section>
+    </div>
+
+    <!-- Contact Drawer / Retro Terminal -->
+    <section class="contact-section" id="contact-drawer" tabindex="-1">
+      <DesktopWindow
+        title="console_contact.sh"
+        fileBadge="tty0"
+        figureTag="Terminal 01"
+        coordX={0.50}
+        coordY={0.50}
+      >
+        <div class="terminal-box">
+          <div class="terminal-banner u-mono u-text-xs">
+            <p class="u-text-accent">FOTISP-OS v2.6.0 [Thessaloniki Host Node]</p>
+            <p class="u-text-faint">Type in your parameters or dispatch an asynchronous message below.</p>
+          </div>
+
+          <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
+            <!-- Honeypot anti-bot -->
+            <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
+
+            <div class="form-row">
+              <label for="contact-name" class="u-mono u-text-xs u-text-faint">OPERATOR_NAME:</label>
+              <input
+                type="text"
+                id="contact-name"
+                name="name"
+                required
+                placeholder="Dr. / Ms. / Mr. Name"
+                class="terminal-input"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="contact-email" class="u-mono u-text-xs u-text-faint">TRANSMISSION_RETURN_ADDR:</label>
+              <input
+                type="email"
+                id="contact-email"
+                name="email"
+                required
+                placeholder="name@domain.com"
+                class="terminal-input"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="contact-message" class="u-mono u-text-xs u-text-faint">PAYLOAD_BUFFER:</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                required
+                rows="4"
+                placeholder="Specify requirements, advisory engagement, or research inquiry..."
+                class="terminal-input terminal-textarea"
+              ></textarea>
+            </div>
+
+            <div class="terminal-form__footer">
+              <span id="contactStatus" class="u-mono u-text-xs u-text-faint" aria-live="polite">
+                Awaiting operator dispatch.
+              </span>
+              <button type="submit" id="submitBtn" class="terminal-btn u-mono u-text-xs">
+                [ TRANSMIT MESSAGE ]
+              </button>
+            </div>
+          </form>
+        </div>
+      </DesktopWindow>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contactForm') as HTMLFormElement | null;
+  const statusEl = document.getElementById('contactStatus');
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+
+  if (form && statusEl && submitBtn) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Transmitting packet to /api/contact...';
+      submitBtn.disabled = true;
+
+      try {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success) {
+          statusEl.textContent = '200 OK: Transmission logged successfully. Fotis will respond shortly.';
+          statusEl.style.color = 'var(--color-success)';
+          form.reset();
+        } else {
+          statusEl.textContent = `Transmission failed: ${json.error || 'Server error'}`;
+          statusEl.style.color = 'var(--color-error)';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Network error: could not connect to edge function.';
+        statusEl.style.color = 'var(--color-error)';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .about-page {
+    padding-top: calc(var(--systembar-height) + var(--space-12));
+    padding-bottom: var(--space-24);
+  }
+
+  .about-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .about-header__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+
+  .about-header__title {
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+  }
+
+  .about-header__lead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: 68ch;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+    margin-bottom: var(--space-16);
+  }
+
+  @media (min-width: 1024px) {
+    .about-grid {
+      grid-template-columns: 5fr 7fr;
+      align-items: start;
+    }
+  }
+
+  .bio-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .bio-content__heading {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+  }
+
+  .bio-content__subheading {
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+
+  .principles-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .principles-list li {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-entry {
+    padding: var(--space-5) 0;
+  }
+
+  .timeline-entry:last-child {
+    border-bottom: none;
+  }
+
+  .timeline-entry__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    border: var(--border-1bit-subtle);
+  }
+
+  .timeline-entry__role {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin-bottom: 2px;
+  }
+
+  .timeline-entry__org {
+    margin-bottom: var(--space-3);
+  }
+
+  .timeline-entry__bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .timeline-entry__bullets li::before {
+    content: '→ ';
+    color: var(--color-accent);
+  }
+
+  /* Contact terminal */
+  .contact-section {
+    outline: none;
+  }
+
+  .terminal-box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .terminal-banner {
+    padding-bottom: var(--space-4);
+    border-bottom: var(--border-1bit-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .terminal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .terminal-input {
+    background-color: var(--color-bg);
+    border: var(--border-1bit);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .terminal-input:focus {
+    border-color: var(--color-accent);
+  }
+
+  .terminal-textarea {
+    resize: vertical;
+  }
+
+  .terminal-form__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding-top: var(--space-2);
+  }
+
+  .terminal-btn {
+    padding: var(--space-2) var(--space-5);
+    background-color: var(--color-accent);
+    color: var(--color-text);
+    border: var(--border-1bit-accent);
+    cursor: pointer;
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wider);
+    transition: all var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .terminal-btn:hover {
+    background-color: transparent;
+    color: var(--color-accent);
+  }
+
+  .terminal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>

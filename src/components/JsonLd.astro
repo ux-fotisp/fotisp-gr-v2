@@ -1,0 +1,14 @@
+---
+// JsonLd.astro — Schema.org JSON-LD injection
+// Usage: <JsonLd schema={schemaObject} />
+
+interface Props {
+  schema: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { schema } = Astro.props;
+---
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(Array.isArray(schema) ? { '@context': 'https://schema.org', '@graph': schema } : schema)}
+/>

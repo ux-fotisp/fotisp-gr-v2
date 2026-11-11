@@ -1,0 +1,117 @@
+/* =================================================================
+   era-toggle.css — 1984 Era aesthetic overrides
+   Applied when <html data-era="1984">
+   ================================================================= */
+
+/* ── Token overrides ─────────────────────────────────────────────── */
+[data-era="1984"] {
+  --color-bg:              #000000;
+  --color-surface:         #0d0d0d;
+  --color-surface-raised:  #1a1a1a;
+  --color-border:          #3a3a3a;
+  --color-border-subtle:   #2a2a2a;
+  --color-border-strong:   #555555;
+  --color-text:            #f0f0f0;
+  --color-text-muted:      #c0c0c0;
+  --color-text-faint:      #707070;
+  --color-chrome-bg:       #000000;
+  --color-chrome-border:   #3a3a3a;
+  --color-chrome-text:     #c0c0c0;
+  /* Accent stays Crimson — the one colour in a monochrome world */
+  --font-display:          'JetBrains Mono', 'Courier New', monospace;
+  --font-body:             'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* ── CRT scanline overlay ────────────────────────────────────────── */
+[data-era="1984"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.18) 2px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+}
+
+/* ── Dithered surface pattern ────────────────────────────────────── */
+[data-era="1984"] .u-bg-surface,
+[data-era="1984"] .u-window,
+[data-era="1984"] .desktop-window {
+  background-image:
+    radial-gradient(circle, rgba(38, 16, 20, 0.6) 1px, transparent 1px);
+  background-size: 4px 4px;
+  background-color: #000000;
+}
+
+/* ── Pixelated image rendering ───────────────────────────────────── */
+[data-era="1984"] img {
+  image-rendering: pixelated;
+  filter: grayscale(1) contrast(1.2);
+}
+
+/* ── Force mono font everywhere ──────────────────────────────────── */
+[data-era="1984"] h1,
+[data-era="1984"] h2,
+[data-era="1984"] h3,
+[data-era="1984"] h4,
+[data-era="1984"] h5,
+[data-era="1984"] h6 {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.05em;
+}
+
+[data-era="1984"] p,
+[data-era="1984"] a,
+[data-era="1984"] li,
+[data-era="1984"] span,
+[data-era="1984"] button {
+  font-family: var(--font-mono);
+}
+
+/* ── Crimson accent stays vivid — everything else desaturates ─────── */
+[data-era="1984"] .u-text-accent { color: var(--color-accent); }
+[data-era="1984"] .u-bg-accent   { background-color: var(--color-accent); }
+[data-era="1984"] .u-border-accent { border-color: var(--color-accent); }
+
+/* ── Window chrome goes full 1-bit ───────────────────────────────── */
+[data-era="1984"] .desktop-window {
+  border-color: #ffffff;
+  border-width: 1px;
+}
+
+[data-era="1984"] .desktop-window__titlebar {
+  background-color: #000000;
+  border-bottom-color: #ffffff;
+}
+
+[data-era="1984"] .desktop-window__btn {
+  border-color: #ffffff;
+}
+
+[data-era="1984"] .desktop-window__btn--close:hover {
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+[data-era="1984"] .desktop-window__coords {
+  border-top-color: #3a3a3a;
+  background-color: #000000;
+}
+
+/* ── Transition: smooth era switch ───────────────────────────────── */
+html {
+  transition:
+    background-color var(--duration-slow) var(--ease-inout),
+    color var(--duration-slow) var(--ease-inout);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { transition: none; }
+  [data-era="1984"] body::before { display: none; }
+}

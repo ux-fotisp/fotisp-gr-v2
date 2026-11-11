@@ -1,0 +1,173 @@
+---
+// src/pages/404.astro
+// Retro OS System Crash / Empty Trash Modal Dialog
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DesktopWindow from '../components/DesktopWindow.astro';
+---
+
+<BaseLayout
+  title="System Error: 404 Not Found — Fotis Pastrakis"
+  description="System alert: The requested resource could not be addressed in the memory map."
+>
+  <div class="u-container crash-wrapper">
+    <div class="crash-modal">
+      <DesktopWindow
+        title="system_alert.dialog"
+        fileBadge="bomb.sys"
+        figureTag="Err. 404"
+        coordX={0.00}
+        coordY={0.00}
+      >
+        <div class="alert-box">
+          <!-- 1-Bit ASCII Icon / Glyph -->
+          <div class="alert-box__icon-col">
+            <div class="retro-bomb-glyph" aria-hidden="true">
+              <pre class="u-mono u-text-accent">
+  .---.
+ /     \  *
+|  404  |/
+ \     /
+  '---'
+              </pre>
+            </div>
+          </div>
+
+          <div class="alert-box__content">
+            <h1 class="alert-box__title u-mono u-text-lg u-text-accent">
+              SYSTEM ERROR: -41 [FILE_NOT_FOUND]
+            </h1>
+            <p class="alert-box__text u-text-sm u-text-muted">
+              Sorry, a system error occurred. The Trash is empty, or the specified address does not point to a valid sector on disk.
+            </p>
+            <p class="alert-box__sub u-mono u-text-xs u-text-faint">
+              Memory segment: 0x080303:EE2626<br />
+              Action required: Re-initialise desktop or return to root directory.
+            </p>
+
+            <div class="alert-box__actions">
+              <a href="/" class="alert-btn alert-btn--primary u-mono u-text-xs">
+                Restart Desktop (Home)
+              </a>
+              <a href="/work" class="alert-btn u-mono u-text-xs">
+                Browse Case Studies
+              </a>
+            </div>
+          </div>
+        </div>
+      </DesktopWindow>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .crash-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--systembar-height));
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .crash-modal {
+    width: 100%;
+    max-width: 580px;
+    animation: alert-drop var(--duration-fast) var(--ease-snap) forwards;
+  }
+
+  @keyframes alert-drop {
+    from {
+      opacity: 0;
+      transform: translateY(-16px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .alert-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .alert-box {
+      grid-template-columns: auto 1fr;
+      align-items: start;
+    }
+  }
+
+  .alert-box__icon-col {
+    display: flex;
+    justify-content: center;
+  }
+
+  .retro-bomb-glyph pre {
+    margin: 0;
+    line-height: 1.1;
+    font-size: 13px;
+    background-color: var(--color-surface-raised);
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-1bit-accent);
+  }
+
+  .alert-box__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .alert-box__title {
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+  }
+
+  .alert-box__text {
+    line-height: var(--leading-relaxed);
+  }
+
+  .alert-box__sub {
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--color-bg);
+    border: var(--border-1bit-subtle);
+    line-height: 1.4;
+  }
+
+  .alert-box__actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    padding-top: var(--space-2);
+  }
+
+  .alert-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    color: var(--color-text-muted);
+    border: var(--border-1bit);
+    text-decoration: none;
+    letter-spacing: var(--tracking-wide);
+    transition: all var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .alert-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+
+  .alert-btn--primary {
+    background-color: var(--color-accent);
+    color: var(--color-text);
+    border-color: var(--color-accent);
+    font-weight: var(--weight-bold);
+  }
+
+  .alert-btn--primary:hover {
+    background-color: transparent;
+    color: var(--color-accent);
+  }
+</style>

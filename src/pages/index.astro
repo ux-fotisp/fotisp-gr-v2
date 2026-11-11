@@ -1,0 +1,578 @@
+---
+// src/pages/index.astro
+// Home — Swiss editorial hero + case study grid + services + publications
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DesktopWindow from '../components/DesktopWindow.astro';
+import { getCollection } from 'astro:content';
+
+const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const publications = (await getCollection('publications', e => e.data.status === 'published'))
+  .sort((a, b) => b.data.year - a.data.year);
+
+const services = (await getCollection('services', e => e.data.available))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const categoryLabel: Record<string, string> = {
+  'health-tech':        'Health Tech',
+  'civic-tech':         'Civic Tech',
+  'e-commerce':         'E-Commerce',
+  'product-design':     'Product Design',
+  'ux-research':        'UX Research',
+  'ai-ux':              'AI UX',
+  'design-system':      'Design Systems',
+  'cultural-heritage':  'Cultural Heritage',
+  'enterprise':         'Enterprise',
+  'food-tech':          'Food Tech',
+};
+---
+<BaseLayout>
+  <!-- ── HERO ──────────────────────────────────────────────────── -->
+  <section class="hero u-container" aria-labelledby="hero-headline">
+    <div class="hero__meta">
+      <span class="section-label" aria-hidden="true">fp://index</span>
+    </div>
+
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="hero__eyebrow u-mono u-text-xs u-tracking-widest u-uppercase u-text-accent">
+          Senior UX Researcher · Product Designer · Athens
+        </p>
+        <h1 id="hero-headline" class="hero__headline">
+          Pixels change.<br />Architecture stays.
+        </h1>
+        <p class="hero__sub">
+          I research, design, and systematise digital products that hold up under real use — in hospitals, civic operations centres, and consumer apps serving millions.
+        </p>
+        <nav class="hero__cta-row" aria-label="Primary navigation">
+          <a href="/work" class="btn-primary">View Case Studies</a>
+          <a href="/about" class="btn-ghost">About & CV</a>
+        </nav>
+      </div>
+
+      <aside class="hero__status-window">
+        <DesktopWindow
+          title="system_status.log"
+          fileBadge="v2.0"
+          figureTag="Fig. 00"
+          coordX={0.00}
+          coordY={0.00}
+        >
+          <dl class="status-list">
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">Current Role</dt>
+              <dd class="u-mono u-text-xs u-text-muted">Senior Assoc. / CX Designer — Pfizer</dd>
+            </div>
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">Research Area</dt>
+              <dd class="u-mono u-text-xs u-text-muted">Clinical UX · AI transparency · Cultural HCI</dd>
+            </div>
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">MSc GPA</dt>
+              <dd class="u-mono u-text-xs u-text-muted">9.78 / 10 — Univ. of the Aegean</dd>
+            </div>
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">Publications</dt>
+              <dd class="u-mono u-text-xs u-text-muted">{publications.length} peer-reviewed</dd>
+            </div>
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">Case Studies</dt>
+              <dd class="u-mono u-text-xs u-text-muted">{caseStudies.length} in portfolio</dd>
+            </div>
+          </dl>
+        </DesktopWindow>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ── CASE STUDIES GRID ──────────────────────────────────────── -->
+  <section class="work-section u-container" aria-labelledby="work-heading" id="work">
+    <header class="section-header">
+      <span class="section-label">Selected Work</span>
+      <h2 id="work-heading" class="section-title">Case Studies</h2>
+    </header>
+
+    <div class="work-grid">
+      {caseStudies.map((entry) => {
+        const slug = entry.id.replace(/\.mdx?$/, '');
+        return (
+          <article class="case-card">
+            <DesktopWindow
+              title={entry.data.title}
+              fileBadge={`${slug}.mdx`}
+              figureTag={entry.data.figureTag ?? 'Fig. ??'}
+              coordX={Math.random() * 0.5}
+              coordY={Math.random() * 0.5}
+            >
+              <a href={`/work/${slug}`} class="case-card__link" aria-label={`Read ${entry.data.title} case study`}>
+                <div class="case-card__cover" aria-hidden="true">
+                  <div class="case-card__cover-placeholder">
+                    <span class="u-mono u-text-xs u-text-faint">{entry.data.figureTag}</span>
+                  </div>
+                </div>
+                <div class="case-card__content">
+                  <div class="case-card__meta">
+                    <span class="tag tag--category">{categoryLabel[entry.data.category] ?? entry.data.category}</span>
+                    <span class="tag">{entry.data.year}</span>
+                    {entry.data.protected && <span class="tag tag--protected">NDA</span>}
+                  </div>
+                  <h3 class="case-card__title">{entry.data.title}</h3>
+                  <p class="case-card__tagline">{entry.data.tagline}</p>
+                  <div class="case-card__metrics" aria-label="Key outcomes">
+                    {entry.data.impact?.slice(0, 2).map(imp => (
+                      <div class="metric">
+                        <span class="metric__value">{imp.value}</span>
+                        <span class="metric__label">{imp.metric}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            </DesktopWindow>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- ── SERVICES ───────────────────────────────────────────────── -->
+  <section class="services-section u-container" aria-labelledby="services-heading" id="services">
+    <header class="section-header">
+      <span class="section-label">What I Do</span>
+      <h2 id="services-heading" class="section-title">Services</h2>
+    </header>
+
+    <div class="services-grid">
+      {services.map((svc) => (
+        <article class="service-card u-window u-border-1bit">
+          <div class="service-card__tag u-mono u-text-xs u-text-faint">{svc.data.figureTag}</div>
+          <h3 class="service-card__title">{svc.data.title}</h3>
+          <p class="service-card__tagline">{svc.data.tagline}</p>
+          <ul class="service-card__deliverables" aria-label="Deliverables">
+            {svc.data.deliverables.slice(0, 4).map(d => (
+              <li class="u-mono u-text-xs u-text-faint">{d}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── PUBLICATIONS ────────────────────────────────────────────── -->
+  <section class="pubs-section u-container" aria-labelledby="pubs-heading" id="publications">
+    <header class="section-header">
+      <span class="section-label">Peer-Reviewed Research</span>
+      <h2 id="pubs-heading" class="section-title">Publications</h2>
+    </header>
+
+    <DesktopWindow
+      title="bibliography.bib"
+      figureTag="Bib. 01"
+      coordX={0.90}
+      coordY={0.80}
+    >
+      <ol class="pub-list" reversed>
+        {publications.map((pub) => (
+          <li class="pub-item u-border-1bit-bottom">
+            <span class="pub-item__year u-mono u-text-xs u-text-faint">{pub.data.year}</span>
+            <div class="pub-item__body">
+              <h3 class="pub-item__title">
+                {pub.data.url ? (
+                  <a href={pub.data.url} target="_blank" rel="noopener noreferrer">
+                    {pub.data.title}
+                  </a>
+                ) : pub.data.title}
+              </h3>
+              <p class="pub-item__meta u-mono u-text-xs u-text-faint">
+                {pub.data.authors.join(', ')} ·{' '}
+                <em>{pub.data.venue}</em>
+                {pub.data.volume && `, Vol. ${pub.data.volume}`}
+                {pub.data.articleNumber && `, No. ${pub.data.articleNumber}`}
+                {pub.data.month && ` · ${pub.data.month} ${pub.data.year}`}
+              </p>
+              {pub.data.doi && (
+                <a
+                  href={`https://doi.org/${pub.data.doi}`}
+                  class="pub-item__doi u-mono u-text-xs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`DOI for ${pub.data.title}`}
+                >
+                  DOI: {pub.data.doi}
+                </a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </DesktopWindow>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ── Layout variables ─────────────────────────── */
+  :root {
+    --section-gap: clamp(4rem, 10vw, 8rem);
+  }
+
+  /* ── Hero ─────────────────────────────────────── */
+  .hero {
+    padding-top: calc(var(--systembar-height) + var(--space-16));
+    padding-bottom: var(--section-gap);
+  }
+
+  .hero__meta { margin-bottom: var(--space-6); }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .hero__grid {
+      grid-template-columns: 7fr 5fr;
+      gap: var(--space-16);
+    }
+  }
+
+  .hero__eyebrow {
+    display: block;
+    margin-bottom: var(--space-4);
+    color: var(--color-accent);
+  }
+
+  .hero__headline {
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero__sub {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: 54ch;
+    margin-bottom: var(--space-10);
+  }
+
+  .hero__cta-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  /* ── Buttons ──────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-6);
+    background-color: var(--color-accent);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    text-decoration: none;
+    border: var(--border-1bit-accent);
+    transition: background-color var(--duration-fast) var(--ease-out-quart),
+                color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .btn-primary:hover {
+    background-color: transparent;
+    color: var(--color-accent);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-6);
+    background-color: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+    border: var(--border-1bit);
+    transition: color var(--duration-fast) var(--ease-out-quart),
+                border-color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .btn-ghost:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+
+  .btn-ghost:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* ── Status list ──────────────────────────────── */
+  .status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .status-list__row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-bottom: var(--border-1bit-subtle);
+  }
+
+  .status-list__row:last-child { border-bottom: none; }
+
+  /* ── Section header ───────────────────────────── */
+  .section-header {
+    margin-bottom: var(--space-10);
+  }
+
+  .section-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  /* ── Work section ─────────────────────────────── */
+  .work-section {
+    padding-block: var(--section-gap);
+    border-top: var(--border-1bit);
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Case card ────────────────────────────────── */
+  .case-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .case-card__cover {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: var(--border-1bit);
+  }
+
+  .case-card__cover-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-surface-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .case-card__content {
+    padding: var(--space-6);
+  }
+
+  .case-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    border: var(--border-1bit-subtle);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .tag--category { color: var(--color-text-muted); border-color: var(--color-border); }
+  .tag--protected { color: var(--color-accent); border-color: var(--color-accent); }
+
+  .case-card__title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    line-height: var(--leading-snug);
+  }
+
+  .case-card__tagline {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-4);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .case-card__metrics {
+    display: flex;
+    gap: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: var(--border-1bit-subtle);
+  }
+
+  .metric__value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-black);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .metric__label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /* ── Services ─────────────────────────────────── */
+  .services-section {
+    padding-block: var(--section-gap);
+    border-top: var(--border-1bit);
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .services-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .service-card {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .service-card__tag {
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+  }
+
+  .service-card__title {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    line-height: var(--leading-snug);
+  }
+
+  .service-card__tagline {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .service-card__deliverables {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    border-top: var(--border-1bit-subtle);
+  }
+
+  .service-card__deliverables li::before {
+    content: '→ ';
+    color: var(--color-accent);
+  }
+
+  /* ── Publications ─────────────────────────────── */
+  .pubs-section {
+    padding-block: var(--section-gap);
+    border-top: var(--border-1bit);
+  }
+
+  .pub-list {
+    list-style: none;
+  }
+
+  .pub-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: var(--space-6);
+    padding: var(--space-6) 0;
+    align-items: start;
+  }
+
+  .pub-item:last-child { border-bottom: none; }
+
+  .pub-item__year {
+    padding-top: 2px;
+  }
+
+  .pub-item__title {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-2);
+  }
+
+  .pub-item__title a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-border-strong);
+    color: inherit;
+    transition: color var(--duration-fast) var(--ease-out-quart),
+                text-decoration-color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .pub-item__title a:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+  }
+
+  .pub-item__meta {
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-1);
+  }
+
+  .pub-item__doi {
+    color: var(--color-text-faint);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-border);
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .pub-item__doi:hover { color: var(--color-accent); }
+</style>

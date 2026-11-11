@@ -1,0 +1,166 @@
+/* =================================================================
+   tokens.css — Design System Custom Properties
+   fotisp.gr v2 | Obsidian × Crimson palette
+   Swiss editorial × 1-bit retro OS metaphor
+   ================================================================= */
+
+/* ── Colour Palette ─────────────────────────────────────────────── */
+:root {
+  /* Ground */
+  --color-bg:              #080303;
+  --color-surface:         #120608;
+  --color-surface-raised:  #1a0a0d;
+
+  /* Borders */
+  --color-border:          #261014;
+  --color-border-subtle:   #180810;
+  --color-border-strong:   #3a1820;
+
+  /* Accent */
+  --color-accent:          #EE2626;
+  --color-accent-dim:      #9b1a1a;
+  --color-accent-glow:     rgba(238, 38, 38, 0.15);
+
+  /* Text */
+  --color-text:            #F4F4F5;
+  --color-text-muted:      #A1A1AA;
+  --color-text-faint:      #52525B;
+  --color-text-inverse:    #080303;
+
+  /* System UI chrome */
+  --color-chrome-bg:       #0d0405;
+  --color-chrome-border:   #2d1218;
+  --color-chrome-text:     #A1A1AA;
+
+  /* Semantic */
+  --color-success:         #22C55E;
+  --color-warning:         #F59E0B;
+  --color-error:           var(--color-accent);
+}
+
+/* ── Typography Scale ───────────────────────────────────────────── */
+:root {
+  /* Font families */
+  --font-display:  'TT Supermolot Neue', 'Inter', system-ui, sans-serif;
+  --font-body:     'Manrope', 'Inter', system-ui, sans-serif;
+  --font-mono:     'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Fluid type scale — clamp(min, preferred, max)
+     Base: 16px, Scale: 1.333 (perfect fourth) */
+  --text-xs:   clamp(0.64rem,  0.6rem + 0.2vw,   0.75rem);   /* 10–12px  */
+  --text-sm:   clamp(0.75rem,  0.72rem + 0.18vw,  0.875rem);  /* 12–14px  */
+  --text-base: clamp(1rem,     0.95rem + 0.25vw,  1.125rem);  /* 16–18px  */
+  --text-lg:   clamp(1.125rem, 1.05rem + 0.4vw,   1.333rem);  /* 18–21px  */
+  --text-xl:   clamp(1.333rem, 1.2rem + 0.65vw,   1.777rem);  /* 21–28px  */
+  --text-2xl:  clamp(1.777rem, 1.5rem + 1.3vw,    2.369rem);  /* 28–38px  */
+  --text-3xl:  clamp(2.369rem, 1.9rem + 2.3vw,    3.157rem);  /* 38–50px  */
+  --text-4xl:  clamp(3.157rem, 2.3rem + 4.3vw,    5.61rem);   /* 50–90px  */
+  --text-5xl:  clamp(4.209rem, 2.8rem + 7vw,      9rem);      /* 67–144px */
+
+  /* Letter-spacing by role */
+  --tracking-tight:  -0.04em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.08em;
+  --tracking-widest: 0.2em;
+
+  /* Line-height by role */
+  --leading-none:   1;
+  --leading-tight:  1.1;
+  --leading-snug:   1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Font weights */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+  --weight-black:   900;
+}
+
+/* ── Spacing Scale ──────────────────────────────────────────────── */
+:root {
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+  --space-32: 8rem;      /* 128px */
+  --space-40: 10rem;     /* 160px */
+  --space-48: 12rem;     /* 192px */
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+:root {
+  --container-xs:  480px;
+  --container-sm:  640px;
+  --container-md:  768px;
+  --container-lg:  1024px;
+  --container-xl:  1280px;
+  --container-2xl: 1440px;
+  --container-max: 1680px;
+
+  --gutter:    clamp(1rem, 4vw, 2.5rem);
+  --grid-cols: 12;
+  --grid-gap:  clamp(0.5rem, 1.5vw, 1.5rem);
+}
+
+/* ── 1-bit Border System ────────────────────────────────────────── */
+:root {
+  --border-width-1bit: 1px;
+  --border-width-2bit: 2px;
+  --border-style-1bit: solid;
+
+  /* Composite shorthands */
+  --border-1bit:         1px solid var(--color-border);
+  --border-1bit-subtle:  1px solid var(--color-border-subtle);
+  --border-1bit-strong:  1px solid var(--color-border-strong);
+  --border-1bit-accent:  1px solid var(--color-accent);
+
+  /* 1-bit rounded corners (deliberately minimal) */
+  --radius-none:  0;
+  --radius-sm:    2px;
+  --radius-base:  3px;
+  --radius-full:  9999px;
+}
+
+/* ── Motion ─────────────────────────────────────────────────────── */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-quart:  cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-inout:     cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-snap:      cubic-bezier(0.16, 1, 0.3, 1);   /* signature: sharp in, elastic out */
+  --ease-linear:    linear;
+
+  --duration-instant: 80ms;
+  --duration-fast:    150ms;
+  --duration-base:    280ms;
+  --duration-slow:    480ms;
+  --duration-enter:   680ms;
+  --duration-page:    900ms;
+}
+
+/* ── System Bar dimensions ──────────────────────────────────────── */
+:root {
+  --systembar-height: 28px;
+  --window-titlebar:  32px;
+  --window-min-width: 320px;
+}
+
+/* ── Z-index scale ──────────────────────────────────────────────── */
+:root {
+  --z-below:    -1;
+  --z-base:      0;
+  --z-raised:    10;
+  --z-overlay:   20;
+  --z-modal:     30;
+  --z-systembar: 100;
+  --z-cursor:    200;
+}

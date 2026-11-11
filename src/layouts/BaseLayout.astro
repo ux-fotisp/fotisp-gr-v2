@@ -1,0 +1,124 @@
+---
+// BaseLayout.astro — master shell: SystemBar + ClientRouter + JSON-LD
+import { ClientRouter } from 'astro:transitions';
+import SystemBar from '../components/SystemBar';
+import JsonLd from '../components/JsonLd.astro';
+import '../styles/global.css';
+import '../styles/systembar.css';
+import '../styles/era-toggle.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  ogImage?: string;
+}
+
+const {
+  title = 'Fotis Pastrakis — Senior UX Researcher & Product Designer',
+  description = 'Fotis Pastrakis: senior UX researcher, design systems lead, and health-tech product designer. Senior Associate at Pfizer, MSc University of the Aegean.',
+  schema,
+  ogImage = '/og-default.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://fotisp.gr');
+
+// Default Person + WebSite schema
+const defaultSchema: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Fotios Pastrakis',
+    alternateName: 'Fotis Pastrakis',
+    url: 'https://fotisp.gr',
+    sameAs: [
+      'https://linkedin.com/in/fotisp',
+      'https://github.com/fotisp',
+    ],
+    jobTitle: 'Senior Associate, CX Designer',
+    worksFor: [
+      {
+        '@type': 'Organization',
+        name: 'Pfizer',
+        url: 'https://pfizer.com',
+      },
+    ],
+    alumniOf: [
+      {
+        '@type': 'CollegeOrUniversity',
+        name: 'University of the Aegean',
+        url: 'https://www.aegean.gr',
+      },
+    ],
+    knowsAbout: [
+      'UX Research', 'Product Design', 'Design Systems',
+      'Health Technology', 'Clinical UX', 'Information Architecture',
+      'Cultural Heritage UX', 'Accessibility',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Fotis Pastrakis Portfolio',
+    url: 'https://fotisp.gr',
+    description,
+    author: { '@type': 'Person', name: 'Fotios Pastrakis' },
+  },
+];
+---
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:image" content={new URL(ogImage, canonicalURL).href} />
+    <meta property="og:locale" content="en_GB" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, canonicalURL).href} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#080303" />
+
+    <!-- Astro view transitions -->
+    <ClientRouter />
+
+    <!-- Per-page head slot -->
+    <slot name="head" />
+
+    <!-- JSON-LD: default + per-page -->
+    <JsonLd schema={schema ?? defaultSchema} />
+  </head>
+
+  <body>
+    <!-- Skip navigation — first focusable element -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- SystemBar: React 19 island, loads immediately -->
+    <SystemBar client:load />
+
+    <!-- Page content -->
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+
+    <!-- Page-level script slot -->
+    <slot name="scripts" />
+  </body>
+</html>

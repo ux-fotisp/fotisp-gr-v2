@@ -1,0 +1,166 @@
+---
+// DesktopWindow.astro
+// 1-bit OS window wrapper with titlebar controls,
+// file badge, figure tag, and coordinate bar.
+
+interface Props {
+  title: string;
+  fileBadge?: string;         // e.g. "medipulse.mdx" or "acux_taxonomy.bib"
+  figureTag?: string;         // e.g. "Fig. 01"
+  coordX?: number;            // 0.00 – 1.00
+  coordY?: number;            // 0.00 – 1.00
+  class?: string;
+  noPadding?: boolean;        // skip body padding for full-bleed content
+  scrollable?: boolean;
+}
+
+const {
+  title,
+  fileBadge,
+  figureTag = 'Fig. 00',
+  coordX = 0.00,
+  coordY = 0.00,
+  class: className,
+  noPadding = false,
+  scrollable = false,
+} = Astro.props;
+
+// Format coordinate display
+const fmtCoord = (n: number) => n.toFixed(2);
+---
+
+<div class:list={['desktop-window', 'u-window', className]}>
+  <!-- Titlebar -->
+  <div class="desktop-window__titlebar u-window-titlebar" role="heading" aria-level={3}>
+    <!-- Window controls (decorative — 1-bit squares) -->
+    <div class="desktop-window__controls" aria-hidden="true">
+      <span class="desktop-window__btn desktop-window__btn--close" title="Close"></span>
+      <span class="desktop-window__btn desktop-window__btn--min" title="Minimise"></span>
+    </div>
+
+    <!-- Window title -->
+    <span class="desktop-window__title u-mono u-text-xs u-truncate">
+      {title}
+    </span>
+
+    <!-- File badge -->
+    {fileBadge && (
+      <span class="desktop-window__badge u-mono u-text-xs" aria-label={`File: ${fileBadge}`}>
+        {fileBadge}
+      </span>
+    )}
+  </div>
+
+  <!-- Window body -->
+  <div
+    class:list={[
+      'desktop-window__body',
+      !noPadding && 'desktop-window__body--padded',
+      scrollable && 'desktop-window__body--scroll',
+    ]}
+  >
+    <slot />
+  </div>
+
+  <!-- Coordinate bar -->
+  <div class="desktop-window__coords" aria-label={`${figureTag}, coordinates x:${fmtCoord(coordX)} y:${fmtCoord(coordY)}`}>
+    <span class="u-mono u-text-xs u-text-faint">{figureTag}</span>
+    <span class="u-mono u-text-xs u-text-faint desktop-window__coords-sep" aria-hidden="true">·</span>
+    <span class="u-mono u-text-xs u-text-faint">
+      x: {fmtCoord(coordX)} y: {fmtCoord(coordY)}
+    </span>
+  </div>
+</div>
+
+<style>
+  .desktop-window {
+    display: flex;
+    flex-direction: column;
+    min-width: var(--window-min-width);
+    background-color: var(--color-surface);
+    border: var(--border-1bit);
+    position: relative;
+  }
+
+  /* Titlebar */
+  .desktop-window__titlebar {
+    gap: var(--space-2);
+    min-height: var(--window-titlebar);
+    flex-shrink: 0;
+  }
+
+  /* Window control squares */
+  .desktop-window__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+  }
+
+  .desktop-window__btn {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border: var(--border-1bit);
+    flex-shrink: 0;
+    cursor: default;
+  }
+
+  .desktop-window__btn--close:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .desktop-window__btn--min:hover {
+    background-color: var(--color-text-muted);
+    border-color: var(--color-text-muted);
+  }
+
+  /* Title */
+  .desktop-window__title {
+    flex: 1;
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /* File badge */
+  .desktop-window__badge {
+    flex-shrink: 0;
+    padding: 2px var(--space-2);
+    border: var(--border-1bit-subtle);
+    color: var(--color-text-faint);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+  }
+
+  /* Body */
+  .desktop-window__body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .desktop-window__body--padded {
+    padding: var(--space-6);
+  }
+
+  .desktop-window__body--scroll {
+    overflow-y: auto;
+    max-height: 60vh;
+  }
+
+  /* Coordinate bar */
+  .desktop-window__coords {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-top: var(--border-1bit-subtle);
+    background-color: var(--color-chrome-bg);
+  }
+
+  .desktop-window__coords-sep {
+    opacity: 0.4;
+  }
+</style>

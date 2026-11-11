@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- 1-bit style favicon: F lettermark in Crimson on Obsidian -->
+  <rect width="32" height="32" fill="#080303"/>
+  <rect x="8" y="8" width="16" height="2" fill="#EE2626"/>
+  <rect x="8" y="8" width="2" height="16" fill="#EE2626"/>
+  <rect x="8" y="15" width="10" height="2" fill="#EE2626"/>
+</svg>

@@ -1,0 +1,286 @@
+---
+// src/pages/work/index.astro
+// Work index — All case studies in a high-density OS directory view
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DesktopWindow from '../../components/DesktopWindow.astro';
+import { getCollection } from 'astro:content';
+
+const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const categoryLabel: Record<string, string> = {
+  'health-tech':        'Health Tech',
+  'civic-tech':         'Civic Tech',
+  'e-commerce':         'E-Commerce',
+  'product-design':     'Product Design',
+  'ux-research':        'UX Research',
+  'ai-ux':              'AI UX',
+  'design-system':      'Design Systems',
+  'cultural-heritage':  'Cultural Heritage',
+  'enterprise':         'Enterprise',
+  'food-tech':          'Food Tech',
+};
+---
+
+<BaseLayout
+  title="Work & Case Studies — Fotis Pastrakis"
+  description="Verified case studies in clinical UX, civic intelligence, calm health systems, and e-commerce architecture by Fotis Pastrakis."
+>
+  <div class="u-container work-index">
+    <!-- Header -->
+    <header class="work-index__header">
+      <div class="work-index__meta">
+        <span class="section-label" aria-hidden="true">fp://work/case-studies</span>
+        <span class="u-mono u-text-xs u-text-faint">{caseStudies.length} items loaded</span>
+      </div>
+      <h1 class="work-index__title">Case Studies & Systems</h1>
+      <p class="work-index__intro">
+        In-depth breakdowns of production systems, research findings, and interaction architectures designed for complex domains — from emergency ICU floors to municipal operations centres.
+      </p>
+    </header>
+
+    <!-- Case Studies List in Windows -->
+    <div class="work-index__grid">
+      {caseStudies.map((entry, idx) => {
+        const slug = entry.id.replace(/\.mdx?$/, '');
+        return (
+          <article class="work-index__item">
+            <DesktopWindow
+              title={entry.data.title}
+              fileBadge={`${slug}.mdx`}
+              figureTag={entry.data.figureTag ?? `Fig. 0${idx + 1}`}
+              coordX={0.12 * (idx + 1)}
+              coordY={0.24 * (idx + 1)}
+            >
+              <div class="case-card-inner">
+                <div class="case-card-inner__meta">
+                  <span class="tag tag--category">
+                    {categoryLabel[entry.data.category] ?? entry.data.category}
+                  </span>
+                  <span class="tag">{entry.data.year}</span>
+                  {entry.data.duration && <span class="tag">{entry.data.duration}</span>}
+                  {entry.data.protected && <span class="tag tag--protected">NDA</span>}
+                </div>
+
+                <h2 class="case-card-inner__heading">
+                  <a href={`/work/${slug}`} class="case-card-inner__title-link">
+                    {entry.data.title}
+                  </a>
+                </h2>
+
+                <p class="case-card-inner__tagline">
+                  {entry.data.tagline}
+                </p>
+
+                <!-- Problem & Outcome Snippets -->
+                <div class="case-card-inner__dual">
+                  <div class="dual-col">
+                    <span class="dual-col__label u-mono u-text-xs u-text-faint u-uppercase">The Problem</span>
+                    <p class="dual-col__text u-text-sm u-text-muted">{entry.data.problem.slice(0, 160)}...</p>
+                  </div>
+                  <div class="dual-col">
+                    <span class="dual-col__label u-mono u-text-xs u-text-faint u-uppercase">The Outcome</span>
+                    <p class="dual-col__text u-text-sm u-text-muted">{entry.data.outcome.slice(0, 160)}...</p>
+                  </div>
+                </div>
+
+                <!-- Metrics -->
+                {entry.data.impact && entry.data.impact.length > 0 && (
+                  <div class="case-card-inner__metrics">
+                    {entry.data.impact.slice(0, 3).map(imp => (
+                      <div class="metric-pill">
+                        <span class="metric-pill__val">{imp.value}</span>
+                        <span class="metric-pill__name u-mono u-text-xs">{imp.metric}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <!-- CTA -->
+                <div class="case-card-inner__actions">
+                  <a href={`/work/${slug}`} class="btn-read-case u-mono u-text-xs">
+                    Inspect Specification [Enter] →
+                  </a>
+                </div>
+              </div>
+            </DesktopWindow>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .work-index {
+    padding-top: calc(var(--systembar-height) + var(--space-12));
+    padding-bottom: var(--space-24);
+  }
+
+  .work-index__header {
+    margin-bottom: var(--space-12);
+  }
+
+  .work-index__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+
+  .work-index__title {
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+  }
+
+  .work-index__intro {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: 64ch;
+  }
+
+  .work-index__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .case-card-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .case-card-inner__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    border: var(--border-1bit-subtle);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .tag--category {
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+  }
+
+  .tag--protected {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .case-card-inner__heading {
+    margin: 0;
+  }
+
+  .case-card-inner__title-link {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    text-decoration: none;
+    line-height: var(--leading-snug);
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .case-card-inner__title-link:hover {
+    color: var(--color-accent);
+  }
+
+  .case-card-inner__tagline {
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+    line-height: var(--leading-normal);
+  }
+
+  .case-card-inner__dual {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background-color: var(--color-surface-raised);
+    border: var(--border-1bit-subtle);
+  }
+
+  @media (min-width: 768px) {
+    .case-card-inner__dual {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+    }
+  }
+
+  .dual-col__label {
+    display: block;
+    letter-spacing: var(--tracking-widest);
+    margin-bottom: var(--space-1);
+  }
+
+  .dual-col__text {
+    line-height: var(--leading-normal);
+  }
+
+  .case-card-inner__metrics {
+    display: flex;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+    padding-top: var(--space-2);
+  }
+
+  .metric-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .metric-pill__val {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-black);
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .metric-pill__name {
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .case-card-inner__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--space-2);
+  }
+
+  .btn-read-case {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    background-color: transparent;
+    color: var(--color-text-muted);
+    border: var(--border-1bit);
+    text-decoration: none;
+    letter-spacing: var(--tracking-wide);
+    transition: all var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .btn-read-case:hover {
+    background-color: var(--color-accent);
+    color: var(--color-text);
+    border-color: var(--color-accent);
+  }
+</style>

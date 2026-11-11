@@ -1,0 +1,115 @@
+/* fonts.css — font-face declarations
+   Self-host in /public/fonts/ once assets are added.
+   Fallback stack ensures zero layout shift during development.
+*/
+
+/*
+  TT Supermolot Neue — Display
+  Source: type.today / licensed
+  Weights: 400, 700, 900
+  → Uncomment once font files are placed in /public/fonts/tt-supermolot-neue/
+*/
+
+/*
+@font-face {
+  font-family: 'TT Supermolot Neue';
+  src: url('/fonts/tt-supermolot-neue/TTSupermolotNeue-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TT Supermolot Neue';
+  src: url('/fonts/tt-supermolot-neue/TTSupermolotNeue-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TT Supermolot Neue';
+  src: url('/fonts/tt-supermolot-neue/TTSupermolotNeue-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/*
+  Manrope — Body
+  Source: Google Fonts (SIL OFL)
+  → Run: node scripts/font.mjs google "Manrope" 400,500,600,700
+  → Or link: @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+*/
+
+/*
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/Manrope-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/Manrope-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/Manrope-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope/Manrope-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/*
+  JetBrains Mono — Mono / Chrome UI
+  Source: JetBrains (SIL OFL)
+  Weights: 400, 500, 700
+*/
+
+/*
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/*
+  NOTE: Until font files are added, the system font fallback stacks
+  defined in tokens.css will be used. Layout will not shift.
+*/
