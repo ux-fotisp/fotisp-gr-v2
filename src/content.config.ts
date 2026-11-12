@@ -17,6 +17,18 @@ const mediaSchema = z.object({
   caption: z.string().optional(),
 });
 
+// ── Testimonials collection ([O] TESTIMONIAL) ───────────────────
+
+const testimonials = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/testimonials' }),
+  schema: z.object({
+    author: z.string(),
+    role: z.string(),
+    company: z.string(),
+    quote: z.string(),
+  }),
+});
+
 // ── Publications collection ([O] PUBLICATION) ───────────────────
 
 const publications = defineCollection({
@@ -68,6 +80,7 @@ const services = defineCollection({
     featuredOrder: z.number(),
     isDraft: z.boolean().default(false),
     publications: z.array(reference('publications')).max(5).default([]),
+    testimonials: z.array(reference('testimonials')).max(3).default([]),
 
     // Rich fields for UI rendering & backward compatibility
     title: z.string().optional(),
@@ -101,6 +114,7 @@ const caseStudies = defineCollection({
     isDraft: z.boolean().default(false),
     services: z.array(reference('services')).min(1).max(5),
     publications: z.array(reference('publications')).max(3).default([]),
+    testimonials: z.array(reference('testimonials')).max(3).default([]),
 
     // Rich fields for deep reading case study templates
     tagline: z.string().max(250).optional(),
@@ -138,4 +152,5 @@ export const collections = {
   caseStudies,
   publications,
   services,
+  testimonials,
 };
