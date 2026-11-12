@@ -38,12 +38,27 @@
 
 /* ── 1-Bit Dither Filter & Pixelated Media ────────────────────────── */
 [data-era="1984"] img,
-[data-era="1984"] svg,
+[data-era="1984"] svg:not(.u-sr-only),
 [data-era="1984"] video,
+[data-era="1984"] canvas,
+[data-era="1984"] .window-content,
+[data-era="1984"] .cinematic-3d-placeholder,
+[data-era="1984"] .cinematic-3d-svg,
+[data-era="1984"] .lottie-container,
 [data-era="1984"] .case-card__cover,
-[data-era="1984"] .case-card__cover-placeholder {
+[data-era="1984"] .case-card__cover-placeholder,
+[data-era="1984"] .edge-cosmic-motif {
   image-rendering: pixelated;
   filter: url(#dither-1bit);
+}
+
+[data-era="1984"] .window-content img,
+[data-era="1984"] .window-content svg,
+[data-era="1984"] .window-content canvas,
+[data-era="1984"] .window-content .cinematic-3d-placeholder,
+[data-era="1984"] .window-content .lottie-container {
+  image-rendering: pixelated;
+  filter: url(#dither-1bit) !important;
 }
 
 /* ── Force mono font everywhere ──────────────────────────────────── */

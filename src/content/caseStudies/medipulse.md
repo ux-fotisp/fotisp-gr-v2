@@ -25,6 +25,7 @@ cover:
   src: "/images/case-studies/medipulse-cover.jpg"
   alt: "MediPulse science hub — high-density clinical reading interface with filter panel and 56px touch-bar on mobile"
 figureTag: "Fig. 01"
+diagramType: "3d"
 problem: "Clinical staff on hospital floors needed rapid access to medical literature during rounds — on mobile devices, in noisy environments, with gloved hands. The existing system had an 8px tap-target navbar, no auto-save on annotation, and filter panels that collapsed context on every search. Data showed 73% of mobile sessions under 90 seconds, abandoned without a successful read."
 process:
   - phase: "Discovery"

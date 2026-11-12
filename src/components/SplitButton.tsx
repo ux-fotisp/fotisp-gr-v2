@@ -1,0 +1,301 @@
+/**
+ * SplitButton.tsx — EDGE Design System Split Action Button
+ * React 19 island with Framer Motion dropdown reveal.
+ *
+ * Requirements:
+ * - Primary action button and secondary attached dropdown toggle ([ v ]).
+ * - Styled with --border-1bit (crimson #EE2626).
+ * - Solid #EE2626 hover state that inverts text color to #080303 (Obsidian).
+ * - Framer Motion dropdown animation for secondary options.
+ * - Keyboard navigation (Escape to close, Tab trap / arrow focus).
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export interface SplitButtonItem {
+  label: string;
+  href?: string;
+  action?: () => void;
+  shortcut?: string;
+  icon?: string;
+}
+
+interface SplitButtonProps {
+  primaryLabel: string;
+  primaryHref?: string;
+  onPrimaryClick?: () => void;
+  items: SplitButtonItem[];
+  className?: string;
+  align?: 'left' | 'right';
+  id?: string;
+}
+
+export default function SplitButton({
+  primaryLabel,
+  primaryHref,
+  onPrimaryClick,
+  items,
+  className = '',
+  align = 'left',
+  id,
+}: SplitButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const handlePrimaryClick = (e: React.MouseEvent) => {
+    if (onPrimaryClick) {
+      onPrimaryClick();
+    } else if (primaryHref) {
+      if (primaryHref.startsWith('#')) {
+        const el = document.querySelector(primaryHref);
+        el?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.href = primaryHref;
+      }
+    }
+  };
+
+  const handleItemClick = (item: SplitButtonItem) => {
+    setIsOpen(false);
+    if (item.action) {
+      item.action();
+    } else if (item.href) {
+      if (item.href.startsWith('mailto:')) {
+        window.location.href = item.href;
+      } else if (item.href.startsWith('#')) {
+        const el = document.querySelector(item.href);
+        el?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.href = item.href;
+      }
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      id={id}
+      className={`edge-split-btn-group ${className}`}
+      style={{
+        display: 'inline-flex',
+        position: 'relative',
+        verticalAlign: 'middle',
+      }}
+    >
+      {/* Primary Action Button */}
+      {primaryHref ? (
+        <a
+          href={primaryHref}
+          onClick={handlePrimaryClick}
+          className="edge-split-btn edge-split-btn--primary u-mono u-text-xs"
+        >
+          {primaryLabel}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={handlePrimaryClick}
+          className="edge-split-btn edge-split-btn--primary u-mono u-text-xs"
+        >
+          {primaryLabel}
+        </button>
+      )}
+
+      {/* Secondary Toggle ([ v ]) */}
+      <button
+        ref={toggleRef}
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label="Additional actions"
+        className={`edge-split-btn edge-split-btn--toggle u-mono u-text-xs ${
+          isOpen ? 'edge-split-btn--open' : ''
+        }`}
+      >
+        <span aria-hidden="true" style={{ fontSize: '10px' }}>
+          {isOpen ? '▲' : '▼'}
+        </span>
+      </button>
+
+      {/* Animated Dropdown Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className={`edge-split-dropdown u-window ${
+              align === 'right' ? 'edge-split-dropdown--right' : ''
+            }`}
+            initial={{ opacity: 0, y: -4, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            role="menu"
+          >
+            {/* 1-Bit OS Mini Titlebar */}
+            <div className="edge-split-dropdown__titlebar u-window-titlebar">
+              <span className="u-mono u-text-xs u-text-faint">
+                actions_menu.exe
+              </span>
+              <span className="u-mono u-text-xs u-text-accent">
+                [ESC]
+              </span>
+            </div>
+
+            <ul className="edge-split-dropdown__list">
+              {items.map((item, idx) => (
+                <li key={idx} role="none">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => handleItemClick(item)}
+                    className="edge-split-dropdown__item u-mono u-text-xs"
+                  >
+                    <span className="edge-split-dropdown__item-label">
+                      {item.icon && <span style={{ marginRight: '6px' }}>{item.icon}</span>}
+                      {item.label}
+                    </span>
+                    {item.shortcut && (
+                      <kbd className="edge-split-dropdown__kbd u-mono u-text-xs">
+                        {item.shortcut}
+                      </kbd>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        .edge-split-btn-group {
+          font-family: var(--font-mono);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .edge-split-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 38px;
+          padding: 0 var(--space-4);
+          background-color: var(--color-surface);
+          color: var(--color-text-main);
+          border: 1px solid var(--color-accent);
+          text-decoration: none;
+          font-weight: var(--weight-bold);
+          letter-spacing: var(--tracking-wide);
+          cursor: pointer;
+          transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+          user-select: none;
+        }
+
+        .edge-split-btn--primary {
+          border-right: none;
+        }
+
+        .edge-split-btn--toggle {
+          padding: 0 var(--space-3);
+          border-left: 1px solid var(--color-accent);
+        }
+
+        /* Solid #EE2626 hover state that inverts text color to #080303 */
+        .edge-split-btn:hover,
+        .edge-split-btn--open {
+          background-color: #EE2626 !important;
+          color: #080303 !important;
+        }
+
+        .edge-split-dropdown {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          min-width: 260px;
+          background-color: var(--color-surface);
+          border: 1px solid var(--color-accent);
+          z-index: 1000;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+        }
+
+        .edge-split-dropdown--right {
+          left: auto;
+          right: 0;
+        }
+
+        .edge-split-dropdown__titlebar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 4px var(--space-3);
+          background-color: var(--color-chrome-bg);
+          border-bottom: 1px solid var(--color-accent);
+          height: 24px;
+        }
+
+        .edge-split-dropdown__list {
+          list-style: none;
+          margin: 0;
+          padding: 4px 0;
+        }
+
+        .edge-split-dropdown__item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          padding: var(--space-2) var(--space-3);
+          background: transparent;
+          border: none;
+          color: var(--color-text-main);
+          cursor: pointer;
+          text-align: left;
+          transition: background-color 0.12s ease, color 0.12s ease;
+        }
+
+        .edge-split-dropdown__item:hover,
+        .edge-split-dropdown__item:focus-visible {
+          background-color: #EE2626;
+          color: #080303;
+          outline: none;
+        }
+
+        .edge-split-dropdown__kbd {
+          padding: 1px 4px;
+          border: 1px solid currentColor;
+          font-size: 10px;
+          opacity: 0.8;
+        }
+      `}</style>
+    </div>
+  );
+}

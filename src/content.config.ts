@@ -95,6 +95,8 @@ const caseStudies = defineCollection({
     deliverables: z.array(z.string()).default([]),
     status: z.enum(['completed', 'in-progress', 'archived']).default('completed'),
     coverImage: z.string().optional(),
+    lottieUrl: z.string().optional(),
+    diagramType: z.enum(['3d', 'schematic']).default('schematic'),
     featuredOrder: z.number().optional(),
     isDraft: z.boolean().default(false),
     services: z.array(reference('services')).min(1).max(5),

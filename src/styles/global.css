@@ -33,6 +33,9 @@ html {
 
 body {
   background-color: var(--color-bg);
+  background-image: radial-gradient(rgba(238, 38, 38, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: var(--text-base);

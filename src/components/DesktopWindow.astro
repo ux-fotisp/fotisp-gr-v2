@@ -2,6 +2,8 @@
 // DesktopWindow.astro
 // 1-bit OS window wrapper with titlebar controls,
 // file badge, figure tag, live coordinates, and DraggableFrame React 19 island.
+// Defaults to edge-to-edge content bleed (p-0) inside 1px crimson border;
+// optional `padded` prop restores internal padding for text-heavy windows.
 import DraggableFrame from './DraggableFrame';
 
 interface Props {
@@ -11,7 +13,8 @@ interface Props {
   coordX?: number;            // 0.00 – 1.00
   coordY?: number;            // 0.00 – 1.00
   class?: string;
-  noPadding?: boolean;        // skip body padding for full-bleed content
+  padded?: boolean;           // restore internal padding for text-heavy windows
+  noPadding?: boolean;        // backwards compatibility (deprecated in favor of default p-0)
   scrollable?: boolean;
 }
 
@@ -22,12 +25,16 @@ const {
   coordX = 0.00,
   coordY = 0.00,
   class: className,
-  noPadding = false,
+  padded = false,
+  noPadding,
   scrollable = false,
 } = Astro.props;
 
 // Format coordinate display
 const fmtCoord = (n: number) => n.toFixed(2);
+
+// Default is p-0 for edge-to-edge bleed; padded=true restores internal padding
+const hasPadding = padded || (noPadding === false);
 ---
 
 <DraggableFrame client:idle className={className}>
@@ -53,11 +60,12 @@ const fmtCoord = (n: number) => n.toFixed(2);
       )}
     </div>
 
-    <!-- Window body -->
+    <!-- Window body / content: default p-0 for edge-to-edge bleed -->
     <div
       class:list={[
         'desktop-window__body',
-        !noPadding && 'desktop-window__body--padded',
+        'window-content',
+        hasPadding ? 'desktop-window__body--padded window-content--padded' : 'p-0',
         scrollable && 'desktop-window__body--scroll',
       ]}
     >
@@ -133,6 +141,7 @@ const fmtCoord = (n: number) => n.toFixed(2);
     border: var(--border-1bit);
     position: relative;
     width: 100%;
+    overflow: hidden;
   }
 
   /* Titlebar */
@@ -140,6 +149,8 @@ const fmtCoord = (n: number) => n.toFixed(2);
     gap: var(--space-2);
     min-height: var(--window-titlebar);
     flex-shrink: 0;
+    border-bottom: var(--border-1bit);
+    background-color: var(--color-chrome-bg);
   }
 
   /* Window control squares */
@@ -188,13 +199,17 @@ const fmtCoord = (n: number) => n.toFixed(2);
     white-space: nowrap;
   }
 
-  /* Body */
-  .desktop-window__body {
+  /* Body / window-content: zero padding by default for edge-to-edge imagery bleed */
+  .desktop-window__body,
+  .window-content {
     flex: 1;
     min-height: 0;
+    padding: 0;
+    position: relative;
   }
 
-  .desktop-window__body--padded {
+  .desktop-window__body--padded,
+  .window-content--padded {
     padding: var(--space-6);
   }
 
@@ -209,7 +224,7 @@ const fmtCoord = (n: number) => n.toFixed(2);
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
-    border-top: var(--border-1bit-subtle);
+    border-top: var(--border-1bit);
     background-color: var(--color-chrome-bg);
   }
 

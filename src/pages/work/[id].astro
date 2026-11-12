@@ -197,9 +197,75 @@ const schema = [
         </section>
       )}
 
-      <!-- Visual Architectural Schematic -->
+      <!-- Visual Architectural Schematic or Cinematic 3D Infographic -->
       <section class="case-schematic-section" aria-label="System Architecture Schematic">
-        <CaseStudyDiagram id={slug} figureTag={d.figureTag ?? 'Fig. 01'} />
+        {d.diagramType === '3d' ? (
+          <DesktopWindow
+            title={`cinematic_3d_infographic_${slug}.mesh`}
+            fileBadge="GLTF / 3D"
+            figureTag={d.figureTag ?? '3D. 01'}
+          >
+            <div class="cinematic-3d-placeholder window-content">
+              <div class="cinematic-3d-placeholder__canvas">
+                <svg viewBox="0 0 800 400" class="cinematic-3d-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Interactive Polygonal Architecture">
+                  <defs>
+                    <radialGradient id={`mesh-glow-${slug}`} cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#EE2626" stop-opacity="0.32" />
+                      <stop offset="60%" stop-color="#EE2626" stop-opacity="0.08" />
+                      <stop offset="100%" stop-color="#080303" stop-opacity="0" />
+                    </radialGradient>
+                    <pattern id={`grid-dots-3d-${slug}`} width="20" height="20" patternUnits="userSpaceOnUse">
+                      <circle cx="2" cy="2" r="1" fill="#EE2626" fill-opacity="0.2" />
+                    </pattern>
+                  </defs>
+                  <rect width="800" height="400" fill="#080303" />
+                  <rect width="800" height="400" fill={`url(#grid-dots-3d-${slug})`} />
+                  <circle cx="400" cy="200" r="180" fill={`url(#mesh-glow-${slug})`} />
+
+                  <!-- Isometric 3D Wireframe Polyhedron -->
+                  <g class="mesh-3d-group" stroke="var(--color-accent)" stroke-width="1.2" fill="none">
+                    <!-- Top Face -->
+                    <polygon points="400,70 550,145 400,220 250,145" fill="var(--color-accent)" fill-opacity="0.14" stroke="var(--color-accent)" stroke-width="1.5" />
+                    <!-- Left Face -->
+                    <polygon points="250,145 400,220 400,340 250,265" fill="var(--color-accent)" fill-opacity="0.07" stroke="var(--color-accent)" stroke-width="1.5" />
+                    <!-- Right Face -->
+                    <polygon points="400,220 550,145 550,265 400,340" fill="var(--color-accent)" fill-opacity="0.2" stroke="var(--color-accent)" stroke-width="1.5" />
+
+                    <!-- Internal volumetric grid lines -->
+                    <line x1="325" y1="107" x2="325" y2="302" stroke="var(--color-accent)" stroke-dasharray="3 3" opacity="0.6" />
+                    <line x1="475" y1="107" x2="475" y2="302" stroke="var(--color-accent)" stroke-dasharray="3 3" opacity="0.6" />
+                    <line x1="250" y1="205" x2="400" y2="280" stroke="var(--color-accent)" opacity="0.5" />
+                    <line x1="400" y1="280" x2="550" y2="205" stroke="var(--color-accent)" opacity="0.5" />
+
+                    <!-- Rotating Orbit Ring -->
+                    <ellipse cx="400" cy="220" rx="220" ry="75" stroke="var(--color-accent)" stroke-dasharray="4 6" opacity="0.45" />
+
+                    <!-- Telemetry Vertices -->
+                    <circle cx="400" cy="70" r="4" fill="var(--color-accent)" />
+                    <circle cx="550" cy="145" r="4" fill="var(--color-accent)" />
+                    <circle cx="250" cy="145" r="4" fill="var(--color-accent)" />
+                    <circle cx="400" cy="220" r="5" fill="var(--color-text)" stroke="var(--color-accent)" stroke-width="2" />
+                    <circle cx="400" cy="340" r="4" fill="var(--color-accent)" />
+                    <circle cx="550" cy="265" r="4" fill="var(--color-accent)" />
+                    <circle cx="250" cy="265" r="4" fill="var(--color-accent)" />
+                  </g>
+
+                  <!-- 3D HUD Telemetry Overlay -->
+                  <text x="30" y="45" font-family="monospace" font-size="10" fill="var(--color-accent)" opacity="0.9">[3D_VOLUME_RENDERER: INITIALISED]</text>
+                  <text x="30" y="65" font-family="monospace" font-size="9" fill="var(--color-text-faint)">PROJECTION: ISOMETRIC AXONOMETRIC · ROTATION: ACTIVE</text>
+                  <text x="30" y="80" font-family="monospace" font-size="9" fill="var(--color-text-faint)">POLYGONS: 1,024 TRIS · TEXTURE_PASS: 1-BIT DITHER READY</text>
+                  <text x="630" y="375" font-family="monospace" font-size="9" fill="var(--color-accent)">[FPS: 60.0_STABLE]</text>
+                </svg>
+              </div>
+              <figcaption class="cinematic-3d-caption u-mono u-text-xs u-border-1bit-top">
+                <span class="u-text-accent">CINEMATIC 3D INFOGRAPHIC MESH</span>
+                <span class="u-text-faint">EDGE DESIGN SYSTEM · ISOMETRIC SPATIAL VOLUME</span>
+              </figcaption>
+            </div>
+          </DesktopWindow>
+        ) : (
+          <CaseStudyDiagram id={slug} figureTag={d.figureTag ?? 'Fig. 01'} />
+        )}
       </section>
 
       <!-- MDX body content -->
@@ -623,4 +689,33 @@ const schema = [
                 border-color var(--duration-fast) var(--ease-out-quart);
   }
   .btn-ghost:hover { color: var(--color-text); border-color: var(--color-border-strong); }
+
+  /* ── Cinematic 3D Infographic Mesh ────────────────────── */
+  .cinematic-3d-placeholder {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--color-bg);
+  }
+
+  .cinematic-3d-placeholder__canvas {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cinematic-3d-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .cinematic-3d-caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--color-chrome-bg);
+    border-top: var(--border-1bit);
+  }
 </style>
