@@ -11,6 +11,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import MagneticTarget from './MagneticTarget';
 
 export interface CaseStudyData {
   id: string; // slug
@@ -226,9 +227,11 @@ function CaseStudyCard({
 
         {/* CTA Read Case Study */}
         <div className="cs-card__footer-cta">
-          <a href={`/work/${item.id}`} className="btn-read-case u-mono u-text-xs">
-            [ READ CASE SPECIFICATION → ]
-          </a>
+          <MagneticTarget strength={0.25} maxOffset={6}>
+            <a href={`/work/${item.id}`} className="btn-read-case u-mono u-text-xs">
+              [ READ CASE SPECIFICATION → ]
+            </a>
+          </MagneticTarget>
         </div>
       </div>
 
@@ -376,16 +379,35 @@ export default function CaseStudyGrid({ items, mode = 'grid' }: Props) {
           <motion.div
             key="card-grid"
             layout={!shouldReduceMotion}
+            variants={{
+              hidden: { opacity: shouldReduceMotion ? 1 : 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: shouldReduceMotion ? 0 : 0.1,
+                },
+              },
+            }}
+            initial={shouldReduceMotion ? undefined : 'hidden'}
+            animate="visible"
             className={`cs-grid ${mode === 'directory' ? 'cs-grid--directory' : ''}`}
           >
             {filteredItems.map((item, index) => (
               <motion.div
                 key={item.id}
                 layout={!shouldReduceMotion}
-                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+                variants={{
+                  hidden: shouldReduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 0, y: 16, scale: 0.98 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
               >
                 <CaseStudyCard item={item} mode={mode} index={index} />
               </motion.div>

@@ -12,6 +12,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { clsx } from 'clsx';
+import { motion, AnimatePresence } from 'framer-motion';
+import MagneticTarget from './MagneticTarget';
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -295,18 +297,20 @@ function Dropdown({ menu, isOpen, onOpen, onClose, onNavigate }: DropdownProps) 
 
   return (
     <div className="systembar__menu" data-open={isOpen || undefined}>
-      <button
-        ref={triggerRef}
-        className={clsx('systembar__menu-trigger', isOpen && 'is-open')}
-        onClick={() => (isOpen ? onClose() : onOpen())}
-        onKeyDown={handleTriggerKeyDown}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-controls={`menu-${menu.id}`}
-        id={`menu-trigger-${menu.id}`}
-      >
-        {menu.label}
-      </button>
+      <MagneticTarget radius={20} strength={0.2} maxOffset={4}>
+        <button
+          ref={triggerRef}
+          className={clsx('systembar__menu-trigger', isOpen && 'is-open')}
+          onClick={() => (isOpen ? onClose() : onOpen())}
+          onKeyDown={handleTriggerKeyDown}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={`menu-${menu.id}`}
+          id={`menu-trigger-${menu.id}`}
+        >
+          {menu.label}
+        </button>
+      </MagneticTarget>
 
       {isOpen && (
         <ul
@@ -347,6 +351,7 @@ function Dropdown({ menu, isOpen, onOpen, onClose, onNavigate }: DropdownProps) 
 
 export default function SystemBar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isGlitching, setIsGlitching] = useState(false);
 
   const navigateTo = useCallback((path: string) => {
     window.location.href = path;
@@ -355,9 +360,32 @@ export default function SystemBar() {
   const toggleEra = useCallback(() => {
     const current = (document.documentElement.dataset.era as '1984' | '2026') || '2026';
     const next = current === '2026' ? '1984' : '2026';
-    document.documentElement.dataset.era = next;
-    localStorage.setItem('fotisp-era', next);
-    window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      document.documentElement.dataset.era = next;
+      localStorage.setItem('fotisp-era', next);
+      window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
+      return;
+    }
+
+    // 1. Mount hardware glitch overlay immediately
+    setIsGlitching(true);
+
+    // 2. Perform DOM dataset swap at midpoint (150ms)
+    setTimeout(() => {
+      document.documentElement.dataset.era = next;
+      localStorage.setItem('fotisp-era', next);
+      window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
+    }, 150);
+
+    // 3. Dismount glitch overlay at 300ms
+    setTimeout(() => {
+      setIsGlitching(false);
+    }, 300);
   }, []);
 
   const triggerDiagnostic = useCallback(() => {
@@ -418,52 +446,72 @@ export default function SystemBar() {
   };
 
   return (
-    <header className="systembar" role="banner" aria-label="System menu bar">
-      {/* Wordmark logo */}
-      <a href="/" className="systembar__wordmark" aria-label="Fotis Pastrakis — home">
-        fp
-      </a>
+    <>
+      <AnimatePresence>
+        {isGlitching && (
+          <motion.div
+            key="era-glitch-overlay"
+            className="era-glitch-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.08 }}
+            aria-hidden="true"
+          >
+            <div className="era-glitch-scanlines" />
+            <div className="era-glitch-noise" />
+            <div className="era-glitch-flash" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Desktop Menus */}
-      <nav className="systembar__menus" aria-label="Main menu">
-        {menus.map((menu) => (
+      <header className="systembar" role="banner" aria-label="System menu bar">
+        {/* Wordmark logo */}
+        <a href="/" className="systembar__wordmark" aria-label="Fotis Pastrakis — home">
+          fp
+        </a>
+
+        {/* Desktop Menus */}
+        <nav className="systembar__menus" aria-label="Main menu">
+          {menus.map((menu) => (
+            <Dropdown
+              key={menu.id}
+              menu={menu}
+              isOpen={openMenu === menu.id}
+              onOpen={() => setOpenMenu(menu.id)}
+              onClose={() => setOpenMenu(null)}
+              onNavigate={(dir) => {
+                const adj = getAdjacentMenu(menu.id, dir);
+                if (adj) setOpenMenu(adj);
+              }}
+            />
+          ))}
+        </nav>
+
+        {/* Mobile Combined Menu Dropdown */}
+        <nav className="systembar__mobile-menu" aria-label="Mobile navigation menu">
           <Dropdown
-            key={menu.id}
-            menu={menu}
-            isOpen={openMenu === menu.id}
-            onOpen={() => setOpenMenu(menu.id)}
-            onClose={() => setOpenMenu(null)}
-            onNavigate={(dir) => {
-              const adj = getAdjacentMenu(menu.id, dir);
-              if (adj) setOpenMenu(adj);
+            menu={{
+              id: 'mobile-main',
+              label: 'Menu',
+              items: menus.flatMap((m) => [
+                { label: `── ${m.label.toUpperCase()} ──`, disabled: true },
+                ...m.items,
+              ]),
             }}
+            isOpen={openMenu === 'mobile-main'}
+            onOpen={() => setOpenMenu('mobile-main')}
+            onClose={() => setOpenMenu(null)}
+            onNavigate={() => {}}
           />
-        ))}
-      </nav>
+        </nav>
 
-      {/* Mobile Combined Menu Dropdown */}
-      <nav className="systembar__mobile-menu" aria-label="Mobile navigation menu">
-        <Dropdown
-          menu={{
-            id: 'mobile-main',
-            label: 'Menu',
-            items: menus.flatMap((m) => [
-              { label: `── ${m.label.toUpperCase()} ──`, disabled: true },
-              ...m.items,
-            ]),
-          }}
-          isOpen={openMenu === 'mobile-main'}
-          onOpen={() => setOpenMenu('mobile-main')}
-          onClose={() => setOpenMenu(null)}
-          onNavigate={() => {}}
-        />
-      </nav>
-
-      {/* Right side controls */}
-      <div className="systembar__controls" aria-label="System controls">
-        <EraToggle onToggle={toggleEra} />
-        <Clock />
-      </div>
-    </header>
+        {/* Right side controls */}
+        <div className="systembar__controls" aria-label="System controls">
+          <EraToggle onToggle={toggleEra} />
+          <Clock />
+        </div>
+      </header>
+    </>
   );
 }

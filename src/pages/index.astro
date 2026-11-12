@@ -4,6 +4,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DesktopWindow from '../components/DesktopWindow.astro';
 import CaseStudyGrid from '../components/CaseStudyGrid';
+import RevealText from '../components/RevealText';
+import MagneticTarget from '../components/MagneticTarget';
 import { getCollection, getEntries } from 'astro:content';
 
 const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
@@ -144,9 +146,13 @@ const indexSchema = [
         <p class="hero__eyebrow u-mono u-text-xs u-tracking-widest u-uppercase u-text-accent">
           Senior UX Researcher · Product Designer · Athens
         </p>
-        <h1 id="hero-headline" class="hero__headline">
-          Pixels change.<br />Architecture stays.
-        </h1>
+        <RevealText
+          client:load
+          lines={['Pixels change.', 'Architecture stays.']}
+          as="h1"
+          id="hero-headline"
+          className="hero__headline"
+        />
         <p class="hero__sub">
           I research, design, and systematise digital products that hold up under real use — in hospitals, civic operations centres, and consumer apps serving millions.
         </p>
@@ -288,13 +294,15 @@ const indexSchema = [
 
           <!-- CTA Scoped Inquiry -->
           <div class="service-card__cta u-border-1bit-top">
-            <a
-              href="#contact-drawer"
-              data-service-select={svcId}
-              class="btn-scoped-inquiry u-mono u-text-xs"
-            >
-              [ INITIATE SCOPED INQUIRY ]
-            </a>
+            <MagneticTarget client:visible strength={0.3} maxOffset={8}>
+              <a
+                href="#contact-drawer"
+                data-service-select={svcId}
+                class="btn-scoped-inquiry u-mono u-text-xs"
+              >
+                [ INITIATE SCOPED INQUIRY ]
+              </a>
+            </MagneticTarget>
           </div>
         </article>
       ))}
