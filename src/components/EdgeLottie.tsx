@@ -1,5 +1,5 @@
 /**
- * EdgeLottie.tsx — EDGE Design System Lottie Animation Wrapper
+ * EdgeLottie.tsx — EDGE Design System Lottie Animation & Celestial Radar Wrapper
  * React 19 island integrating @lottiefiles/dotlottie-react with 1-Bit Macintosh Dithering.
  *
  * Requirements:
@@ -8,7 +8,8 @@
  * - Dynamically listen to 'era-changed' and 'astro:after-swap' events.
  * - When era is '1984', apply `filter: url(#dither-1bit); image-rendering: pixelated;`.
  * - Handle container resizing gracefully with auto-resizing canvas and responsive constraints.
- * - Provide a robust 1-bit cosmic wireframe fallback when src/data is omitted or loading.
+ * - Provide a bespoke celestial orbital radar fallback (matching EDGE design system HUD)
+ *   when src/data is omitted or loading.
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -50,13 +51,13 @@ export default function EdgeLottie({
   style,
   width = '100%',
   height = '100%',
-  fallbackText,
+  fallbackText = '[ ORBITAL_RADAR // ATHENS_NODE: 37.98° N, 23.73° E ]',
 }: EdgeLottieProps) {
   const [era, setEra] = useState<'1984' | '2026'>('2026');
   const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Synchronize era state with document element
+  // Synchronize era state with document element and navigation lifecycle
   useEffect(() => {
     setIsClient(true);
 
@@ -134,42 +135,69 @@ export default function EdgeLottie({
           }}
         />
       ) : (
-        /* 1-Bit Geometric Cosmic Wireframe Fallback */
-        <div className="edge-lottie-wireframe">
+        /* Celestial Orbital Radar Motif (EDGE Design System Reference HUD) */
+        <div className="edge-lottie-radar">
           <svg
-            viewBox="0 0 140 140"
-            width="90"
-            height="90"
-            className="edge-lottie-wireframe__svg"
+            viewBox="0 0 200 200"
+            width="170"
+            height="170"
+            className="edge-lottie-radar__svg"
             aria-hidden="true"
           >
-            {/* Outer Hexagonal Frame */}
-            <polygon
-              points="70,10 125,42 125,98 70,130 15,98 15,42"
-              fill="none"
-              stroke="#EE2626"
-              strokeWidth="1.2"
-              strokeDasharray="4 3"
-            />
-            {/* Inner Octahedral Coordinate Projections */}
-            <polygon
-              points="70,30 105,52 105,88 70,110 35,88 35,52"
-              fill="none"
-              stroke="#EE2626"
-              strokeWidth="1"
-            />
-            <line x1="70" y1="10" x2="70" y2="30" stroke="#EE2626" strokeWidth="1" />
-            <line x1="125" y1="42" x2="105" y2="52" stroke="#EE2626" strokeWidth="1" />
-            <line x1="125" y1="98" x2="105" y2="88" stroke="#EE2626" strokeWidth="1" />
-            <line x1="70" y1="130" x2="70" y2="110" stroke="#EE2626" strokeWidth="1" />
-            <line x1="15" y1="98" x2="35" y2="88" stroke="#EE2626" strokeWidth="1" />
-            <line x1="15" y1="42" x2="35" y2="52" stroke="#EE2626" strokeWidth="1" />
-            {/* Focal Node */}
-            <circle cx="70" cy="70" r="3" fill="#EE2626" />
-            <circle cx="70" cy="70" r="8" fill="none" stroke="#EE2626" strokeWidth="0.8" strokeDasharray="2 2" />
+            <defs>
+              {/* Radar sweep gradient */}
+              <radialGradient id="radarSweep" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#EE2626" stopOpacity="0.35" />
+                <stop offset="70%" stopColor="#EE2626" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#080303" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+
+            {/* Background ambient field */}
+            <circle cx="100" cy="100" r="92" fill="#080303" />
+
+            {/* Concentric Range Rings */}
+            <circle cx="100" cy="100" r="24" fill="none" stroke="#EE2626" strokeWidth="0.8" strokeOpacity="0.4" />
+            <circle cx="100" cy="100" r="50" fill="none" stroke="#EE2626" strokeWidth="0.8" strokeOpacity="0.5" strokeDasharray="3 3" />
+            <circle cx="100" cy="100" r="76" fill="none" stroke="#EE2626" strokeWidth="1" strokeOpacity="0.6" />
+            <circle cx="100" cy="100" r="92" fill="none" stroke="#EE2626" strokeWidth="1.2" strokeOpacity="0.8" />
+
+            {/* Polar Axes & Coordinates */}
+            <line x1="8" y1="100" x2="192" y2="100" stroke="#EE2626" strokeWidth="0.7" strokeOpacity="0.4" />
+            <line x1="100" y1="8" x2="100" y2="192" stroke="#EE2626" strokeWidth="0.7" strokeOpacity="0.4" />
+            <line x1="36" y1="36" x2="164" y2="164" stroke="#EE2626" strokeWidth="0.5" strokeOpacity="0.25" strokeDasharray="2 4" />
+            <line x1="36" y1="164" x2="164" y2="36" stroke="#EE2626" strokeWidth="0.5" strokeOpacity="0.25" strokeDasharray="2 4" />
+
+            {/* Axis Tick Marks */}
+            <line x1="100" y1="12" x2="104" y2="12" stroke="#EE2626" strokeWidth="1" />
+            <line x1="100" y1="188" x2="104" y2="188" stroke="#EE2626" strokeWidth="1" />
+            <line x1="12" y1="100" x2="12" y2="104" stroke="#EE2626" strokeWidth="1" />
+            <line x1="188" y1="100" x2="188" y2="104" stroke="#EE2626" strokeWidth="1" />
+
+            {/* Rotating Radar Sweep Line */}
+            <g className="edge-lottie-radar__sweep">
+              <line x1="100" y1="100" x2="192" y2="100" stroke="#EE2626" strokeWidth="1.5" strokeOpacity="0.9" />
+              <path d="M 100 100 L 192 100 A 92 92 0 0 0 165 35 Z" fill="url(#radarSweep)" opacity="0.6" />
+            </g>
+
+            {/* Orbiting Telemetry Nodes */}
+            <g className="edge-lottie-radar__orbits">
+              {/* Outer orbit node */}
+              <circle cx="158" cy="74" r="3.5" fill="#EE2626" />
+              <circle cx="158" cy="74" r="7" fill="none" stroke="#EE2626" strokeWidth="0.75" strokeDasharray="2 2" />
+              {/* Mid orbit node */}
+              <circle cx="65" cy="135" r="3" fill="#EE2626" />
+              {/* Inner orbit node */}
+              <circle cx="118" cy="86" r="2.5" fill="#EE2626" />
+            </g>
+
+            {/* Central Core Pulse */}
+            <circle cx="100" cy="100" r="5" fill="#EE2626" />
+            <circle cx="100" cy="100" r="10" fill="none" stroke="#EE2626" strokeWidth="0.8" className="edge-lottie-radar__pulse" />
           </svg>
-          <span className="edge-lottie-wireframe__caption u-mono u-text-xs u-text-accent">
-            {fallbackText || '[ EDGE_VECTOR_NODE.LOTTIE ]'}
+
+          <span className="edge-lottie-radar__caption u-mono u-text-xs u-text-accent">
+            {fallbackText}
           </span>
         </div>
       )}
@@ -190,21 +218,27 @@ export default function EdgeLottie({
           object-fit: contain;
         }
 
-        .edge-lottie-wireframe {
+        .edge-lottie-radar {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: var(--space-2, 8px);
+          gap: var(--space-3, 12px);
           padding: var(--space-4, 16px);
           text-align: center;
         }
 
-        .edge-lottie-wireframe__svg {
-          animation: edgeLottiePulse 8s linear infinite;
+        .edge-lottie-radar__sweep {
+          transform-origin: 100px 100px;
+          animation: radarSweep 6s linear infinite;
         }
 
-        @keyframes edgeLottiePulse {
+        .edge-lottie-radar__pulse {
+          transform-origin: 100px 100px;
+          animation: radarPulse 2.5s ease-out infinite;
+        }
+
+        @keyframes radarSweep {
           0% {
             transform: rotate(0deg);
           }
@@ -213,16 +247,29 @@ export default function EdgeLottie({
           }
         }
 
+        @keyframes radarPulse {
+          0% {
+            r: 5px;
+            opacity: 1;
+          }
+          100% {
+            r: 18px;
+            opacity: 0;
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-          .edge-lottie-wireframe__svg {
+          .edge-lottie-radar__sweep,
+          .edge-lottie-radar__pulse {
             animation: none;
           }
         }
 
-        .edge-lottie-wireframe__caption {
+        .edge-lottie-radar__caption {
           font-family: var(--font-mono);
-          letter-spacing: var(--tracking-wider, 0.05em);
-          opacity: 0.85;
+          letter-spacing: 0.08em;
+          font-size: 11px;
+          opacity: 0.9;
         }
       `}</style>
     </div>
