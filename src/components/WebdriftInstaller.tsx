@@ -10,10 +10,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DIAGNOSTIC_STEPS = [
-  'Purging Tailwind utility bloat...',
-  'Mounting OOUX object taxonomy...',
-  'Loading MDPI / IEEE research citations...',
-  'Installing clinical-grade UX architecture... already installed.',
+  'Removing Tailwind utility bloat...',
+  'Verifying OOUX ORCA reference() graph...',
+  'Linking MDPI peer-reviewed citations...',
+  'Installing good taste... already installed.',
 ];
 
 export default function WebdriftInstaller() {

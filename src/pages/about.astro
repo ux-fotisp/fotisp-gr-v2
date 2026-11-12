@@ -156,7 +156,18 @@ const careerSteps = [
 
           <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
             <!-- Honeypot anti-bot -->
+            <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
             <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
+
+            <div class="form-row">
+              <label for="contact-subject" class="u-mono u-text-xs u-text-faint">ENGAGEMENT_SCOPE:</label>
+              <select id="contact-subject" name="subject" class="terminal-input terminal-select">
+                <option value="general">General / Advisory Inquiry</option>
+                <option value="ux-research">Scoped Inquiry: UX Research</option>
+                <option value="design-systems">Scoped Inquiry: Design Systems</option>
+                <option value="ux-strategy">Scoped Inquiry: UX Strategy & Leadership</option>
+              </select>
+            </div>
 
             <div class="form-row">
               <label for="contact-name" class="u-mono u-text-xs u-text-faint">OPERATOR_NAME:</label>
@@ -196,7 +207,7 @@ const careerSteps = [
 
             <div class="terminal-form__footer">
               <span id="contactStatus" class="u-mono u-text-xs u-text-faint" aria-live="polite">
-                Awaiting operator dispatch.
+                [STATUS: IDLE — AWAITING OPERATOR DISPATCH]
               </span>
               <button type="submit" id="submitBtn" class="terminal-btn u-mono u-text-xs">
                 [ TRANSMIT MESSAGE ]
@@ -214,6 +225,14 @@ const careerSteps = [
     const form = document.getElementById('contactForm') as HTMLFormElement | null;
     const statusEl = document.getElementById('contactStatus');
     const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+    const subjectSelect = document.getElementById('contact-subject') as HTMLSelectElement | null;
+
+    // Check URL query parameters for ?service=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedService = urlParams.get('service');
+    if (requestedService && subjectSelect) {
+      subjectSelect.value = requestedService;
+    }
 
     if (!form || !statusEl || !submitBtn) return;
     if (form.dataset.listenerAttached === 'true') return;
@@ -221,13 +240,19 @@ const careerSteps = [
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.textContent = '[STATUS: BUFFERING — TRANSMITTING PACKET TO /api/contact...]';
+      statusEl.textContent = '[STATUS: TRANSMITTING... DISPATCHING PACKET TO /api/contact]';
       statusEl.style.color = 'var(--color-text-muted)';
       submitBtn.disabled = true;
 
       try {
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const data: Record<string, string> = {};
+        formData.forEach((value, key) => {
+          data[key] = value.toString();
+        });
+
+        // Pass active client era
+        data.era = document.documentElement.dataset.era || '2026';
 
         const res = await fetch('/api/contact', {
           method: 'POST',
@@ -237,16 +262,16 @@ const careerSteps = [
 
         const json = await res.json();
         if (res.ok && json.success) {
-          statusEl.textContent = '[STATUS: 200_OK — TRANSMISSION LOGGED: PACKET DISPATCHED TO FOTIS]';
+          statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
           statusEl.style.color = 'var(--color-success)';
           form.reset();
         } else {
-          statusEl.textContent = `[STATUS: ${res.status}_ERROR — ${json.error || 'FIELD VERIFICATION FAILED'}]`;
-          statusEl.style.color = 'var(--color-error)';
+          statusEl.innerHTML = `[STATUS: ERR_RETRY_OR_MAILTO — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>`;
+          statusEl.style.color = 'var(--color-accent)';
         }
       } catch (err) {
-        statusEl.textContent = '[STATUS: 500_ERROR — NETWORK PACKET DROPPED: CONNECTION TIMEOUT]';
-        statusEl.style.color = 'var(--color-error)';
+        statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — CONNECTION DROPPED] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>';
+        statusEl.style.color = 'var(--color-accent)';
       } finally {
         submitBtn.disabled = false;
       }

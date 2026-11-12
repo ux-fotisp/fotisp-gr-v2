@@ -3,14 +3,23 @@
  * Endpoint: POST /api/contact
  *
  * Implements:
- *  - Honeypot field validation (blocks automated bot dispatch)
- *  - Cloudflare Turnstile token validation (if secret is configured in env)
- *  - Sanitisation and structured JSON response
+ *  - Dual Honeypot validation (_gotcha and company_fax) to eliminate bot spam
+ *  - Turnstile human verification (when env.TURNSTILE_SECRET_KEY is bound)
+ *  - Cloudflare D1 inquiries persistence (when env.DB is bound, fallback in preview)
+ *  - Captures active client era ('1984' or '2026') and scoped serviceId
+ *  - Structured JSON response adhering to OOUX specification
  */
 
 interface Env {
   TURNSTILE_SECRET_KEY?: string;
   CONTACT_FORWARD_EMAIL?: string;
+  DB?: {
+    prepare: (query: string) => {
+      bind: (...args: unknown[]) => {
+        run: () => Promise<{ success: boolean }>;
+      };
+    };
+  };
 }
 
 type PagesFunction<T = Record<string, unknown>> = (context: {
@@ -23,8 +32,11 @@ type PagesFunction<T = Record<string, unknown>> = (context: {
 interface ContactPayload {
   name?: string;
   email?: string;
+  subject?: string;
   message?: string;
-  company_fax?: string; // Honeypot field
+  era?: string;
+  _gotcha?: string;       // Honeypot 1
+  company_fax?: string;   // Honeypot 2
   turnstileToken?: string;
 }
 
@@ -40,7 +52,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       payload = {
         name: formData.get('name')?.toString(),
         email: formData.get('email')?.toString(),
+        subject: formData.get('subject')?.toString(),
         message: formData.get('message')?.toString(),
+        era: formData.get('era')?.toString(),
+        _gotcha: formData.get('_gotcha')?.toString(),
         company_fax: formData.get('company_fax')?.toString(),
         turnstileToken: formData.get('cf-turnstile-response')?.toString(),
       };
@@ -51,9 +66,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // 1. Honeypot check: If the hidden input was filled, silently discard
-    if (payload.company_fax && payload.company_fax.trim() !== '') {
-      // Return 200 to trick bots into believing message succeeded
+    // 1. Honeypot check: If either honeypot field is filled, silently discard
+    if (
+      (payload.company_fax && payload.company_fax.trim() !== '') ||
+      (payload._gotcha && payload._gotcha.trim() !== '')
+    ) {
       return new Response(JSON.stringify({ success: true, message: 'Transmission accepted.' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -64,15 +81,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const name = payload.name?.trim();
     const email = payload.email?.trim();
     const message = payload.message?.trim();
+    const subject = payload.subject?.trim() || 'general';
+    const era = payload.era === '1984' ? '1984' : '2026';
 
     if (!name || !email || !message) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: name, email, or message.' }), {
+      return new Response(JSON.stringify({ error: 'Missing required parameters: name, email, or message.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Email format sanity check
+    // Email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return new Response(JSON.stringify({ error: 'Invalid email address provided.' }), {
@@ -83,33 +102,55 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 3. Optional Cloudflare Turnstile verification
     if (context.env.TURNSTILE_SECRET_KEY && payload.turnstileToken) {
-      const turnstileVerify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          secret: context.env.TURNSTILE_SECRET_KEY,
-          response: payload.turnstileToken,
-          remoteip: context.request.headers.get('CF-Connecting-IP') || '',
-        }),
-      });
-
-      const outcome = (await turnstileVerify.json()) as { success: boolean };
-      if (!outcome.success) {
-        return new Response(JSON.stringify({ error: 'Human verification failed.' }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
+      try {
+        const turnstileVerify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            secret: context.env.TURNSTILE_SECRET_KEY,
+            response: payload.turnstileToken,
+            remoteip: context.request.headers.get('CF-Connecting-IP') || '',
+          }),
         });
+
+        const outcome = (await turnstileVerify.json()) as { success: boolean };
+        if (!outcome.success) {
+          return new Response(JSON.stringify({ error: 'Turnstile verification failed.' }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      } catch (err) {
+        console.warn('Turnstile verification error:', err);
       }
     }
 
-    // 4. Log transmission (in production, integrate with Resend / Mailgun / Webhook)
-    console.log(`[CONTACT_DISPATCH] From: ${name} <${email}> | Length: ${message.length} chars`);
+    // 4. Cloudflare D1 persistence (if DB binding is present)
+    if (context.env.DB) {
+      try {
+        // Attempt D1 insert into inquiries table
+        await context.env.DB.prepare(
+          `INSERT INTO inquiries (name, email, subject, message, era, created_at)
+           VALUES (?, ?, ?, ?, ?, datetime('now'))`
+        )
+          .bind(name, email, subject, message, era)
+          .run();
+        console.log(`[D1_SAVED] Inquiry logged to database for ${email} [${subject}]`);
+      } catch (d1Err) {
+        console.warn('[D1_FALLBACK] Table not present or DB error (graceful fallback):', d1Err);
+      }
+    }
+
+    // 5. Server console dispatch log
+    console.log(`[CONTACT_DISPATCH] Era: ${era} | Subject: ${subject} | From: ${name} <${email}>`);
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Packet received and queued for review. Thank you for reaching out.',
         timestamp: new Date().toISOString(),
+        era,
+        subject,
       }),
       {
         status: 200,

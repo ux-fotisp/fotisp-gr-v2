@@ -1,14 +1,24 @@
 ---
 title: "MediPulse: Accessible Science Hub & High-Density Clinical Reading System"
+domain: "Clinical & HealthTech"
+role: "Lead UX Researcher & Product Designer"
+timeline: "2023 — 8 months"
+summary: "Redesigning a clinical literature platform for hospital floors — 56px touch-bar, high-density filter panels, and 800ms debounced auto-save."
+status: "completed"
+featuredOrder: 1
+isDraft: false
+services:
+  - "design-systems"
+  - "ux-research"
+publications:
+  - "mdpi-info-2026-modular-ia"
 tagline: "Redesigning a clinical literature platform for hospital floors — 56px touch-bar, high-density filter panels, and 800ms debounced auto-save."
 client: "MediPulse Health Technologies"
 category: "health-tech"
 tags: ["accessibility", "clinical UX", "reading system", "design system", "mobile-first", "debounce"]
 year: 2023
 duration: "8 months"
-role: "Lead UX Researcher & Product Designer"
 team: "2 UX designers, 1 clinical advisor, 3 engineers"
-status: "published"
 featured: true
 protected: false
 cover:

@@ -1,14 +1,24 @@
 ---
 title: "HealthPulse: Patient App for Hypertension and Diabetes Management"
+domain: "Clinical & HealthTech"
+role: "UX Research Lead"
+timeline: "2024 — 10 months"
+summary: "Dual-condition biometric logging architecture, progressive disclosure alert hierarchy, and WCAG AAA high-contrast clinical legibility."
+status: "completed"
+featuredOrder: 3
+isDraft: false
+services:
+  - "ux-research"
+  - "design-systems"
+publications:
+  - "mdpi-info-2026-cultural-ux-taxonomy"
 tagline: "A calm health companion that turned daily self-monitoring from a source of anxiety into a tool for agency — for patients managing hypertension and Type 2 diabetes."
 client: "HealthPulse (MediPulse consumer arm)"
 category: "health-tech"
 tags: ["mobile UX", "chronic disease", "hypertension", "diabetes", "patient engagement", "calm technology", "accessibility"]
 year: 2024
 duration: "10 months"
-role: "UX Research Lead"
 team: "3 UX designers, 1 content strategist, 5 engineers, 1 clinical psychologist"
-status: "published"
 featured: true
 protected: false
 cover:

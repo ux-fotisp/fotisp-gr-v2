@@ -2,21 +2,29 @@
 // src/pages/work/index.astro
 // Work index — Interactive domain-filtered case studies directory
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import CaseStudyFilter from '../../components/CaseStudyFilter';
+import CaseStudyGrid from '../../components/CaseStudyGrid';
 import { getCollection } from 'astro:content';
 
-const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
-  .sort((a, b) => a.data.order - b.data.order);
+const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
+  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
 
 const serializedCaseStudies = caseStudies.map(entry => ({
   id: entry.id.replace(/\.mdx?$/, ''),
   title: entry.data.title,
+  domain: entry.data.domain,
+  role: entry.data.role,
+  timeline: entry.data.timeline,
+  summary: entry.data.summary,
+  deliverables: entry.data.deliverables,
+  status: entry.data.status,
+  services: entry.data.services ? entry.data.services.map(s => typeof s === 'string' ? s : s.id) : [],
+  publications: entry.data.publications ? entry.data.publications.map(p => typeof p === 'string' ? p : p.id) : [],
   tagline: entry.data.tagline,
   category: entry.data.category,
+  figureTag: entry.data.figureTag,
   year: entry.data.year,
   duration: entry.data.duration,
   protected: entry.data.protected,
-  figureTag: entry.data.figureTag,
   problem: entry.data.problem,
   outcome: entry.data.outcome,
   impact: entry.data.impact,
@@ -41,7 +49,7 @@ const serializedCaseStudies = caseStudies.map(entry => ({
     </header>
 
     <!-- Interactive Filter & Directory -->
-    <CaseStudyFilter client:load items={serializedCaseStudies} mode="directory" />
+    <CaseStudyGrid client:load items={serializedCaseStudies} mode="directory" />
   </div>
 </BaseLayout>
 

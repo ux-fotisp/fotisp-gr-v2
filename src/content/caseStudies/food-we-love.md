@@ -1,14 +1,25 @@
 ---
 title: "FoodWeLove: Premier Greek E-Tailer for Organic Products"
+domain: "E-Commerce"
+role: "Lead Product Designer"
+timeline: "2022 — 5 months"
+summary: "End-to-end e-commerce information architecture, faceted organic product taxonomy, provenance trust cues, and frictionless checkout flow."
+status: "completed"
+featuredOrder: 4
+isDraft: false
+services:
+  - "ux-strategy"
+  - "design-systems"
+publications:
+  - "acux-recommender-2022"
+  - "mdpi-digital-2022-acux-typology"
 tagline: "Redesigning the discovery and checkout experience for Greece's leading organic food e-tailer — from artisan marketplace to trust-first digital grocery."
 client: "FoodWeLove S.A."
 category: "e-commerce"
 tags: ["e-commerce", "food-tech", "discovery UX", "checkout optimisation", "trust design", "mobile-first"]
 year: 2022
 duration: "5 months"
-role: "Lead Product Designer"
 team: "1 UX designer (Fotis), 2 engineers, 1 brand consultant, 1 copywriter"
-status: "published"
 featured: false
 protected: false
 cover:

@@ -3,31 +3,58 @@
 // Home — Swiss editorial hero + case study filter + services + publications
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DesktopWindow from '../components/DesktopWindow.astro';
-import CaseStudyFilter from '../components/CaseStudyFilter';
-import { getCollection } from 'astro:content';
+import CaseStudyGrid from '../components/CaseStudyGrid';
+import { getCollection, getEntries } from 'astro:content';
 
-const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
-  .sort((a, b) => a.data.order - b.data.order);
+const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
+  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
 
-const publications = (await getCollection('publications', e => e.data.status === 'published'))
-  .sort((a, b) => b.data.year - a.data.year);
+const publications = (await getCollection('publications', e => !e.data.isDraft))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
-const services = (await getCollection('services', e => e.data.available))
-  .sort((a, b) => a.data.order - b.data.order);
+const services = (await getCollection('services', e => !e.data.isDraft))
+  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
 
 const serializedCaseStudies = caseStudies.map(entry => ({
   id: entry.id.replace(/\.mdx?$/, ''),
   title: entry.data.title,
+  domain: entry.data.domain,
+  role: entry.data.role,
+  timeline: entry.data.timeline,
+  summary: entry.data.summary,
+  deliverables: entry.data.deliverables,
+  status: entry.data.status,
+  services: entry.data.services ? entry.data.services.map(s => typeof s === 'string' ? s : s.id) : [],
+  publications: entry.data.publications ? entry.data.publications.map(p => typeof p === 'string' ? p : p.id) : [],
   tagline: entry.data.tagline,
   category: entry.data.category,
+  figureTag: entry.data.figureTag,
   year: entry.data.year,
   duration: entry.data.duration,
   protected: entry.data.protected,
-  figureTag: entry.data.figureTag,
   problem: entry.data.problem,
   outcome: entry.data.outcome,
   impact: entry.data.impact,
 }));
+
+// Resolve inverse OOUX relationships for services at build time
+const enrichedServices = await Promise.all(
+  services.map(async (svc) => {
+    const svcId = svc.id.replace(/\.mdx?$/, '');
+    const provingStudies = caseStudies.filter((c) =>
+      c.data.services && c.data.services.some((s) => (typeof s === 'string' ? s : s.id) === svcId)
+    );
+    const resolvedPubs = (svc.data.publications && svc.data.publications.length > 0)
+      ? await getEntries(svc.data.publications)
+      : [];
+    return {
+      svc,
+      svcId,
+      provingStudies,
+      resolvedPubs,
+    };
+  })
+);
 
 // Rich Schema.org ScholarlyArticle definitions for verified research
 const scholarlySchemas = publications.map(pub => ({
@@ -171,27 +198,104 @@ const indexSchema = [
       <h2 id="work-heading" class="section-title">Case Studies & Systems</h2>
     </header>
 
-    <CaseStudyFilter client:load items={serializedCaseStudies} mode="grid" />
+    <CaseStudyGrid client:load items={serializedCaseStudies} mode="grid" />
   </section>
 
   <!-- ── SERVICES ───────────────────────────────────────────────── -->
   <section class="services-section u-container" aria-labelledby="services-heading" id="services">
     <header class="section-header">
       <span class="section-label">What I Do</span>
-      <h2 id="services-heading" class="section-title">Services</h2>
+      <h2 id="services-heading" class="section-title">Services & Architecture</h2>
     </header>
 
     <div class="services-grid">
-      {services.map((svc) => (
-        <article class="service-card u-window u-border-1bit">
-          <div class="service-card__tag u-mono u-text-xs u-text-faint">{svc.data.figureTag}</div>
-          <h3 class="service-card__title">{svc.data.title}</h3>
-          <p class="service-card__tagline">{svc.data.tagline}</p>
-          <ul class="service-card__deliverables" aria-label="Deliverables">
-            {svc.data.deliverables.slice(0, 4).map(d => (
-              <li class="u-mono u-text-xs u-text-faint">{d}</li>
-            ))}
-          </ul>
+      {enrichedServices.map(({ svc, svcId, provingStudies, resolvedPubs }) => (
+        <article class="service-card u-window u-border-1bit" id={`service-${svcId}`}>
+          <div class="service-card__header">
+            <span class="service-card__tag u-mono u-text-xs u-text-faint">{svc.data.figureTag || 'Svc. ??'}</span>
+            <span class="service-card__id u-mono u-text-xs u-text-accent">svc://{svcId}</span>
+          </div>
+
+          <h3 class="service-card__title">{svc.data.name || svc.data.title}</h3>
+          <p class="service-card__desc">{svc.data.description}</p>
+
+          <!-- Core Methodologies -->
+          {svc.data.methodologies && svc.data.methodologies.length > 0 && (
+            <div class="service-card__block">
+              <span class="service-card__label u-mono u-text-xs u-text-faint u-uppercase u-tracking-widest">
+                Methodologies:
+              </span>
+              <ul class="method-tags">
+                {svc.data.methodologies.map(m => (
+                  <li class="u-mono u-text-xs">{m}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Deliverables -->
+          <div class="service-card__block">
+            <span class="service-card__label u-mono u-text-xs u-text-faint u-uppercase u-tracking-widest">
+              Key Deliverables:
+            </span>
+            <ul class="deliverables-list">
+              {svc.data.deliverables.slice(0, 4).map(d => (
+                <li class="u-mono u-text-xs u-text-muted">{d}</li>
+              ))}
+            </ul>
+          </div>
+
+          <!-- [O:REF] Proving Work -->
+          {provingStudies.length > 0 && (
+            <div class="service-card__rel-block u-border-1bit-top">
+              <span class="service-card__label u-mono u-text-xs u-text-accent u-uppercase u-tracking-widest">
+                [O:REF] PROVING WORK:
+              </span>
+              <ul class="proving-list">
+                {provingStudies.map(cs => (
+                  <li>
+                    <a href={`/work/${cs.id.replace(/\.mdx?$/, '')}`} class="u-mono u-text-xs">
+                      → {cs.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- [O:REF] Academic Grounding -->
+          {resolvedPubs.length > 0 && (
+            <div class="service-card__rel-block u-border-1bit-top">
+              <span class="service-card__label u-mono u-text-xs u-text-accent u-uppercase u-tracking-widest">
+                [O:REF] ACADEMIC GROUNDING:
+              </span>
+              <ul class="grounding-list">
+                {resolvedPubs.map(pub => (
+                  <li>
+                    <a
+                      href={pub.data.doi ? `https://doi.org/${pub.data.doi}` : pub.data.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="u-mono u-text-xs"
+                    >
+                      ⊞ {pub.data.venue} ({pub.data.year || new Date(pub.data.date).getFullYear()}): {pub.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- CTA Scoped Inquiry -->
+          <div class="service-card__cta u-border-1bit-top">
+            <a
+              href="#contact-drawer"
+              data-service-select={svcId}
+              class="btn-scoped-inquiry u-mono u-text-xs"
+            >
+              [ INITIATE SCOPED INQUIRY ]
+            </a>
+          </div>
         </article>
       ))}
     </div>
@@ -213,7 +317,7 @@ const indexSchema = [
       <ol class="pub-list" reversed>
         {publications.map((pub) => (
           <li class="pub-item u-border-1bit-bottom">
-            <span class="pub-item__year u-mono u-text-xs u-text-faint">{pub.data.year}</span>
+            <span class="pub-item__year u-mono u-text-xs u-text-faint">{pub.data.year || new Date(pub.data.date).getFullYear()}</span>
             <div class="pub-item__body">
               <h3 class="pub-item__title">
                 {pub.data.url ? (
@@ -227,7 +331,7 @@ const indexSchema = [
                 <em>{pub.data.venue}</em>
                 {pub.data.volume && `, Vol. ${pub.data.volume}`}
                 {pub.data.articleNumber && `, No. ${pub.data.articleNumber}`}
-                {pub.data.month && ` · ${pub.data.month} ${pub.data.year}`}
+                {pub.data.month && ` · ${pub.data.month} ${pub.data.year || new Date(pub.data.date).getFullYear()}`}
               </p>
               {pub.data.doi && (
                 <a
@@ -246,7 +350,175 @@ const indexSchema = [
       </ol>
     </DesktopWindow>
   </section>
+
+  <!-- ── CONTACT DRAWER / RETRO TERMINAL ───────────────────────── -->
+  <section class="contact-section u-container" id="contact-drawer" tabindex="-1" aria-labelledby="contact-heading">
+    <header class="section-header">
+      <span class="section-label">Transmission Terminal</span>
+      <h2 id="contact-heading" class="section-title">Initiate Scoped Inquiry</h2>
+    </header>
+
+    <DesktopWindow
+      title="console_inquiry.sh"
+      fileBadge="tty0"
+      figureTag="Terminal 01"
+      coordX={0.50}
+      coordY={0.50}
+    >
+      <div class="terminal-box">
+        <div class="terminal-banner u-mono u-text-xs">
+          <p class="u-text-accent">FOTISP-OS v2.6.0 [Athens Host Node · Cloudflare Edge]</p>
+          <p class="u-text-faint">Select a service scope or dispatch an asynchronous inquiry payload below.</p>
+        </div>
+
+        <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
+          <!-- Honeypot anti-bot fields -->
+          <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
+          <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
+
+          <div class="form-row">
+            <label for="contact-subject" class="u-mono u-text-xs u-text-faint">ENGAGEMENT_SCOPE:</label>
+            <select id="contact-subject" name="subject" class="terminal-input terminal-select">
+              <option value="general">General / Advisory Inquiry</option>
+              <option value="ux-research">Scoped Inquiry: UX Research</option>
+              <option value="design-systems">Scoped Inquiry: Design Systems</option>
+              <option value="ux-strategy">Scoped Inquiry: UX Strategy & Leadership</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="contact-name" class="u-mono u-text-xs u-text-faint">OPERATOR_NAME:</label>
+            <input
+              type="text"
+              id="contact-name"
+              name="name"
+              required
+              placeholder="Dr. / Ms. / Mr. Name"
+              class="terminal-input"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="contact-email" class="u-mono u-text-xs u-text-faint">TRANSMISSION_RETURN_ADDR:</label>
+            <input
+              type="email"
+              id="contact-email"
+              name="email"
+              required
+              placeholder="name@domain.com"
+              class="terminal-input"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="contact-message" class="u-mono u-text-xs u-text-faint">PAYLOAD_BUFFER:</label>
+            <textarea
+              id="contact-message"
+              name="message"
+              required
+              rows="4"
+              placeholder="Specify requirements, advisory scope, or research problem..."
+              class="terminal-input terminal-textarea"
+            ></textarea>
+          </div>
+
+          <div class="terminal-form__footer">
+            <span id="contactStatus" class="u-mono u-text-xs u-text-faint" aria-live="polite">
+              [STATUS: IDLE — AWAITING OPERATOR DISPATCH]
+            </span>
+            <button type="submit" id="submitBtn" class="terminal-btn u-mono u-text-xs">
+              [ TRANSMIT PACKET ]
+            </button>
+          </div>
+        </form>
+      </div>
+    </DesktopWindow>
+  </section>
 </BaseLayout>
+
+<script>
+  function initContactTerminal() {
+    const form = document.getElementById('contactForm') as HTMLFormElement | null;
+    const statusEl = document.getElementById('contactStatus');
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+    const subjectSelect = document.getElementById('contact-subject') as HTMLSelectElement | null;
+
+    // Handle "Initiate Scoped Inquiry" clicks across the page
+    const inquiryButtons = document.querySelectorAll<HTMLElement>('[data-service-select]');
+    inquiryButtons.forEach((btn) => {
+      if (btn.dataset.listenerAttached === 'true') return;
+      btn.dataset.listenerAttached = 'true';
+
+      btn.addEventListener('click', (e) => {
+        const svcId = btn.getAttribute('data-service-select');
+        if (svcId && subjectSelect) {
+          subjectSelect.value = svcId;
+        }
+        const drawer = document.getElementById('contact-drawer');
+        if (drawer) {
+          drawer.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            const nameInput = document.getElementById('contact-name');
+            nameInput?.focus();
+          }, 400);
+        }
+      });
+    });
+
+    // Check URL query parameters for ?service=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedService = urlParams.get('service');
+    if (requestedService && subjectSelect) {
+      subjectSelect.value = requestedService;
+    }
+
+    if (!form || !statusEl || !submitBtn) return;
+    if (form.dataset.listenerAttached === 'true') return;
+    form.dataset.listenerAttached = 'true';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = '[STATUS: TRANSMITTING... DISPATCHING PACKET TO /api/contact]';
+      statusEl.style.color = 'var(--color-text-muted)';
+      submitBtn.disabled = true;
+
+      try {
+        const formData = new FormData(form);
+        const data: Record<string, string> = {};
+        formData.forEach((value, key) => {
+          data[key] = value.toString();
+        });
+
+        // Pass active client era
+        data.era = document.documentElement.dataset.era || '2026';
+
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success) {
+          statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
+          statusEl.style.color = 'var(--color-success)';
+          form.reset();
+        } else {
+          statusEl.innerHTML = `[STATUS: ERR_RETRY_OR_MAILTO — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>`;
+          statusEl.style.color = 'var(--color-accent)';
+        }
+      } catch (err) {
+        statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — NETWORK DROPPED] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>';
+        statusEl.style.color = 'var(--color-accent)';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  initContactTerminal();
+  document.addEventListener('astro:page-load', initContactTerminal);
+</script>
 
 <style>
   /* ── Layout variables ─────────────────────────── */
@@ -516,12 +788,23 @@ const indexSchema = [
     padding: var(--space-6);
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
+  }
+
+  .service-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
   }
 
   .service-card__tag {
     letter-spacing: var(--tracking-widest);
     text-transform: uppercase;
+  }
+
+  .service-card__id {
+    letter-spacing: var(--tracking-wider);
   }
 
   .service-card__title {
@@ -532,25 +815,184 @@ const indexSchema = [
     line-height: var(--leading-snug);
   }
 
-  .service-card__tagline {
+  .service-card__desc {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
     line-height: var(--leading-relaxed);
   }
 
-  .service-card__deliverables {
+  .service-card__block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .service-card__label {
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .method-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .method-tags li {
+    padding: 2px 6px;
+    background-color: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .deliverables-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    margin-top: auto;
-    padding-top: var(--space-4);
-    border-top: var(--border-1bit-subtle);
   }
 
-  .service-card__deliverables li::before {
+  .deliverables-list li::before {
     content: '→ ';
     color: var(--color-accent);
+  }
+
+  .service-card__rel-block {
+    padding-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .proving-list,
+  .grounding-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .proving-list a,
+  .grounding-list a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .proving-list a:hover,
+  .grounding-list a:hover {
+    color: var(--color-accent);
+  }
+
+  .service-card__cta {
+    margin-top: auto;
+    padding-top: var(--space-4);
+  }
+
+  .btn-scoped-inquiry {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: var(--space-3);
+    background-color: var(--color-surface-sunken);
+    border: 1px solid var(--color-accent);
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: var(--tracking-wider);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-scoped-inquiry:hover {
+    background-color: var(--color-accent);
+    color: #ffffff;
+  }
+
+  /* ── Contact Section / Terminal ─────────────── */
+  .contact-section {
+    padding-block: var(--section-gap);
+    border-top: var(--border-1bit);
+  }
+
+  .terminal-box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .terminal-banner {
+    padding: var(--space-3);
+    background: rgba(238, 38, 38, 0.05);
+    border: 1px dashed var(--color-accent);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .terminal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .terminal-input {
+    background-color: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    width: 100%;
+    transition: border-color 0.15s ease;
+  }
+
+  .terminal-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+
+  .terminal-select {
+    cursor: pointer;
+  }
+
+  .terminal-textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  .terminal-form__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-top: var(--space-2);
+  }
+
+  .terminal-btn {
+    background-color: var(--color-accent);
+    color: var(--color-text);
+    border: 1px solid var(--color-accent);
+    padding: var(--space-3) var(--space-6);
+    cursor: pointer;
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-widest);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .terminal-btn:hover:not(:disabled) {
+    background-color: transparent;
+    color: var(--color-accent);
+  }
+
+  .terminal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* ── Publications ─────────────────────────────── */

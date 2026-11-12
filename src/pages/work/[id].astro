@@ -1,7 +1,7 @@
 ---
 // src/pages/work/[id].astro
 // Dynamic case study reader — OS inspector window frame
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DesktopWindow from '../../components/DesktopWindow.astro';
 import JsonLd from '../../components/JsonLd.astro';
@@ -21,6 +21,10 @@ const { entry, slug } = Astro.props;
 const { Content } = await render(entry);
 
 const d = entry.data;
+
+// Resolve OOUX references
+const resolvedServices = (d.services && d.services.length > 0) ? await getEntries(d.services) : [];
+const resolvedPublications = (d.publications && d.publications.length > 0) ? await getEntries(d.publications) : [];
 
 const schema = [
   {
@@ -125,6 +129,20 @@ const schema = [
             </div>
           )}
         </dl>
+
+        <!-- Linked Services (OOUX [O:REF] Matrix) -->
+        {resolvedServices.length > 0 && (
+          <div class="case-header__services">
+            <span class="u-mono u-text-xs u-text-accent u-tracking-widest u-uppercase">[O:REF] SERVICES:</span>
+            <div class="service-badges">
+              {resolvedServices.map(svc => (
+                <a href="/#services" class="tag tag--service">
+                  <span class="u-mono u-text-xs">⊞ {svc.data.name || svc.data.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       <!-- Impact metrics band -->
@@ -182,6 +200,46 @@ const schema = [
       <div class="case-prose">
         <Content />
       </div>
+
+      <!-- [O:REF] Academic Rigor & Grounding -->
+      {resolvedPublications.length > 0 && (
+        <section class="case-grounding u-border-1bit" aria-labelledby="grounding-heading">
+          <div class="case-grounding__header">
+            <h2 id="grounding-heading" class="u-mono u-text-xs u-text-accent u-tracking-widest u-uppercase">
+              [O:REF] ACADEMIC RIGOR & GROUNDING
+            </h2>
+            <span class="u-mono u-text-xs u-text-faint">
+              {resolvedPublications.length} Peer-Reviewed Citation{resolvedPublications.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div class="case-grounding__list">
+            {resolvedPublications.map(pub => (
+              <article class="case-grounding__item">
+                <h3 class="case-grounding__pub-title">
+                  {pub.data.url ? (
+                    <a href={pub.data.url} target="_blank" rel="noopener noreferrer">
+                      {pub.data.title} ↗
+                    </a>
+                  ) : pub.data.title}
+                </h3>
+                <p class="case-grounding__meta u-mono u-text-xs u-text-muted">
+                  {pub.data.authors.join(', ')} · <em>{pub.data.venue}</em>
+                  {pub.data.doi && (
+                    <span class="case-grounding__doi">
+                      · DOI: <a href={`https://doi.org/${pub.data.doi}`} target="_blank" rel="noopener noreferrer" class="u-text-accent">{pub.data.doi}</a>
+                    </span>
+                  )}
+                </p>
+                {pub.data.abstract && (
+                  <p class="case-grounding__abstract u-text-sm u-text-muted">
+                    {pub.data.abstract}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <!-- Methods + Tools + Deliverables -->
       <footer class="case-footer">
@@ -260,9 +318,85 @@ const schema = [
     margin-bottom: var(--space-5);
   }
 
-  .tag { display: inline-block; padding: 2px var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); border: var(--border-1bit-subtle); letter-spacing: var(--tracking-wide); }
+  .tag { display: inline-block; padding: 2px var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); border: var(--border-1bit-subtle); letter-spacing: var(--tracking-wide); text-decoration: none; }
   .tag--category { color: var(--color-text-muted); border-color: var(--color-border); }
   .tag--protected { color: var(--color-accent); border-color: var(--color-accent); }
+  .tag--service { color: var(--color-text); border-color: var(--color-accent); background-color: rgba(238, 38, 38, 0.08); transition: background-color var(--duration-fast) var(--ease-out-quart); }
+  .tag--service:hover { background-color: rgba(238, 38, 38, 0.2); }
+
+  .case-header__services {
+    margin-top: var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-top: var(--space-4);
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .service-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  /* ── Academic Grounding ─────────────────── */
+  .case-grounding {
+    padding: var(--space-8);
+    background-color: var(--color-surface-sunken);
+    border-bottom: var(--border-1bit);
+  }
+
+  .case-grounding__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .case-grounding__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .case-grounding__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px dashed var(--color-border);
+  }
+  .case-grounding__item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .case-grounding__pub-title {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+  }
+  .case-grounding__pub-title a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+  .case-grounding__pub-title a:hover {
+    color: var(--color-accent);
+  }
+
+  .case-grounding__meta {
+    line-height: var(--leading-normal);
+  }
+
+  .case-grounding__abstract {
+    line-height: var(--leading-relaxed);
+    max-width: 68ch;
+  }
 
   .case-header__title {
     font-size: var(--text-3xl);

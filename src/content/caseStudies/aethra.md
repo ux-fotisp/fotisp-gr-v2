@@ -1,14 +1,25 @@
 ---
 title: "AETHRA: A CityOps WebApp for Public Safety with Open EU Data"
+domain: "CityOps & AI"
+role: "UX Research Lead & Product Designer"
+timeline: "2024 — 10 months"
+summary: "Civic intelligence platform combining Open EU datasets, real-time incident mapping, and AI-driven narrative synthesis for city operations centres."
+status: "completed"
+featuredOrder: 2
+isDraft: false
+services:
+  - "ux-strategy"
+  - "ux-research"
+publications:
+  - "mdpi-info-2026-modular-ia"
+  - "mdpi-info-2026-cultural-ux-taxonomy"
 tagline: "Civic intelligence platform combining Open EU datasets, real-time incident mapping, and AI-driven narrative synthesis for city operations centres."
 client: "Research prototype — Pfizer / University of the Aegean"
 category: "civic-tech"
 tags: ["civic tech", "open data", "AI UX", "data visualisation", "public safety", "EU data"]
 year: 2024
 duration: "10 months"
-role: "UX Research Lead & Product Designer"
 team: "1 UX designer (Fotis), 2 data engineers, 1 ML researcher, 1 policy advisor"
-status: "published"
 featured: true
 protected: false
 cover:
