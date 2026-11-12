@@ -210,14 +210,19 @@ const careerSteps = [
 </BaseLayout>
 
 <script>
-  const form = document.getElementById('contactForm') as HTMLFormElement | null;
-  const statusEl = document.getElementById('contactStatus');
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+  function initContactForm() {
+    const form = document.getElementById('contactForm') as HTMLFormElement | null;
+    const statusEl = document.getElementById('contactStatus');
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
 
-  if (form && statusEl && submitBtn) {
+    if (!form || !statusEl || !submitBtn) return;
+    if (form.dataset.listenerAttached === 'true') return;
+    form.dataset.listenerAttached = 'true';
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.textContent = 'Transmitting packet to /api/contact...';
+      statusEl.textContent = '[STATUS: BUFFERING — TRANSMITTING PACKET TO /api/contact...]';
+      statusEl.style.color = 'var(--color-text-muted)';
       submitBtn.disabled = true;
 
       try {
@@ -232,21 +237,24 @@ const careerSteps = [
 
         const json = await res.json();
         if (res.ok && json.success) {
-          statusEl.textContent = '200 OK: Transmission logged successfully. Fotis will respond shortly.';
+          statusEl.textContent = '[STATUS: 200_OK — TRANSMISSION LOGGED: PACKET DISPATCHED TO FOTIS]';
           statusEl.style.color = 'var(--color-success)';
           form.reset();
         } else {
-          statusEl.textContent = `Transmission failed: ${json.error || 'Server error'}`;
+          statusEl.textContent = `[STATUS: ${res.status}_ERROR — ${json.error || 'FIELD VERIFICATION FAILED'}]`;
           statusEl.style.color = 'var(--color-error)';
         }
       } catch (err) {
-        statusEl.textContent = 'Network error: could not connect to edge function.';
+        statusEl.textContent = '[STATUS: 500_ERROR — NETWORK PACKET DROPPED: CONNECTION TIMEOUT]';
         statusEl.style.color = 'var(--color-error)';
       } finally {
         submitBtn.disabled = false;
       }
     });
   }
+
+  initContactForm();
+  document.addEventListener('astro:page-load', initContactForm);
 </script>
 
 <style>

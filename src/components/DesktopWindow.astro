@@ -66,11 +66,55 @@ const fmtCoord = (n: number) => n.toFixed(2);
   <div class="desktop-window__coords" aria-label={`${figureTag}, coordinates x:${fmtCoord(coordX)} y:${fmtCoord(coordY)}`}>
     <span class="u-mono u-text-xs u-text-faint">{figureTag}</span>
     <span class="u-mono u-text-xs u-text-faint desktop-window__coords-sep" aria-hidden="true">·</span>
-    <span class="u-mono u-text-xs u-text-faint">
+    <span
+      class="u-mono u-text-xs u-text-faint desktop-window__coords-val"
+      data-default-coords={`x: ${fmtCoord(coordX)} y: ${fmtCoord(coordY)}`}
+    >
       x: {fmtCoord(coordX)} y: {fmtCoord(coordY)}
     </span>
   </div>
 </div>
+
+<script>
+  function setupLiveCoords() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const windows = document.querySelectorAll<HTMLElement>('.desktop-window');
+    windows.forEach((win) => {
+      if (win.dataset.coordsLive === 'true') return;
+      win.dataset.coordsLive = 'true';
+
+      const readOut = win.querySelector<HTMLElement>('.desktop-window__coords-val');
+      if (!readOut) return;
+
+      const fallbackText = readOut.dataset.defaultCoords || readOut.textContent || '';
+      let isTicking = false;
+
+      win.addEventListener('pointermove', (e: PointerEvent) => {
+        if (isTicking) return;
+        isTicking = true;
+
+        requestAnimationFrame(() => {
+          const rect = win.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            const relX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const relY = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            readOut.textContent = `x: ${relX.toFixed(2)} y: ${relY.toFixed(2)}`;
+          }
+          isTicking = false;
+        });
+      }, { passive: true });
+
+      win.addEventListener('pointerleave', () => {
+        readOut.textContent = fallbackText;
+      }, { passive: true });
+    });
+  }
+
+  // Run on initial load and on Astro view transition navigations
+  setupLiveCoords();
+  document.addEventListener('astro:page-load', setupLiveCoords);
+</script>
 
 <style>
   .desktop-window {

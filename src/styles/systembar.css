@@ -260,13 +260,74 @@
   color: #000000;
 }
 
-@media (max-width: 640px) {
+/* ── Mobile & Responsive Rules ───────────────────────────────────── */
+.systembar__mobile-menu {
+  display: none;
+  align-items: stretch;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
   .systembar__menus {
-    display: none;
+    display: none !important;
+  }
+
+  .systembar__mobile-menu {
+    display: flex !important;
   }
 
   .systembar__wordmark {
     width: auto;
     padding: 0 var(--space-3);
   }
+}
+
+@media (max-width: 540px) {
+  .systembar__clock-city {
+    display: none;
+  }
+
+  .systembar__clock {
+    padding: 0 var(--space-2);
+  }
+
+  .systembar__era-toggle {
+    padding: 0 var(--space-2);
+  }
+}
+
+@media (max-width: 380px) {
+  .systembar__clock {
+    font-size: 10px;
+    padding: 0 4px;
+  }
+}
+
+/* ── Webdrift Diagnostic / Installer Modal ───────────────────────── */
+.installer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.installer-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(8, 3, 3, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.installer-window {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  background-color: var(--color-surface);
+  border: var(--border-1bit);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }

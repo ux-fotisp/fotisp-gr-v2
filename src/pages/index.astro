@@ -1,8 +1,9 @@
 ---
 // src/pages/index.astro
-// Home — Swiss editorial hero + case study grid + services + publications
+// Home — Swiss editorial hero + case study filter + services + publications
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DesktopWindow from '../components/DesktopWindow.astro';
+import CaseStudyFilter from '../components/CaseStudyFilter';
 import { getCollection } from 'astro:content';
 
 const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
@@ -14,20 +15,97 @@ const publications = (await getCollection('publications', e => e.data.status ===
 const services = (await getCollection('services', e => e.data.available))
   .sort((a, b) => a.data.order - b.data.order);
 
-const categoryLabel: Record<string, string> = {
-  'health-tech':        'Health Tech',
-  'civic-tech':         'Civic Tech',
-  'e-commerce':         'E-Commerce',
-  'product-design':     'Product Design',
-  'ux-research':        'UX Research',
-  'ai-ux':              'AI UX',
-  'design-system':      'Design Systems',
-  'cultural-heritage':  'Cultural Heritage',
-  'enterprise':         'Enterprise',
-  'food-tech':          'Food Tech',
-};
+const serializedCaseStudies = caseStudies.map(entry => ({
+  id: entry.id.replace(/\.mdx?$/, ''),
+  title: entry.data.title,
+  tagline: entry.data.tagline,
+  category: entry.data.category,
+  year: entry.data.year,
+  duration: entry.data.duration,
+  protected: entry.data.protected,
+  figureTag: entry.data.figureTag,
+  problem: entry.data.problem,
+  outcome: entry.data.outcome,
+  impact: entry.data.impact,
+}));
+
+// Rich Schema.org ScholarlyArticle definitions for verified research
+const scholarlySchemas = publications.map(pub => ({
+  '@type': 'ScholarlyArticle',
+  headline: pub.data.title,
+  name: pub.data.title,
+  author: pub.data.authors.map(author => ({
+    '@type': 'Person',
+    name: author,
+  })),
+  datePublished: pub.data.month ? `${pub.data.year}-${pub.data.month}` : `${pub.data.year}`,
+  url: pub.data.url,
+  sameAs: pub.data.doi ? `https://doi.org/${pub.data.doi}` : pub.data.url,
+  ...(pub.data.abstract ? { description: pub.data.abstract } : {}),
+  ...(pub.data.venue
+    ? {
+        isPartOf: {
+          '@type': 'Periodical',
+          name: pub.data.venue,
+          ...(pub.data.publisher
+            ? {
+                publisher: {
+                  '@type': 'Organization',
+                  name: pub.data.publisher,
+                },
+              }
+            : {}),
+        },
+      }
+    : {}),
+  ...(pub.data.volume ? { volumeNumber: pub.data.volume } : {}),
+  ...(pub.data.issue ? { issueNumber: pub.data.issue } : {}),
+}));
+
+const indexSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Fotios Pastrakis',
+    alternateName: 'Fotis Pastrakis',
+    url: 'https://fotisp.gr',
+    sameAs: [
+      'https://linkedin.com/in/fotisp',
+      'https://github.com/ux-fotisp',
+    ],
+    jobTitle: 'Senior Associate, CX Designer',
+    worksFor: [
+      {
+        '@type': 'Organization',
+        name: 'Pfizer',
+        url: 'https://pfizer.com',
+      },
+    ],
+    alumniOf: [
+      {
+        '@type': 'CollegeOrUniversity',
+        name: 'University of the Aegean',
+        url: 'https://www.aegean.gr',
+      },
+    ],
+    knowsAbout: [
+      'UX Research', 'Product Design', 'Design Systems',
+      'Health Technology', 'Clinical UX', 'Information Architecture',
+      'Cultural Heritage UX', 'Accessibility',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Fotis Pastrakis Portfolio',
+    url: 'https://fotisp.gr',
+    description: 'Senior UX researcher, CX designer at Pfizer, and front-end systems architect.',
+    author: { '@type': 'Person', name: 'Fotios Pastrakis' },
+  },
+  ...scholarlySchemas,
+];
 ---
-<BaseLayout>
+<BaseLayout schema={indexSchema}>
   <!-- ── HERO ──────────────────────────────────────────────────── -->
   <section class="hero u-container" aria-labelledby="hero-headline">
     <div class="hero__meta">
@@ -86,54 +164,14 @@ const categoryLabel: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ── CASE STUDIES GRID ──────────────────────────────────────── -->
+  <!-- ── CASE STUDIES FILTER & GRID ───────────────────────────── -->
   <section class="work-section u-container" aria-labelledby="work-heading" id="work">
     <header class="section-header">
       <span class="section-label">Selected Work</span>
-      <h2 id="work-heading" class="section-title">Case Studies</h2>
+      <h2 id="work-heading" class="section-title">Case Studies & Systems</h2>
     </header>
 
-    <div class="work-grid">
-      {caseStudies.map((entry) => {
-        const slug = entry.id.replace(/\.mdx?$/, '');
-        return (
-          <article class="case-card">
-            <DesktopWindow
-              title={entry.data.title}
-              fileBadge={`${slug}.mdx`}
-              figureTag={entry.data.figureTag ?? 'Fig. ??'}
-              coordX={Math.random() * 0.5}
-              coordY={Math.random() * 0.5}
-            >
-              <a href={`/work/${slug}`} class="case-card__link" aria-label={`Read ${entry.data.title} case study`}>
-                <div class="case-card__cover" aria-hidden="true">
-                  <div class="case-card__cover-placeholder">
-                    <span class="u-mono u-text-xs u-text-faint">{entry.data.figureTag}</span>
-                  </div>
-                </div>
-                <div class="case-card__content">
-                  <div class="case-card__meta">
-                    <span class="tag tag--category">{categoryLabel[entry.data.category] ?? entry.data.category}</span>
-                    <span class="tag">{entry.data.year}</span>
-                    {entry.data.protected && <span class="tag tag--protected">NDA</span>}
-                  </div>
-                  <h3 class="case-card__title">{entry.data.title}</h3>
-                  <p class="case-card__tagline">{entry.data.tagline}</p>
-                  <div class="case-card__metrics" aria-label="Key outcomes">
-                    {entry.data.impact?.slice(0, 2).map(imp => (
-                      <div class="metric">
-                        <span class="metric__value">{imp.value}</span>
-                        <span class="metric__label">{imp.metric}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </a>
-            </DesktopWindow>
-          </article>
-        );
-      })}
-    </div>
+    <CaseStudyFilter client:load items={serializedCaseStudies} mode="grid" />
   </section>
 
   <!-- ── SERVICES ───────────────────────────────────────────────── -->

@@ -15,37 +15,37 @@ cover:
   src: "/images/case-studies/healthpulse-cover.jpg"
   alt: "HealthPulse mobile app — calm dark interface showing weekly blood pressure trend alongside medication adherence log"
 figureTag: "Fig. 02"
-problem: "Patients managing hypertension and Type 2 diabetes abandoned health-tracking apps at 73% within 30 days. Existing tools displayed raw clinical values — systolic/diastolic readings, HbA1c percentages — without contextual interpretation, triggering measurement anxiety in 61% of users (diary study baseline). Three participants had stopped measuring entirely to avoid seeing 'bad numbers'."
+problem: "Patients managing hypertension and Type 2 diabetes frequently abandon health-tracking tools due to overwhelming cognitive density. Existing tools display raw clinical values without contextual interpretation, triggering anxiety and avoidance. Clinical stakeholders needed a calm, accessible interface supporting dual-condition tracking without cognitive fatigue."
 process:
   - phase: "Discovery"
-    description: "Diary studies with 22 patients over 4 weeks (11 hypertension, 11 T2D). 1-on-1 interviews with patients and 6 specialist physicians. Three anxiety trigger patterns identified: raw value display without trend context, alert-only feedback (no positive reinforcement), and absent medication-adherence narrative."
+    description: "Qualitative research with patients managing hypertension and T2D, alongside specialist consultations. Key friction points identified around raw clinical data density, alert overload, and absent medication adherence narratives."
   - phase: "Define"
-    description: "Calm technology principles applied as a design constraint: the app should inform, not alarm. Defined two modes — Daily Check (30-second log, gestural, no numerical display by default) and Weekly Review (trend narrative, physician-ready export). Progressive disclosure for clinical values: visible on request, not on landing."
+    description: "Calm technology principles applied as an architectural constraint: the interface must inform without alarming. Structured two primary interaction modes: Daily Check (rapid gestural logging) and Weekly Review (trend narrative with physician export)."
   - phase: "Design"
-    description: "Home screen: trend direction as the primary signal (up/stable/down), colour-coded by personal baseline rather than clinical absolute. Medication log as a streak mechanic with no punitive streak-breaking. BP and glucose inputs via haptic slider to reduce the cognitive weight of numerical input. Accessible colour system: WCAG AAA contrast across all state variations."
+    description: "Home view prioritizing personal baseline trends over clinical absolutes. Simplified dual-condition biometric logging, progressive disclosure alert hierarchy, haptic slider inputs, and an accessible palette adhering to WCAG AAA contrast requirements."
   - phase: "Validate"
-    description: "180-patient beta. 30-day retention: 61% (up from 27% baseline). PHQ-4 anxiety scores decreased for 68% of participants. Measurement frequency increased 2.3× among participants who had reduced monitoring. SUS: 84."
-outcome: "Launched on iOS and Android. Recommended by the Hellenic Diabetes Association. 30-day retention at 61% against a 25% category benchmark."
+    description: "Usability evaluation with patient cohorts validating task efficiency, comprehension of trend narratives, and high acceptance of the non-punitive logging model. System Usability Scale (SUS) benchmarked at 84."
+outcome: "Launched on iOS and Android. Recommended by the Hellenic Diabetes Association. Established dual-condition biometric logging, progressive disclosure alert hierarchy, and WCAG AAA clinical legibility as the platform standard."
 impact:
-  - metric: "30-day retention"
-    value: "61%"
-    context: "Up from 27% beta baseline; category benchmark: 25%"
-  - metric: "Measurement frequency"
-    value: "+2.3×"
-    context: "Among users who had reduced self-monitoring"
-  - metric: "Anxiety reduction"
-    value: "68%"
-    context: "Patients reporting lower PHQ-4 scores after 30 days"
-  - metric: "App Store rating"
-    value: "4.7"
-    context: "1,200+ reviews, iOS and Android combined"
-methods: ["diary studies", "1-on-1 interviews", "expert interviews", "calm technology framework", "PHQ-4", "SUS", "WCAG audit"]
+  - metric: "Logging System"
+    value: "Dual-Condition"
+    context: "Unified hypertension & diabetes tracking"
+  - metric: "Information Architecture"
+    value: "Calm Tech"
+    context: "Progressive disclosure alert hierarchy"
+  - metric: "Accessibility"
+    value: "WCAG AAA"
+    context: "High-contrast clinical legibility standards"
+  - metric: "Endorsement"
+    value: "Official"
+    context: "Recommended by Hellenic Diabetes Association"
+methods: ["diary studies", "qualitative interviews", "expert consultations", "calm technology framework", "SUS", "WCAG AAA audit"]
 tools: ["Figma", "Maze", "Dovetail", "UserTesting", "Lottie"]
 deliverables: ["Research synthesis", "Patient journey map", "iOS/Android design system", "Accessibility audit report", "Physician-ready export spec"]
 order: 2
 seo:
   title: "HealthPulse Patient App — Case Study | Fotis Pastrakis"
-  description: "Calm health companion for hypertension and diabetes: 61% 30-day retention, anxiety reduced in 68% of patients."
+  description: "Calm health companion for hypertension and diabetes: dual-condition logging, progressive disclosure alerts, and WCAG AAA clinical legibility."
 ---
 
 ## Measuring without fear

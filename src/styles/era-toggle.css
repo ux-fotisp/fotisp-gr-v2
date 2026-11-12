@@ -22,36 +22,28 @@
   --font-body:             'JetBrains Mono', 'Courier New', monospace;
 }
 
-/* ── CRT scanline overlay ────────────────────────────────────────── */
-[data-era="1984"] body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-cursor);
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.18) 2px,
-    rgba(0, 0, 0, 0.18) 4px
-  );
-}
-
-/* ── Dithered surface pattern ────────────────────────────────────── */
+/* ── Authentic 1-Bit Macintosh 2x2 Checkerboard Dithering ─────────── */
 [data-era="1984"] .u-bg-surface,
 [data-era="1984"] .u-window,
 [data-era="1984"] .desktop-window {
+  background-color: #060606;
   background-image:
-    radial-gradient(circle, rgba(38, 16, 20, 0.6) 1px, transparent 1px);
-  background-size: 4px 4px;
-  background-color: #000000;
+    linear-gradient(45deg, #141414 25%, transparent 25%),
+    linear-gradient(-45deg, #141414 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #141414 75%),
+    linear-gradient(-45deg, transparent 75%, #141414 75%);
+  background-size: 2px 2px;
+  background-position: 0 0, 0 1px, 1px -1px, -1px 0px;
 }
 
-/* ── Pixelated image rendering ───────────────────────────────────── */
-[data-era="1984"] img {
+/* ── 1-Bit Dither Filter & Pixelated Media ────────────────────────── */
+[data-era="1984"] img,
+[data-era="1984"] svg,
+[data-era="1984"] video,
+[data-era="1984"] .case-card__cover,
+[data-era="1984"] .case-card__cover-placeholder {
   image-rendering: pixelated;
-  filter: grayscale(1) contrast(1.2);
+  filter: url(#dither-1bit);
 }
 
 /* ── Force mono font everywhere ──────────────────────────────────── */

@@ -1,25 +1,26 @@
 ---
 // src/pages/work/index.astro
-// Work index — All case studies in a high-density OS directory view
+// Work index — Interactive domain-filtered case studies directory
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import DesktopWindow from '../../components/DesktopWindow.astro';
+import CaseStudyFilter from '../../components/CaseStudyFilter';
 import { getCollection } from 'astro:content';
 
 const caseStudies = (await getCollection('caseStudies', e => e.data.status === 'published'))
   .sort((a, b) => a.data.order - b.data.order);
 
-const categoryLabel: Record<string, string> = {
-  'health-tech':        'Health Tech',
-  'civic-tech':         'Civic Tech',
-  'e-commerce':         'E-Commerce',
-  'product-design':     'Product Design',
-  'ux-research':        'UX Research',
-  'ai-ux':              'AI UX',
-  'design-system':      'Design Systems',
-  'cultural-heritage':  'Cultural Heritage',
-  'enterprise':         'Enterprise',
-  'food-tech':          'Food Tech',
-};
+const serializedCaseStudies = caseStudies.map(entry => ({
+  id: entry.id.replace(/\.mdx?$/, ''),
+  title: entry.data.title,
+  tagline: entry.data.tagline,
+  category: entry.data.category,
+  year: entry.data.year,
+  duration: entry.data.duration,
+  protected: entry.data.protected,
+  figureTag: entry.data.figureTag,
+  problem: entry.data.problem,
+  outcome: entry.data.outcome,
+  impact: entry.data.impact,
+}));
 ---
 
 <BaseLayout
@@ -31,7 +32,7 @@ const categoryLabel: Record<string, string> = {
     <header class="work-index__header">
       <div class="work-index__meta">
         <span class="section-label" aria-hidden="true">fp://work/case-studies</span>
-        <span class="u-mono u-text-xs u-text-faint">{caseStudies.length} items loaded</span>
+        <span class="u-mono u-text-xs u-text-faint">{caseStudies.length} specifications loaded</span>
       </div>
       <h1 class="work-index__title">Case Studies & Systems</h1>
       <p class="work-index__intro">
@@ -39,75 +40,8 @@ const categoryLabel: Record<string, string> = {
       </p>
     </header>
 
-    <!-- Case Studies List in Windows -->
-    <div class="work-index__grid">
-      {caseStudies.map((entry, idx) => {
-        const slug = entry.id.replace(/\.mdx?$/, '');
-        return (
-          <article class="work-index__item">
-            <DesktopWindow
-              title={entry.data.title}
-              fileBadge={`${slug}.mdx`}
-              figureTag={entry.data.figureTag ?? `Fig. 0${idx + 1}`}
-              coordX={0.12 * (idx + 1)}
-              coordY={0.24 * (idx + 1)}
-            >
-              <div class="case-card-inner">
-                <div class="case-card-inner__meta">
-                  <span class="tag tag--category">
-                    {categoryLabel[entry.data.category] ?? entry.data.category}
-                  </span>
-                  <span class="tag">{entry.data.year}</span>
-                  {entry.data.duration && <span class="tag">{entry.data.duration}</span>}
-                  {entry.data.protected && <span class="tag tag--protected">NDA</span>}
-                </div>
-
-                <h2 class="case-card-inner__heading">
-                  <a href={`/work/${slug}`} class="case-card-inner__title-link">
-                    {entry.data.title}
-                  </a>
-                </h2>
-
-                <p class="case-card-inner__tagline">
-                  {entry.data.tagline}
-                </p>
-
-                <!-- Problem & Outcome Snippets -->
-                <div class="case-card-inner__dual">
-                  <div class="dual-col">
-                    <span class="dual-col__label u-mono u-text-xs u-text-faint u-uppercase">The Problem</span>
-                    <p class="dual-col__text u-text-sm u-text-muted">{entry.data.problem.slice(0, 160)}...</p>
-                  </div>
-                  <div class="dual-col">
-                    <span class="dual-col__label u-mono u-text-xs u-text-faint u-uppercase">The Outcome</span>
-                    <p class="dual-col__text u-text-sm u-text-muted">{entry.data.outcome.slice(0, 160)}...</p>
-                  </div>
-                </div>
-
-                <!-- Metrics -->
-                {entry.data.impact && entry.data.impact.length > 0 && (
-                  <div class="case-card-inner__metrics">
-                    {entry.data.impact.slice(0, 3).map(imp => (
-                      <div class="metric-pill">
-                        <span class="metric-pill__val">{imp.value}</span>
-                        <span class="metric-pill__name u-mono u-text-xs">{imp.metric}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <!-- CTA -->
-                <div class="case-card-inner__actions">
-                  <a href={`/work/${slug}`} class="btn-read-case u-mono u-text-xs">
-                    Inspect Specification [Enter] →
-                  </a>
-                </div>
-              </div>
-            </DesktopWindow>
-          </article>
-        );
-      })}
-    </div>
+    <!-- Interactive Filter & Directory -->
+    <CaseStudyFilter client:load items={serializedCaseStudies} mode="directory" />
   </div>
 </BaseLayout>
 

@@ -2,6 +2,7 @@
 // BaseLayout.astro — master shell: SystemBar + ClientRouter + JSON-LD
 import { ClientRouter } from 'astro:transitions';
 import SystemBar from '../components/SystemBar';
+import WebdriftInstaller from '../components/WebdriftInstaller';
 import JsonLd from '../components/JsonLd.astro';
 import '../styles/global.css';
 import '../styles/systembar.css';
@@ -107,11 +108,39 @@ const defaultSchema: Record<string, unknown>[] = [
   </head>
 
   <body>
+    <!-- SVG 1-Bit Macintosh Dithering Filter -->
+    <svg class="u-sr-only" aria-hidden="true" width="0" height="0">
+      <filter id="dither-1bit">
+        <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncR type="discrete" tableValues="0 1" />
+          <feFuncG type="discrete" tableValues="0 1" />
+          <feFuncB type="discrete" tableValues="0 1" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
+
+    <!-- Inline Script to Restore data-era across View Transitions -->
+    <script is:inline>
+      (function () {
+        function restoreEra() {
+          var era = localStorage.getItem('fotisp-era') || '2026';
+          document.documentElement.dataset.era = era;
+        }
+        restoreEra();
+        document.addEventListener('astro:after-swap', restoreEra);
+        document.addEventListener('astro:page-load', restoreEra);
+      })();
+    </script>
+
     <!-- Skip navigation — first focusable element -->
     <a href="#main-content" class="skip-link">Skip to content</a>
 
-    <!-- SystemBar: React 19 island, loads immediately -->
-    <SystemBar client:load />
+    <!-- SystemBar: React 19 island, persisted across page swaps -->
+    <SystemBar client:load transition:persist="system-bar" />
+
+    <!-- Webdrift System Diagnostic & Installer Modal -->
+    <WebdriftInstaller client:load transition:persist="webdrift-installer" />
 
     <!-- Page content -->
     <main id="main-content" tabindex="-1">

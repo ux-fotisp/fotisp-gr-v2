@@ -3,9 +3,11 @@
  * React 19 island: client:load
  *
  * Features:
- *   - File / Edit / View / Special dropdown menus with keyboard navigation
- *   - 1984 ↔ 2026 era toggle: writes data-era to <html>
+ *   - File / Edit / View / Special dropdown menus with full keyboard navigation
+ *   - Shift+Alt+E (⇧⌥E) 1984 ↔ 2026 era toggle (ignoring input/textarea/select)
+ *   - Run System Diagnostic (⌘D) triggering WebdriftInstaller modal
  *   - Live clock — Thessaloniki time (Europe/Athens)
+ *   - Uses 'fotisp-era' in localStorage
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -28,61 +30,116 @@ interface Menu {
   items: MenuItem[];
 }
 
+function isInteractiveElement(el: Element | null): boolean {
+  if (!el) return false;
+  const tag = el.tagName.toLowerCase();
+  return (
+    tag === 'input' ||
+    tag === 'textarea' ||
+    tag === 'select' ||
+    (el as HTMLElement).isContentEditable
+  );
+}
+
 // ── Menu definitions ────────────────────────────────────────────────
 
-function buildMenus(navigateTo: (path: string) => void): Menu[] {
+function buildMenus(
+  navigateTo: (path: string) => void,
+  triggerEraToggle: () => void,
+  triggerDiagnostic: () => void
+): Menu[] {
   return [
     {
       id: 'file',
       label: 'File',
       items: [
-        { label: 'Open Portfolio', shortcut: '⌘O', action: () => navigateTo('/') },
-        { label: 'Open Case Study', shortcut: '⌘K', disabled: true },
+        { label: 'Open Portfolio (Home)', shortcut: '⌘O', action: () => navigateTo('/') },
+        { label: 'Case Studies Directory', shortcut: '⌘W', action: () => navigateTo('/work') },
         { divider: true, label: '---' },
-        { label: 'Work', action: () => navigateTo('/work') },
-        { label: 'About', action: () => navigateTo('/about') },
-        { divider: true, label: '---' },
-        { label: 'Get in Touch', shortcut: '⌘M', action: () => {
-          document.getElementById('contact-drawer')?.focus();
-        }},
+        { label: 'About & Career Timeline', action: () => navigateTo('/about') },
+        {
+          label: 'Contact Terminal',
+          shortcut: '⌘M',
+          action: () => {
+            const drawer = document.getElementById('contact-drawer');
+            if (drawer) {
+              drawer.scrollIntoView({ behavior: 'smooth' });
+              drawer.focus();
+            } else {
+              navigateTo('/about#contact-drawer');
+            }
+          },
+        },
       ],
     },
     {
       id: 'edit',
       label: 'Edit',
       items: [
-        { label: 'Copy Email', shortcut: '⌘C', action: () => {
-          navigator.clipboard?.writeText('fotis@fotisp.gr');
-        }},
-        { label: 'Copy LinkedIn URL', action: () => {
-          navigator.clipboard?.writeText('https://linkedin.com/in/fotisp');
-        }},
+        {
+          label: 'Copy Direct Email',
+          shortcut: '⌘C',
+          action: () => {
+            navigator.clipboard?.writeText('fotis@fotisp.gr');
+          },
+        },
+        {
+          label: 'Copy LinkedIn Profile',
+          action: () => {
+            navigator.clipboard?.writeText('https://linkedin.com/in/fotisp');
+          },
+        },
         { divider: true, label: '---' },
-        { label: 'Find on Page', shortcut: '⌘F', action: () => {
-          (document.getElementById('main-content') as HTMLElement)?.focus();
-        }},
+        {
+          label: 'Focus Main Content',
+          shortcut: '⌘F',
+          action: () => {
+            (document.getElementById('main-content') as HTMLElement)?.focus();
+          },
+        },
       ],
     },
     {
       id: 'view',
       label: 'View',
       items: [
-        { label: 'All Case Studies', action: () => navigateTo('/work') },
-        { label: 'Publications', action: () => navigateTo('/#publications') },
-        { label: 'Services', action: () => navigateTo('/#services') },
+        { label: 'Clinical Systems (MediPulse)', action: () => navigateTo('/work/medipulse') },
+        { label: 'CityOps & Open EU Data (AETHRA)', action: () => navigateTo('/work/aethra') },
+        { label: 'Calm Health Tech (HealthPulse)', action: () => navigateTo('/work/healthpulse') },
+        { label: 'Faceted E-Tailer (FoodWeLove)', action: () => navigateTo('/work/food-we-love') },
         { divider: true, label: '---' },
-        { label: 'Source on GitHub', action: () => {
-          window.open('https://github.com/fotisp', '_blank', 'noopener');
-        }},
+        {
+          label: 'Publications & DOI Links',
+          action: () => {
+            const pubEl = document.getElementById('publications');
+            if (pubEl) pubEl.scrollIntoView({ behavior: 'smooth' });
+            else navigateTo('/#publications');
+          },
+        },
+        {
+          label: 'GitHub Codebase',
+          action: () => {
+            window.open('https://github.com/ux-fotisp/fotisp-gr-v2', '_blank', 'noopener');
+          },
+        },
       ],
     },
     {
       id: 'special',
       label: 'Special',
       items: [
-        { label: 'Toggle 1984 Mode', shortcut: '⌘E', action: () => {/* handled by EraToggle */ } },
+        {
+          label: 'Run System Diagnostic',
+          shortcut: '⌘D',
+          action: triggerDiagnostic,
+        },
+        {
+          label: 'Toggle 1984 Macintosh Mode',
+          shortcut: '⇧⌥E',
+          action: triggerEraToggle,
+        },
         { divider: true, label: '---' },
-        { label: 'Restart Desktop', action: () => window.location.reload() },
+        { label: 'Re-initialise Desktop', action: () => window.location.reload() },
         { label: 'Empty Trash', action: () => navigateTo('/404') },
       ],
     },
@@ -112,52 +169,42 @@ function Clock() {
     <span
       className="systembar__clock"
       aria-label={`Local time in Thessaloniki: ${time}`}
-      title="Thessaloniki local time"
+      title="Thessaloniki local time (Europe/Athens)"
     >
-      Thessaloniki [{time}]
+      <span className="systembar__clock-city">Thessaloniki </span>
+      <span className="systembar__clock-time">[{time}]</span>
     </span>
   );
 }
 
 // ── Era Toggle ────────────────────────────────────────────────────────
 
-function EraToggle() {
+function EraToggle({ onToggle }: { onToggle: () => void }) {
   const [era, setEra] = useState<'2026' | '1984'>('2026');
 
-  useEffect(() => {
-    const stored = localStorage.getItem('fp-era') as '1984' | '2026' | null;
-    if (stored) {
-      setEra(stored);
-      document.documentElement.dataset.era = stored;
-    }
+  const syncFromDom = useCallback(() => {
+    const current = (document.documentElement.dataset.era as '1984' | '2026') || '2026';
+    setEra(current);
   }, []);
 
-  const toggle = useCallback(() => {
-    const next = era === '2026' ? '1984' : '2026';
-    setEra(next);
-    document.documentElement.dataset.era = next;
-    localStorage.setItem('fp-era', next);
-  }, [era]);
-
-  // Keyboard shortcut ⌘E / Ctrl+E
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
-        e.preventDefault();
-        toggle();
-      }
+    const stored = (localStorage.getItem('fotisp-era') as '1984' | '2026' | null) || '2026';
+    setEra(stored);
+    document.documentElement.dataset.era = stored;
+
+    document.addEventListener('astro:after-swap', syncFromDom);
+    return () => {
+      document.removeEventListener('astro:after-swap', syncFromDom);
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [toggle]);
+  }, [syncFromDom]);
 
   return (
     <button
       className={clsx('systembar__era-toggle', era === '1984' && 'is-retro')}
-      onClick={toggle}
+      onClick={onToggle}
       aria-pressed={era === '1984'}
-      aria-label={`Switch to ${era === '2026' ? '1984' : '2026'} era`}
-      title={`${era === '2026' ? 'Enable' : 'Disable'} 1984 mode (⌘E)`}
+      aria-label={`Switch to ${era === '2026' ? '1984' : '2026'} era (Shift+Alt+E)`}
+      title={`${era === '2026' ? 'Enable' : 'Disable'} 1984 Macintosh Dithering (⇧⌥E)`}
     >
       {era === '2026' ? '1984' : '2026'}
     </button>
@@ -177,16 +224,13 @@ interface DropdownProps {
 function Dropdown({ menu, isOpen, onOpen, onClose, onNavigate }: DropdownProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const [focusIdx, setFocusIdx] = useState(0);
-
-  const items = menu.items.filter(it => !it.divider);
 
   useEffect(() => {
     if (isOpen) {
-      setFocusIdx(0);
-      // Focus first item after render
       requestAnimationFrame(() => {
-        const first = listRef.current?.querySelector<HTMLElement>('[role="menuitem"]:not([aria-disabled])');
+        const first = listRef.current?.querySelector<HTMLElement>(
+          '[role="menuitem"]:not([aria-disabled])'
+        );
         first?.focus();
       });
     }
@@ -230,7 +274,6 @@ function Dropdown({ menu, isOpen, onOpen, onClose, onNavigate }: DropdownProps) 
       onNavigate('prev');
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
-      onClose();
       onNavigate('next');
     } else if (e.key === 'Tab') {
       onClose();
@@ -255,7 +298,7 @@ function Dropdown({ menu, isOpen, onOpen, onClose, onNavigate }: DropdownProps) 
       <button
         ref={triggerRef}
         className={clsx('systembar__menu-trigger', isOpen && 'is-open')}
-        onClick={() => isOpen ? onClose() : onOpen()}
+        onClick={() => (isOpen ? onClose() : onOpen())}
         onKeyDown={handleTriggerKeyDown}
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -309,7 +352,49 @@ export default function SystemBar() {
     window.location.href = path;
   }, []);
 
-  const menus = buildMenus(navigateTo);
+  const toggleEra = useCallback(() => {
+    const current = (document.documentElement.dataset.era as '1984' | '2026') || '2026';
+    const next = current === '2026' ? '1984' : '2026';
+    document.documentElement.dataset.era = next;
+    localStorage.setItem('fotisp-era', next);
+    window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
+  }, []);
+
+  const triggerDiagnostic = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('open-webdrift-installer'));
+  }, []);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 1. Ignore if active element is an input, textarea, select, or editable
+      if (isInteractiveElement(document.activeElement)) return;
+
+      // 2. Shift+Alt+E: Toggle 1984 / 2026 era mode
+      if (e.shiftKey && e.altKey && (e.key === 'E' || e.key === 'e')) {
+        e.preventDefault();
+        toggleEra();
+        return;
+      }
+
+      // 3. Cmd+D / Ctrl+D: Run System Diagnostic
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        triggerDiagnostic();
+        return;
+      }
+
+      // 4. Escape: Close open menus
+      if (e.key === 'Escape') {
+        setOpenMenu(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleEra, triggerDiagnostic]);
+
+  const menus = buildMenus(navigateTo, toggleEra, triggerDiagnostic);
 
   // Close on outside click
   useEffect(() => {
@@ -322,34 +407,26 @@ export default function SystemBar() {
     return () => document.removeEventListener('mousedown', handler);
   }, [openMenu]);
 
-  // Close on Escape globally
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpenMenu(null);
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, []);
-
   const getAdjacentMenu = (id: string, direction: 'prev' | 'next') => {
-    const idx = menus.findIndex(m => m.id === id);
+    const idx = menus.findIndex((m) => m.id === id);
     if (idx < 0) return null;
-    const nextIdx = direction === 'next'
-      ? (idx + 1) % menus.length
-      : (idx - 1 + menus.length) % menus.length;
+    const nextIdx =
+      direction === 'next'
+        ? (idx + 1) % menus.length
+        : (idx - 1 + menus.length) % menus.length;
     return menus[nextIdx].id;
   };
 
   return (
     <header className="systembar" role="banner" aria-label="System menu bar">
-      {/* Apple-logo equivalent: wordmark */}
+      {/* Wordmark logo */}
       <a href="/" className="systembar__wordmark" aria-label="Fotis Pastrakis — home">
         fp
       </a>
 
-      {/* Menus */}
+      {/* Desktop Menus */}
       <nav className="systembar__menus" aria-label="Main menu">
-        {menus.map(menu => (
+        {menus.map((menu) => (
           <Dropdown
             key={menu.id}
             menu={menu}
@@ -364,9 +441,27 @@ export default function SystemBar() {
         ))}
       </nav>
 
+      {/* Mobile Combined Menu Dropdown */}
+      <nav className="systembar__mobile-menu" aria-label="Mobile navigation menu">
+        <Dropdown
+          menu={{
+            id: 'mobile-main',
+            label: 'Menu',
+            items: menus.flatMap((m) => [
+              { label: `── ${m.label.toUpperCase()} ──`, disabled: true },
+              ...m.items,
+            ]),
+          }}
+          isOpen={openMenu === 'mobile-main'}
+          onOpen={() => setOpenMenu('mobile-main')}
+          onClose={() => setOpenMenu(null)}
+          onNavigate={() => {}}
+        />
+      </nav>
+
       {/* Right side controls */}
       <div className="systembar__controls" aria-label="System controls">
-        <EraToggle />
+        <EraToggle onToggle={toggleEra} />
         <Clock />
       </div>
     </header>

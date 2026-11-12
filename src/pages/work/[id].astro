@@ -22,15 +22,45 @@ const { Content } = await render(entry);
 
 const d = entry.data;
 
-const schema = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: d.title,
-  description: d.tagline,
-  author: { '@type': 'Person', name: 'Fotios Pastrakis' },
-  datePublished: `${d.year}-01-01`,
-  publisher: { '@type': 'Person', name: 'Fotios Pastrakis', url: 'https://fotisp.gr' },
-};
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: d.title,
+    description: d.tagline,
+    author: { '@type': 'Person', name: 'Fotios Pastrakis', url: 'https://fotisp.gr' },
+    datePublished: `${d.year}-01-01`,
+    publisher: { '@type': 'Person', name: 'Fotios Pastrakis', url: 'https://fotisp.gr' },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://fotisp.gr/work/${slug}`,
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://fotisp.gr',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Case Studies',
+        item: 'https://fotisp.gr/work',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: d.title,
+        item: `https://fotisp.gr/work/${slug}`,
+      },
+    ],
+  },
+];
 ---
 <BaseLayout
   title={`${d.title} — Case Study | Fotis Pastrakis`}
