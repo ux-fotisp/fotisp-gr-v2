@@ -93,15 +93,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // 1. Honeypot check: If either honeypot field is filled, silently discard
+    // 1. Honeypot check: If either honeypot field is filled, reject transmission
     if (
       (payload.company_fax && payload.company_fax.trim() !== '') ||
       (payload._gotcha && payload._gotcha.trim() !== '')
     ) {
       return new Response(
-        JSON.stringify({ success: true, message: 'Transmission accepted.' }),
+        JSON.stringify({ error: 'Transmission rejected by security filter.' }),
         {
-          status: 200,
+          status: 403,
           headers: { 'Content-Type': 'application/json' },
         }
       );

@@ -8,10 +8,17 @@
  * - Click/drag brings clicked window to the front (incrementing global z-index).
  * - Constrained to viewport boundaries.
  * - Automatically disabled on mobile viewports (< 768px) and when prefers-reduced-motion is true.
+ * - Resets transform (x, y) on mobile resize and listens for 'reset-windows' custom event.
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useDragControls, useReducedMotion } from 'framer-motion';
+import {
+  motion,
+  useDragControls,
+  useReducedMotion,
+  useMotionValue,
+  animate,
+} from 'framer-motion';
 
 // Global shared z-index counter for desktop windows
 let sharedZIndex = 20;
@@ -32,6 +39,11 @@ export default function DraggableFrame({
   const shouldReduceMotion = useReducedMotion();
   const [isDesktop, setIsDesktop] = useState(false);
   const [zIndex, setZIndex] = useState(defaultZIndex);
+
+  // Explicit motion values for position tracking and resetting
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
   const [constraints, setConstraints] = useState<{
     top: number;
     left: number;
@@ -39,15 +51,31 @@ export default function DraggableFrame({
     bottom: number;
   } | false>(false);
 
-  // Monitor desktop viewport (>= 768px)
+  // Monitor desktop viewport (>= 768px) and reset if shrinking to mobile or reduced motion
   useEffect(() => {
     const checkDesktop = () => {
-      setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 768);
+      const desktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+      setIsDesktop(desktop);
+      if (!desktop || shouldReduceMotion) {
+        x.set(0);
+        y.set(0);
+      }
     };
     checkDesktop();
     window.addEventListener('resize', checkDesktop);
     return () => window.removeEventListener('resize', checkDesktop);
-  }, []);
+  }, [shouldReduceMotion, x, y]);
+
+  // Listen for 'reset-windows' custom event to smoothly animate back to { x: 0, y: 0 }
+  useEffect(() => {
+    const handleReset = () => {
+      animate(x, 0, { type: 'spring', damping: 25, stiffness: 200 });
+      animate(y, 0, { type: 'spring', damping: 25, stiffness: 200 });
+    };
+
+    window.addEventListener('reset-windows', handleReset);
+    return () => window.removeEventListener('reset-windows', handleReset);
+  }, [x, y]);
 
   const canDrag = isDesktop && !shouldReduceMotion;
 
@@ -61,12 +89,19 @@ export default function DraggableFrame({
   const updateConstraints = () => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
+    const curX = x.get();
+    const curY = y.get();
+    const originLeft = rect.left - curX;
+    const originTop = rect.top - curY;
+    const originRight = rect.right - curX;
+    const originBottom = rect.bottom - curY;
+
     // Allow dragging within viewport, keeping below top systembar (approx 38px)
     setConstraints({
-      top: -rect.top + 38,
-      left: -rect.left + 12,
-      right: window.innerWidth - rect.right - 12,
-      bottom: window.innerHeight - rect.bottom - 12,
+      top: -originTop + 38,
+      left: -originLeft + 12,
+      right: window.innerWidth - originRight - 12,
+      bottom: window.innerHeight - originBottom - 12,
     });
   };
 
@@ -112,7 +147,7 @@ export default function DraggableFrame({
       titlebar.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [dragControls, canDrag]);
+  }, [dragControls, canDrag, x, y]);
 
   return (
     <motion.div
@@ -127,6 +162,8 @@ export default function DraggableFrame({
       onMouseDown={bringToFront}
       onTouchStart={bringToFront}
       style={{
+        x,
+        y,
         zIndex,
         position: 'relative',
         touchAction: canDrag ? 'none' : 'auto',

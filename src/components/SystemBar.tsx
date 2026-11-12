@@ -82,13 +82,13 @@ function buildMenus(
           label: 'Copy Direct Email',
           shortcut: '⌘C',
           action: () => {
-            navigator.clipboard?.writeText('fotis@fotisp.gr');
+            navigator.clipboard?.writeText('fotispastrakis@gmail.com');
           },
         },
         {
           label: 'Copy LinkedIn Profile',
           action: () => {
-            navigator.clipboard?.writeText('https://linkedin.com/in/fotisp');
+            navigator.clipboard?.writeText('https://www.linkedin.com/in/fotispastrakis');
           },
         },
         { divider: true, label: '---' },
@@ -109,6 +109,13 @@ function buildMenus(
         { label: 'CityOps & Open EU Data (AETHRA)', action: () => navigateTo('/work/aethra') },
         { label: 'Calm Health Tech (HealthPulse)', action: () => navigateTo('/work/healthpulse') },
         { label: 'Faceted E-Tailer (FoodWeLove)', action: () => navigateTo('/work/food-we-love') },
+        { divider: true, label: '---' },
+        {
+          label: 'Reset Window Positions',
+          action: () => {
+            window.dispatchEvent(new CustomEvent('reset-windows'));
+          },
+        },
         { divider: true, label: '---' },
         {
           label: 'Publications & DOI Links',

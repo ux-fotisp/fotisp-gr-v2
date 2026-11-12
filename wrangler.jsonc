@@ -12,14 +12,12 @@
 		{
 			"binding": "fotisp_db",
 			"database_name": "fotisp-db",
-			"database_id": "168e7737-ecea-4c82-85a3-dbdd1e0c5fae",
-			"remote": true
+			"database_id": "168e7737-ecea-4c82-85a3-dbdd1e0c5fae"
 		},
 		{
 			"binding": "DB",
 			"database_name": "fotisp-db",
-			"database_id": "168e7737-ecea-4c82-85a3-dbdd1e0c5fae",
-			"remote": true
+			"database_id": "168e7737-ecea-4c82-85a3-dbdd1e0c5fae"
 		}
 	]
 }
