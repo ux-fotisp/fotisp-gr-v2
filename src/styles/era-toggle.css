@@ -4,18 +4,24 @@
    ================================================================= */
 
 /* ── Token overrides ─────────────────────────────────────────────── */
-[data-era="1984"] {
+[data-era="1984"],
+html[data-era="1984"] {
   --color-bg:              #000000;
   --color-surface:         #0d0d0d;
-  --color-surface-raised:  #1a1a1a;
-  --color-border:          #3a3a3a;
-  --color-border-subtle:   #2a2a2a;
-  --color-border-strong:   #555555;
+  --color-surface-raised:  #141414;
+  --color-surface-elevated:#141414;
+  --color-border:          #EE2626;
+  --color-border-crimson:  #EE2626;
+  --color-border-subtle:   rgba(238, 38, 38, 0.4);
+  --color-border-strong:   #EE2626;
+  --radius-card:           0px;
+  --radius-banner:         0px;
+  --radius-pill:           0px;
   --color-text:            #f0f0f0;
   --color-text-muted:      #c0c0c0;
   --color-text-faint:      #707070;
   --color-chrome-bg:       #000000;
-  --color-chrome-border:   #3a3a3a;
+  --color-chrome-border:   #EE2626;
   --color-chrome-text:     #c0c0c0;
   /* Accent stays Crimson — the one colour in a monochrome world */
   --font-display:          'JetBrains Mono', 'Courier New', monospace;

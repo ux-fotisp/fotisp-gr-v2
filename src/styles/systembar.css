@@ -1,333 +1,326 @@
 /* =================================================================
-   systembar.css — SystemBar component styles
-   Scoped to .systembar — no utility classes used for the bar itself.
+   systembar.css — Floating Pill Navigation Header
+   fotisp.gr v2 | Stage 11 Design System Alignment
    ================================================================= */
 
-/* ── Shell ───────────────────────────────────────────────────────── */
+/* ── Floating Header Shell ────────────────────────────────────────── */
 .systembar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: var(--z-systembar);
-  height: var(--systembar-height);
-
-  display: flex;
-  align-items: center;
-  gap: 0;
-
-  background-color: var(--color-chrome-bg);
-  border-bottom: var(--border-1bit);
-
-  /* Slight blur for depth */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
+  padding: 14px var(--gutter);
+  background: linear-gradient(180deg, rgba(8, 3, 3, 0.92) 0%, rgba(8, 3, 3, 0.6) 80%, transparent 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
   user-select: none;
 }
 
-/* ── Wordmark (Apple logo equivalent) ───────────────────────────── */
-.systembar__wordmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 100%;
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: var(--weight-black);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--color-text);
-  text-decoration: none;
-  border-right: var(--border-1bit-subtle);
-  transition: color var(--duration-fast) var(--ease-out-quart),
-              background-color var(--duration-fast) var(--ease-out-quart);
-}
-
-.systembar__wordmark:hover {
-  color: var(--color-accent);
-  background-color: var(--color-surface);
-}
-
-.systembar__wordmark:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
-}
-
-/* ── Menu nav ────────────────────────────────────────────────────── */
-.systembar__menus {
-  display: flex;
-  align-items: stretch;
-  height: 100%;
-  flex: 1;
-}
-
-/* ── Menu item wrapper ───────────────────────────────────────────── */
-.systembar__menu {
-  position: relative;
-  height: 100%;
-}
-
-/* ── Menu trigger button ─────────────────────────────────────────── */
-.systembar__menu-trigger {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 var(--space-3);
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-muted);
-  letter-spacing: 0;
-  background: none;
-  border: none;
-  border-right: var(--border-1bit-subtle);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color var(--duration-fast) var(--ease-out-quart),
-              background-color var(--duration-fast) var(--ease-out-quart);
-}
-
-.systembar__menu-trigger:hover,
-.systembar__menu-trigger.is-open {
-  color: var(--color-text);
-  background-color: var(--color-surface);
-}
-
-.systembar__menu-trigger:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
-}
-
-/* ── Dropdown panel ──────────────────────────────────────────────── */
-.systembar__dropdown {
-  position: absolute;
-  top: calc(100% + 1px);
-  left: 0;
-  min-width: 200px;
-  background-color: var(--color-chrome-bg);
-  border: var(--border-1bit);
-  list-style: none;
-  padding: var(--space-1) 0;
-  z-index: var(--z-overlay);
-
-  /* Entrance animation */
-  animation: dropdown-enter var(--duration-fast) var(--ease-snap) forwards;
-}
-
-@keyframes dropdown-enter {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Dropdown item ───────────────────────────────────────────────── */
-.systembar__item {
+.systembar__inner {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: var(--space-1) var(--space-4);
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  gap: var(--space-8);
-  transition: color var(--duration-instant) var(--ease-out-quart),
-              background-color var(--duration-instant) var(--ease-out-quart);
+  gap: var(--space-4);
+  pointer-events: auto;
 }
 
-.systembar__item:hover,
-.systembar__item:focus-visible {
-  color: var(--color-text);
+/* ── Brand: [FP] Badge + fotisp.gr Wordmark ─────────────────────── */
+.systembar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--color-text-main);
+  transition: opacity var(--duration-fast) var(--ease-out-quart);
+  flex-shrink: 0;
+}
+
+.systembar__brand:hover {
+  opacity: 0.9;
+}
+
+.systembar__brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background-color: var(--color-accent);
-  outline: none;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: var(--weight-black);
+  font-size: 12px;
+  letter-spacing: -0.02em;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(238, 38, 38, 0.4);
+  flex-shrink: 0;
 }
 
-.systembar__item[aria-disabled] {
-  color: var(--color-text-faint);
-  cursor: not-allowed;
-}
-
-.systembar__item[aria-disabled]:hover {
-  background-color: transparent;
-  color: var(--color-text-faint);
-}
-
-/* ── Shortcut key ─────────────────────────────────────────────────── */
-.systembar__item-kbd {
-  font-family: var(--font-mono);
-  font-size: calc(var(--text-xs) * 0.9);
-  color: var(--color-text-faint);
-  background: none;
-  border: none;
-  padding: 0;
-}
-
-.systembar__item:hover .systembar__item-kbd,
-.systembar__item:focus-visible .systembar__item-kbd {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* ── Divider ──────────────────────────────────────────────────────── */
-.systembar__divider {
-  height: 1px;
-  background-color: var(--color-border);
-  margin: var(--space-1) 0;
-}
-
-/* ── Right controls ───────────────────────────────────────────────── */
-.systembar__controls {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  height: 100%;
-  margin-left: auto;
-  border-left: var(--border-1bit-subtle);
-}
-
-/* ── Era toggle ───────────────────────────────────────────────────── */
-.systembar__era-toggle {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
+.systembar__brand-text {
+  font-family: var(--font-display);
   font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-widest);
-  color: var(--color-text-faint);
-  background: none;
-  border: none;
-  border-right: var(--border-1bit-subtle);
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-out-quart),
-              background-color var(--duration-fast) var(--ease-out-quart);
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--color-text-main);
 }
 
-.systembar__era-toggle:hover {
-  color: var(--color-accent);
-  background-color: var(--color-surface);
-}
-
-.systembar__era-toggle.is-retro {
-  color: var(--color-accent);
-}
-
-.systembar__era-toggle:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
-}
-
-/* ── Clock ────────────────────────────────────────────────────────── */
-.systembar__clock {
-  display: flex;
+/* ── Center Floating Pill Nav ────────────────────────────────────── */
+.systembar__nav {
+  display: inline-flex;
   align-items: center;
-  height: 100%;
-  padding: 0 var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(18, 12, 14, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.systembar__nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--weight-medium);
   color: var(--color-text-muted);
-  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  transition: all var(--duration-fast) var(--ease-out-quart);
   white-space: nowrap;
 }
 
-/* ── 1984 Era Overrides ───────────────────────────────────────────── */
-[data-era="1984"] .systembar {
-  background-color: #000000;
-  border-bottom-color: #ffffff;
+.systembar__nav-link:hover {
+  color: var(--color-text-main);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-[data-era="1984"] .systembar__menu-trigger,
-[data-era="1984"] .systembar__item,
-[data-era="1984"] .systembar__clock,
-[data-era="1984"] .systembar__era-toggle {
+.systembar__nav-link.is-active {
+  color: var(--color-text-main);
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Right Status & Controls ─────────────────────────────────────── */
+.systembar__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Availability Status Pill */
+.systembar__status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(18, 12, 14, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
   font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
-[data-era="1984"] .systembar__menu-trigger:hover,
-[data-era="1984"] .systembar__menu-trigger.is-open {
-  background-color: #ffffff;
+.systembar__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+  animation: pulse-dot 2.2s ease-in-out infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+/* Compact Era Toggle Pill */
+.systembar__era-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(18, 12, 14, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-faint);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out-quart);
+  white-space: nowrap;
+}
+
+.systembar__era-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-main);
+}
+
+.systembar__era-opt {
+  transition: color var(--duration-fast) var(--ease-out-quart);
+}
+
+.systembar__era-opt.is-active {
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+
+.systembar__era-sep {
+  opacity: 0.4;
+}
+
+/* Diagnostic Trigger Button */
+.systembar__diag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  background: rgba(18, 12, 14, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-faint);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out-quart);
+  white-space: nowrap;
+}
+
+.systembar__diag-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background-color: rgba(238, 38, 38, 0.08);
+}
+
+/* ── 1984 Era Retro Overrides ────────────────────────────────────── */
+[data-era="1984"] .systembar {
+  background: #000000;
+  border-bottom: 1px solid #EE2626;
+  backdrop-filter: none;
+}
+
+[data-era="1984"] .systembar__brand-badge,
+[data-era="1984"] .systembar__nav,
+[data-era="1984"] .systembar__nav-link,
+[data-era="1984"] .systembar__status-pill,
+[data-era="1984"] .systembar__era-btn,
+[data-era="1984"] .systembar__diag-btn {
+  border-radius: 0px !important;
+  border-color: #EE2626 !important;
+  font-family: var(--font-mono) !important;
+}
+
+[data-era="1984"] .systembar__status-dot {
+  background-color: #EE2626;
+  box-shadow: 0 0 6px #EE2626;
+  border-radius: 0px;
+}
+
+[data-era="1984"] .systembar__nav-link.is-active {
+  background-color: #EE2626;
   color: #000000;
 }
 
-[data-era="1984"] .systembar__item:hover,
-[data-era="1984"] .systembar__item:focus-visible {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-/* ── Mobile & Responsive Rules ───────────────────────────────────── */
-.systembar__mobile-menu {
+/* ── Mobile Layout (< 768px) ─────────────────────────────────────── */
+.systembar__mobile-top {
   display: none;
-  align-items: stretch;
-  height: 100%;
 }
 
 @media (max-width: 768px) {
-  .systembar__menus {
-    display: none !important;
+  .systembar {
+    padding: 10px 12px;
   }
 
-  .systembar__mobile-menu {
-    display: flex !important;
+  .systembar__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
   }
 
-  .systembar__wordmark {
-    width: auto;
-    padding: 0 var(--space-3);
+  .systembar__mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
-}
 
-@media (max-width: 540px) {
-  .systembar__clock-city {
+  /* Hide the desktop row items that are now in mobile-top */
+  .systembar__inner > .systembar__brand,
+  .systembar__inner > .systembar__controls {
     display: none;
   }
 
-  .systembar__clock {
-    padding: 0 var(--space-2);
+  /* Full-width 2nd row floating pill nav */
+  .systembar__nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 3px 4px;
+    box-sizing: border-box;
   }
 
-  .systembar__era-toggle {
-    padding: 0 var(--space-2);
+  .systembar__nav::-webkit-scrollbar {
+    display: none;
   }
-}
 
-@media (max-width: 380px) {
-  .systembar__clock {
+  .systembar__nav-link {
+    padding: 5px 8px;
+    font-size: 11.5px;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .systembar__status-pill {
+    padding: 4px 8px;
     font-size: 10px;
-    padding: 0 4px;
+  }
+
+  .systembar__era-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .systembar__diag-btn {
+    padding: 4px 6px;
+    font-size: 10px;
   }
 }
 
-/* ── Webdrift Diagnostic / Installer Modal ───────────────────────── */
-.installer-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
+@media (max-width: 420px) {
+  .systembar__status-text-full {
+    display: none;
+  }
+  .systembar__status-text-compact {
+    display: inline;
+  }
 }
 
-.installer-backdrop {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(8, 3, 3, 0.85);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.installer-window {
-  position: relative;
-  width: 100%;
-  max-width: 540px;
-  background-color: var(--color-surface);
-  border: var(--border-1bit);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-  z-index: 1;
+@media (min-width: 421px) {
+  .systembar__status-text-compact {
+    display: none;
+  }
 }

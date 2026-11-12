@@ -208,6 +208,7 @@
 .u-window {
   background-color: var(--color-surface);
   border: var(--border-1bit);
+  border-radius: var(--radius-card);
   position: relative;
   overflow: hidden;
 }

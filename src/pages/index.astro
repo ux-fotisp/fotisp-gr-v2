@@ -1,33 +1,21 @@
 ---
 // src/pages/index.astro
-// Home — Swiss editorial hero + case study filter + services + publications
+// Stage 11: Visual & Structural Alignment to Desktop & Mobile Mockups
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DesktopWindow from '../components/DesktopWindow.astro';
-import CaseStudyGrid from '../components/CaseStudyGrid';
-import RevealText from '../components/RevealText';
-import MagneticTarget from '../components/MagneticTarget';
-import CosmicPolygonMotif from '../components/CosmicPolygonMotif.astro';
-import SplitButton from '../components/SplitButton';
+import BentoCaseStudyGrid from '../components/BentoCaseStudyGrid';
+import ResearchWritingList from '../components/ResearchWritingList';
 import EdgeLottie from '../components/EdgeLottie';
-import { getCollection, getEntries } from 'astro:content';
+import { getCollection } from 'astro:content';
 
-const testimonials = await getCollection('testimonials');
-const testimonialBadgeMap: Record<string, string> = {
-  'pfizer': 'pfizer_endorsement.sig',
-  'deloitte-greece': 'deloitte_gr.sig',
-  'deloitte-finland': 'deloitte_fi.sig',
-};
+const caseStudies = (await getCollection('caseStudies', (e) => !e.data.isDraft)).sort(
+  (a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99)
+);
 
-const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
-  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
+const publications = (await getCollection('publications', (e) => !e.data.isDraft)).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 
-const publications = (await getCollection('publications', e => !e.data.isDraft))
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
-
-const services = (await getCollection('services', e => !e.data.isDraft))
-  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
-
-const serializedCaseStudies = caseStudies.map(entry => ({
+const serializedCaseStudies = caseStudies.map((entry) => ({
   id: entry.id.replace(/\.mdx?$/, ''),
   title: entry.data.title,
   domain: entry.data.domain,
@@ -36,44 +24,35 @@ const serializedCaseStudies = caseStudies.map(entry => ({
   summary: entry.data.summary,
   deliverables: entry.data.deliverables,
   status: entry.data.status,
-  services: entry.data.services ? entry.data.services.map(s => typeof s === 'string' ? s : s.id) : [],
-  publications: entry.data.publications ? entry.data.publications.map(p => typeof p === 'string' ? p : p.id) : [],
+  services: entry.data.services ? entry.data.services.map((s) => (typeof s === 'string' ? s : s.id)) : [],
   tagline: entry.data.tagline,
   category: entry.data.category,
   figureTag: entry.data.figureTag,
   year: entry.data.year,
   duration: entry.data.duration,
   protected: entry.data.protected,
-  problem: entry.data.problem,
-  outcome: entry.data.outcome,
-  impact: entry.data.impact,
 }));
 
-// Resolve inverse OOUX relationships for services at build time
-const enrichedServices = await Promise.all(
-  services.map(async (svc) => {
-    const svcId = svc.id.replace(/\.mdx?$/, '');
-    const provingStudies = caseStudies.filter((c) =>
-      c.data.services && c.data.services.some((s) => (typeof s === 'string' ? s : s.id) === svcId)
-    );
-    const resolvedPubs = (svc.data.publications && svc.data.publications.length > 0)
-      ? await getEntries(svc.data.publications)
-      : [];
-    return {
-      svc,
-      svcId,
-      provingStudies,
-      resolvedPubs,
-    };
-  })
-);
+const serializedPublications = publications.map((pub) => ({
+  id: pub.id.replace(/\.mdx?$/, ''),
+  title: pub.data.title,
+  venue: pub.data.venue,
+  date: pub.data.date.toISOString(),
+  doi: pub.data.doi,
+  url: pub.data.url,
+  year: pub.data.year,
+  month: pub.data.month,
+  abstract: pub.data.abstract,
+  keywords: pub.data.keywords,
+  domain: pub.data.domain,
+}));
 
 // Rich Schema.org ScholarlyArticle definitions for verified research
-const scholarlySchemas = publications.map(pub => ({
+const scholarlySchemas = publications.map((pub) => ({
   '@type': 'ScholarlyArticle',
   headline: pub.data.title,
   name: pub.data.title,
-  author: pub.data.authors.map(author => ({
+  author: pub.data.authors.map((author) => ({
     '@type': 'Person',
     name: author,
   })),
@@ -81,24 +60,6 @@ const scholarlySchemas = publications.map(pub => ({
   url: pub.data.url,
   sameAs: pub.data.doi ? `https://doi.org/${pub.data.doi}` : pub.data.url,
   ...(pub.data.abstract ? { description: pub.data.abstract } : {}),
-  ...(pub.data.venue
-    ? {
-        isPartOf: {
-          '@type': 'Periodical',
-          name: pub.data.venue,
-          ...(pub.data.publisher
-            ? {
-                publisher: {
-                  '@type': 'Organization',
-                  name: pub.data.publisher,
-                },
-              }
-            : {}),
-        },
-      }
-    : {}),
-  ...(pub.data.volume ? { volumeNumber: pub.data.volume } : {}),
-  ...(pub.data.issue ? { issueNumber: pub.data.issue } : {}),
 }));
 
 const indexSchema = [
@@ -108,29 +69,27 @@ const indexSchema = [
     name: 'Fotios Pastrakis',
     alternateName: 'Fotis Pastrakis',
     url: 'https://fotisp.gr',
-    sameAs: [
-      'https://linkedin.com/in/fotisp',
-      'https://github.com/ux-fotisp',
-    ],
+    sameAs: ['https://linkedin.com/in/fotisp', 'https://github.com/ux-fotisp'],
     jobTitle: 'Senior Associate, CX Designer',
-    worksFor: [
-      {
-        '@type': 'Organization',
-        name: 'Pfizer',
-        url: 'https://pfizer.com',
-      },
-    ],
-    alumniOf: [
-      {
-        '@type': 'CollegeOrUniversity',
-        name: 'University of the Aegean',
-        url: 'https://www.aegean.gr',
-      },
-    ],
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Pfizer',
+      url: 'https://pfizer.com',
+    },
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'University of the Aegean',
+      url: 'https://www.aegean.gr',
+    },
     knowsAbout: [
-      'UX Research', 'Product Design', 'Design Systems',
-      'Health Technology', 'Clinical UX', 'Information Architecture',
-      'Cultural Heritage UX', 'Accessibility',
+      'UX Research',
+      'Product Design',
+      'Design Systems',
+      'Health Technology',
+      'Clinical UX',
+      'Information Architecture',
+      'Cultural Heritage UX',
+      'Accessibility',
     ],
   },
   {
@@ -144,1170 +103,1065 @@ const indexSchema = [
   ...scholarlySchemas,
 ];
 ---
+
 <BaseLayout schema={indexSchema}>
-  <!-- ── HERO ──────────────────────────────────────────────────── -->
-  <section class="hero u-container" aria-labelledby="hero-headline">
-    <div class="hero__meta">
-      <span class="section-label" aria-hidden="true">fp://index</span>
-      <span class="u-mono u-text-xs u-text-faint">Node: Thessaloniki [40.64° N, 22.94° E]</span>
-    </div>
+  <div class="homepage" id="top">
+    <!-- ── SECTION 1: 2-COLUMN HERO & ORBITAL RADAR HUD ──────────── -->
+    <section class="hero-section u-container" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        {/* Left Column */}
+        <div class="hero-copy">
+          <p class="hero-eyebrow">
+            PRODUCT DESIGNER · UX RESEARCHER · SYSTEMS ARCHITECT
+          </p>
 
-    <div class="hero__grid">
-      <!-- EDGE Design System Cosmic Polygonal Motif -->
-      <CosmicPolygonMotif />
+          <h1 id="hero-title" class="hero-h1">
+            <span class="hero-h1__line1">Complexity, decoded.</span>
+            <span class="hero-h1__line2">Systems, designed.</span>
+          </h1>
 
-      <div class="hero__copy">
-        <p class="hero__eyebrow u-mono u-text-xs u-tracking-widest u-uppercase u-text-accent">
-          COMPLEXITY, DECODED // SYSTEMS, DESIGNED
-        </p>
-        <RevealText
-          client:load
-          lines={['Pixels change.', 'Architecture stays.']}
-          as="h1"
-          id="hero-headline"
-          className="hero__headline"
-        />
-        <p class="hero__sub">
-          I turn raw data into seamless user journeys. With 10+ years navigating high-stakes, regulated industries for global giants like Deloitte and Pfizer, I architect logic through evidence and craft visual communication through behavior.
-        </p>
-        <nav class="hero__cta-row" aria-label="Primary navigation">
-          <MagneticTarget client:load strength={0.25} maxOffset={8}>
-            <a href="/work" class="btn-primary">View Case Studies</a>
-          </MagneticTarget>
-          <MagneticTarget client:load strength={0.2} maxOffset={6}>
-            <SplitButton
-              client:load
-              primaryLabel="[ BOOK A CALL ]"
-              primaryHref="#contact-drawer"
-              items={[
-                {
-                  label: 'Copy Email (fotispastrakis@gmail.com)',
-                  copyText: 'fotispastrakis@gmail.com',
-                  icon: '📋',
-                  shortcut: 'CPY',
-                },
-                {
-                  label: 'Explore Case Studies (/work)',
-                  href: '/work',
-                  icon: '↗',
-                  shortcut: 'WRK',
-                },
-                {
-                  label: 'LinkedIn Profile',
-                  href: 'https://www.linkedin.com/in/fotispastrakis',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  icon: '↗',
-                  shortcut: 'LNK',
-                },
-              ]}
+          <p class="hero-body">
+            I connect human needs and technical architecture—between the interface. Systems architecture, OOUX, and human-centered design for the real world.
+          </p>
+
+          <div class="hero-cta-row">
+            <a href="#work" class="btn-hero-primary">
+              See selected work <span class="arrow-right" aria-hidden="true">→</span>
+            </a>
+            <a href="#methodology" class="btn-hero-secondary">
+              Explore approach <span class="arrow-down" aria-hidden="true">↓</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Right Column: Orbital Radar HUD Card */}
+        <div class="hero-hud-card">
+          <div class="hud-card__header">
+            <div class="hud-card__dot-title">
+              <span class="hud-card__dot" aria-hidden="true"></span>
+              <span class="hud-card__label">ORBITAL RADAR // LIVE</span>
+            </div>
+            <span class="hud-card__coords">40.64° N, 22.94° E</span>
+          </div>
+
+          <div class="hud-card__canvas">
+            <EdgeLottie
+              client:visible
+              height="260px"
+              fallbackText="THESSALONIKI · 40.64° N, 22.94° E"
             />
-          </MagneticTarget>
-        </nav>
+          </div>
+        </div>
       </div>
 
-      <aside class="hero__status-window">
-        <DesktopWindow
-          title="telemetry_hud.lottie"
-          fileBadge="40.64°N 22.94°E"
-          figureTag="Fig. 00"
-          coordX={0.00}
-          coordY={0.00}
-          padded={false}
-        >
-          <div class="telemetry-hud-container" style="padding: var(--space-2); background: #080303;">
-            <EdgeLottie client:visible height="230px" fallbackText="[ ORBITAL_RADAR // THESSALONIKI_NODE: 40.64° N, 22.94° E ]" />
-          </div>
-          <dl class="status-list u-border-1bit-top" style="padding: var(--space-3);">
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Host Telemetry</dt>
-              <dd class="u-mono u-text-xs u-text-accent">Thessaloniki [40.64° N, 22.94° E]</dd>
-            </div>
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Current Role</dt>
-              <dd class="u-mono u-text-xs u-text-muted">Senior Assoc. / CX Designer — Pfizer</dd>
-            </div>
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Experience</dt>
-              <dd class="u-mono u-text-xs u-text-muted">10+ yrs · Deloitte & Pfizer Enterprise UX</dd>
-            </div>
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Publications</dt>
-              <dd class="u-mono u-text-xs u-text-muted">{publications.length} peer-reviewed</dd>
-            </div>
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Case Studies</dt>
-              <dd class="u-mono u-text-xs u-text-muted">{caseStudies.length} in portfolio</dd>
-            </div>
-          </dl>
-        </DesktopWindow>
-      </aside>
-    </div>
-  </section>
+      {/* Bottom Metadata Strip */}
+      <div class="hero-metadata-strip" aria-label="Professional credentials & research track">
+        <div class="metadata-col">
+          <span class="metadata-col__text">10+ YEARS REGULATED UX · PFIZER & DELOITTE</span>
+        </div>
+        <div class="metadata-col">
+          <span class="metadata-col__text">OOUX & COGNITIVE LOAD ARCHITECTURE</span>
+        </div>
+        <div class="metadata-col">
+          <span class="metadata-col__text">PUBLISHED HCI RESEARCHER · MDPI & IEEE</span>
+        </div>
+      </div>
+    </section>
 
-  <!-- ── CASE STUDIES FILTER & GRID ───────────────────────────── -->
-  <section class="work-section u-container" aria-labelledby="work-heading" id="work">
-    <header class="section-header">
-      <span class="section-label">Selected Work</span>
-      <h2 id="work-heading" class="section-title">Case Studies & Systems</h2>
-    </header>
+    <!-- ── SECTION 2: ASYMMETRIC BENTO CASE STUDY GRID ───────────── -->
+    <section class="section-work u-container" id="work" aria-labelledby="work-title">
+      <BentoCaseStudyGrid client:load items={serializedCaseStudies} />
+    </section>
 
-    <CaseStudyGrid client:load items={serializedCaseStudies} mode="grid" />
-  </section>
+    <!-- ── SECTION 3: RESEARCH & WRITING LIST ─────────────────────── -->
+    <section class="section-research u-container" id="research" aria-labelledby="research-title">
+      <ResearchWritingList client:load items={serializedPublications} />
+    </section>
 
-  <!-- ── SERVICES ───────────────────────────────────────────────── -->
-  <section class="services-section u-container" aria-labelledby="services-heading" id="services">
-    <header class="section-header">
-      <span class="section-label">What I Do</span>
-      <h2 id="services-heading" class="section-title">Services & Architecture</h2>
-    </header>
-
-    <div class="services-grid">
-      {enrichedServices.map(({ svc, svcId, provingStudies, resolvedPubs }) => (
-        <article class="service-card u-window u-border-1bit" id={`service-${svcId}`}>
-          <div class="service-card__header">
-            <span class="service-card__tag u-mono u-text-xs u-text-faint">{svc.data.figureTag || 'Svc. ??'}</span>
-            <span class="service-card__id u-mono u-text-xs u-text-accent">svc://{svcId}</span>
-          </div>
-
-          <h3 class="service-card__title">{svc.data.name || svc.data.title}</h3>
-          <p class="service-card__desc">{svc.data.description}</p>
-
-          <!-- Core Methodologies -->
-          {svc.data.methodologies && svc.data.methodologies.length > 0 && (
-            <div class="service-card__block">
-              <span class="service-card__label u-mono u-text-xs u-text-faint u-uppercase u-tracking-widest">
-                Methodologies:
-              </span>
-              <ul class="method-tags">
-                {svc.data.methodologies.map(m => (
-                  <li class="u-mono u-text-xs">{m}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <!-- Deliverables -->
-          <div class="service-card__block">
-            <span class="service-card__label u-mono u-text-xs u-text-faint u-uppercase u-tracking-widest">
-              Key Deliverables:
-            </span>
-            <ul class="deliverables-list">
-              {svc.data.deliverables.slice(0, 4).map(d => (
-                <li class="u-mono u-text-xs u-text-muted">{d}</li>
-              ))}
-            </ul>
-          </div>
-
-          <!-- [O:REF] Proving Work -->
-          {provingStudies.length > 0 && (
-            <div class="service-card__rel-block u-border-1bit-top">
-              <span class="service-card__label u-mono u-text-xs u-text-accent u-uppercase u-tracking-widest">
-                [O:REF] PROVING WORK:
-              </span>
-              <ul class="proving-list">
-                {provingStudies.map(cs => (
-                  <li>
-                    <a href={`/work/${cs.id.replace(/\.mdx?$/, '')}`} class="u-mono u-text-xs">
-                      → {cs.data.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <!-- [O:REF] Academic Grounding -->
-          {resolvedPubs.length > 0 && (
-            <div class="service-card__rel-block u-border-1bit-top">
-              <span class="service-card__label u-mono u-text-xs u-text-accent u-uppercase u-tracking-widest">
-                [O:REF] ACADEMIC GROUNDING:
-              </span>
-              <ul class="grounding-list">
-                {resolvedPubs.map(pub => (
-                  <li>
-                    <a
-                      href={pub.data.doi ? `https://doi.org/${pub.data.doi}` : pub.data.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="u-mono u-text-xs"
-                    >
-                      ⊞ {pub.data.venue} ({pub.data.year || new Date(pub.data.date).getFullYear()}): {pub.data.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <!-- CTA Scoped Inquiry -->
-          <div class="service-card__cta u-border-1bit-top">
-            <MagneticTarget client:visible strength={0.3} maxOffset={8}>
-              <a
-                href="#contact-drawer"
-                data-service-select={svcId}
-                class="btn-scoped-inquiry u-mono u-text-xs"
-              >
-                [ INITIATE SCOPED INQUIRY ]
-              </a>
-            </MagneticTarget>
-          </div>
-        </article>
-      ))}
-    </div>
-  </section>
-
-  <!-- ── PUBLICATIONS ────────────────────────────────────────────── -->
-  <section class="pubs-section u-container" aria-labelledby="pubs-heading" id="publications">
-    <header class="section-header">
-      <span class="section-label">Peer-Reviewed Research</span>
-      <h2 id="pubs-heading" class="section-title">Publications</h2>
-    </header>
-
-    <DesktopWindow
-      title="bibliography.bib"
-      figureTag="Bib. 01"
-      coordX={0.90}
-      coordY={0.80}
-      padded
-    >
-      <ol class="pub-list" reversed>
-        {publications.map((pub) => (
-          <li class="pub-item u-border-1bit-bottom">
-            <span class="pub-item__year u-mono u-text-xs u-text-faint">{pub.data.year || new Date(pub.data.date).getFullYear()}</span>
-            <div class="pub-item__body">
-              <h3 class="pub-item__title">
-                {pub.data.url ? (
-                  <a href={pub.data.url} target="_blank" rel="noopener noreferrer">
-                    {pub.data.title}
-                  </a>
-                ) : pub.data.title}
-              </h3>
-              <p class="pub-item__meta u-mono u-text-xs u-text-faint">
-                {pub.data.authors.join(', ')} ·{' '}
-                <em>{pub.data.venue}</em>
-                {pub.data.volume && `, Vol. ${pub.data.volume}`}
-                {pub.data.articleNumber && `, No. ${pub.data.articleNumber}`}
-                {pub.data.month && ` · ${pub.data.month} ${pub.data.year || new Date(pub.data.date).getFullYear()}`}
-              </p>
-              {pub.data.doi && (
-                <a
-                  href={`https://doi.org/${pub.data.doi}`}
-                  class="pub-item__doi u-mono u-text-xs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`DOI for ${pub.data.title}`}
-                >
-                  DOI: {pub.data.doi}
-                </a>
-              )}
-            </div>
-          </li>
-        ))}
-      </ol>
-    </DesktopWindow>
-  </section>
-
-  <!-- ── VERIFIED ENDORSEMENTS ([O] TESTIMONIAL) ────────────────── -->
-  <section class="testimonials-section u-container" aria-labelledby="testimonials-heading" id="testimonials">
-    <header class="section-header">
-      <span class="section-label">Verified Peer & Leadership Endorsements</span>
-      <h2 id="testimonials-heading" class="section-title">Leadership Feedback</h2>
-    </header>
-
-    <div class="testimonials-grid">
-      {testimonials.map((t, idx) => {
-        const fileTitle = testimonialBadgeMap[t.id] || `${t.id.replace(/-/g, '_')}.sig`;
-        return (
-          <DesktopWindow
-            title={fileTitle}
-            fileBadge={`REF 0${idx + 1}`}
-            figureTag={`Sig. 0${idx + 1}`}
-            padded
-          >
-            <div class="testimonial-card">
-              <blockquote class="testimonial-quote u-mono u-text-xs">
-                "{t.data.quote}"
-              </blockquote>
-              <div class="testimonial-author u-border-1bit-top">
-                <div class="testimonial-author__name u-mono u-text-xs u-text-accent">
-                  {t.data.author}
-                </div>
-                <div class="testimonial-author__role u-mono u-text-xs u-text-muted">
-                  {t.data.role} · {t.data.company}
-                </div>
-              </div>
-            </div>
-          </DesktopWindow>
-        );
-      })}
-    </div>
-  </section>
-
-  <!-- ── BIO CALLOUT BANNER ─────────────────────────────────────── -->
-  <aside class="bio-callout u-container" aria-label="Personal Introduction">
-    <DesktopWindow
-      title="operator_profile.md"
-      fileBadge="10+ YRS"
-      figureTag="Bio. 01"
-      padded
-    >
-      <div class="bio-callout__content">
-        <div class="bio-callout__copy">
-          <h3 class="bio-callout__title">
-            Hi, I'm Fotis. I make the complicated feel considered.
-          </h3>
-          <p class="bio-callout__sub u-text-muted">
-            UX researcher, Senior Product Designer & Systems Architect. Looking at the intersection of human need, fluid execution, and enterprise scale. 10+ years turning tough problems into quiet software.
+    <!-- ── SECTION 4: 2-COLUMN PHILOSOPHY SECTION ─────────────────── -->
+    <section class="section-methodology u-container" id="methodology" aria-labelledby="methodology-title">
+      <div class="methodology-grid">
+        {/* Left Sticky Column */}
+        <div class="methodology-left">
+          <span class="methodology-eyebrow">METHODOLOGY</span>
+          <h2 id="methodology-title" class="methodology-title">Clarity is an architectural decision.</h2>
+          <p class="methodology-narrative">
+            Great software systems don't happen by accident. I use Object-Oriented UX and cognitive load analysis to model complex domains before drawing screens, ensuring resilient architectures that scale.
           </p>
         </div>
-        <div class="bio-callout__actions">
-          <MagneticTarget client:visible strength={0.25} maxOffset={6}>
-            <SplitButton
-              client:visible
-              primaryLabel="[ BOOK A CALL ]"
-              primaryHref="#contact-drawer"
-              items={[
-                {
-                  label: 'Copy Email (fotispastrakis@gmail.com)',
-                  copyText: 'fotispastrakis@gmail.com',
-                  icon: '📋',
-                  shortcut: 'CPY',
-                },
-                {
-                  label: 'LinkedIn Profile',
-                  href: 'https://www.linkedin.com/in/fotispastrakis',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  icon: '↗',
-                  shortcut: 'LNK',
-                },
-              ]}
-            />
-          </MagneticTarget>
-          <span class="u-mono u-text-xs u-text-accent">fotispastrakis@gmail.com</span>
-        </div>
-      </div>
-    </DesktopWindow>
-  </aside>
 
-  <!-- ── CONTACT DRAWER / RETRO TERMINAL ───────────────────────── -->
-  <section class="contact-section u-container" id="contact-drawer" tabindex="-1" aria-labelledby="contact-heading">
-    <header class="section-header">
-      <span class="section-label">Transmission Terminal</span>
-      <h2 id="contact-heading" class="section-title">Initiate Scoped Inquiry</h2>
-    </header>
-
-    <DesktopWindow
-      title="console_inquiry.sh"
-      fileBadge="tty0"
-      figureTag="Terminal 01"
-      coordX={0.50}
-      coordY={0.50}
-      padded
-    >
-      <div class="terminal-box">
-        <div class="terminal-banner u-mono u-text-xs">
-          <p class="u-text-accent">FOTISP-OS v2.6.0 [Thessaloniki Host Node: 40.64° N, 22.94° E · Cloudflare Edge]</p>
-          <p class="u-text-faint">Select a service scope or dispatch an asynchronous inquiry payload below.</p>
-        </div>
-
-        <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
-          <!-- Honeypot anti-bot fields -->
-          <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
-          <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
-
-          <div class="form-row">
-            <label for="contact-subject" class="u-mono u-text-xs u-text-faint">ENGAGEMENT_SCOPE:</label>
-            <select id="contact-subject" name="subject" class="terminal-input terminal-select">
-              <option value="general">General / Advisory Inquiry</option>
-              <option value="ux-research">Scoped Inquiry: UX Research</option>
-              <option value="design-systems">Scoped Inquiry: Design Systems</option>
-              <option value="ux-strategy">Scoped Inquiry: UX Strategy & Leadership</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="contact-name" class="u-mono u-text-xs u-text-faint">OPERATOR_NAME:</label>
-            <input
-              type="text"
-              id="contact-name"
-              name="name"
-              required
-              placeholder="Dr. / Ms. / Mr. Name"
-              class="terminal-input"
-            />
-          </div>
-
-          <div class="form-row">
-            <label for="contact-email" class="u-mono u-text-xs u-text-faint">TRANSMISSION_RETURN_ADDR:</label>
-            <input
-              type="email"
-              id="contact-email"
-              name="email"
-              required
-              placeholder="name@domain.com"
-              class="terminal-input"
-            />
-          </div>
-
-          <div class="form-row">
-            <label for="contact-message" class="u-mono u-text-xs u-text-faint">PAYLOAD_BUFFER:</label>
-            <textarea
-              id="contact-message"
-              name="message"
-              required
-              rows="4"
-              placeholder="Specify requirements, advisory scope, or research problem..."
-              class="terminal-input terminal-textarea"
-            ></textarea>
-          </div>
-
-          {import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
-            <div class="form-row turnstile-wrapper">
-              <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY} data-theme="dark"></div>
-              <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        {/* Right Stacked Rows */}
+        <div class="methodology-right">
+          <div class="methodology-row">
+            <div class="methodology-icon-badge" aria-hidden="true">
+              <span class="icon-dot">●</span>
             </div>
-          )}
-
-          <div class="terminal-form__footer">
-            <span id="contactStatus" class="u-mono u-text-xs u-text-faint" aria-live="polite">
-              [STATUS: IDLE — AWAITING OPERATOR DISPATCH]
-            </span>
-            <button type="submit" id="submitBtn" class="u-sr-only" tabindex="-1">Submit</button>
-            <SplitButton
-              client:visible
-              id="terminalSplitBtn"
-              primaryLabel="[ TRANSMIT PACKET ]"
-              onPrimaryClick={() => {
-                const form = document.getElementById('contactForm') as HTMLFormElement | null;
-                form?.requestSubmit();
-              }}
-              align="right"
-              items={[
-                {
-                  label: 'Transmit via Edge D1 Socket',
-                  action: () => {
-                    const form = document.getElementById('contactForm') as HTMLFormElement | null;
-                    form?.requestSubmit();
-                  },
-                },
-                {
-                  label: 'Direct Mailto Fallback',
-                  href: 'mailto:fotis@fotisp.gr?subject=Inquiry%20via%20fotisp.gr',
-                },
-                {
-                  label: 'Copy Operator Email (Athens)',
-                  action: () => {
-                    navigator.clipboard?.writeText('fotis@fotisp.gr');
-                    const st = document.getElementById('contactStatus');
-                    if (st) st.textContent = '[COPIED: fotis@fotisp.gr]';
-                  },
-                },
-              ]}
-            />
+            <div class="methodology-row__content">
+              <h3 class="methodology-row__title">Find the objects</h3>
+              <p class="methodology-row__desc">
+                SIP-validated domain modeling before drawing screens. Map the real-world nouns and user mental models that give the domain its shape.
+              </p>
+            </div>
           </div>
-        </form>
+
+          <div class="methodology-row">
+            <div class="methodology-icon-badge" aria-hidden="true">
+              <span class="icon-dot">●</span>
+            </div>
+            <div class="methodology-row__content">
+              <h3 class="methodology-row__title">Make the system explicit</h3>
+              <p class="methodology-row__desc">
+                Bidirectional relationships, cardinality, and role-based CTAs to eliminate navigation dead-ends and cognitive disorientation.
+              </p>
+            </div>
+          </div>
+
+          <div class="methodology-row">
+            <div class="methodology-icon-badge" aria-hidden="true">
+              <span class="icon-dot">●</span>
+            </div>
+            <div class="methodology-row__content">
+              <h3 class="methodology-row__title">Design for the edges</h3>
+              <p class="methodology-row__desc">
+                Clinical-grade accessibility, error recovery, and resilient states under high-stress operating conditions.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </DesktopWindow>
-  </section>
+    </section>
+
+    <!-- ── SECTION 5: CRIMSON GRADIENT BIO & CTA BANNER ───────────── -->
+    <section class="section-bio u-container" aria-label="Personal introduction and call to action">
+      <div class="crimson-bio-banner">
+        <div class="bio-banner__left">
+          <h2 class="bio-banner__title">
+            Hi, I'm Fotis. I make the complicated feel considered.
+          </h2>
+          <p class="bio-banner__desc">
+            Senior UX Researcher & Systems Architect with 10+ years navigating high-stakes, regulated environments with Pfizer and Deloitte. Specializing in clinical interfaces, OOUX, and design systems for mission-critical software. MSc in HCI from University of the Aegean (GPA 9.78/10).
+          </p>
+        </div>
+
+        <div class="bio-banner__right">
+          <span class="bio-kicker">OPEN FOR ADVISORY & ROLES</span>
+          <a href="#contact-drawer" class="btn-discovery-cta" id="heroBookCallBtn">
+            Book a discovery call <span class="arrow-right" aria-hidden="true">→</span>
+          </a>
+          <button type="button" class="btn-copy-email" id="copyEmailBtn">
+            <span id="copyEmailText">Copy email</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 6: CONTACT TERMINAL & MINIMAL DARK FOOTER ──────── -->
+    <section class="section-contact u-container" id="contact-drawer" tabindex="-1" aria-labelledby="contact-heading">
+      <div class="terminal-card">
+        <div class="terminal-card__header">
+          <div class="terminal-header__left">
+            <span class="terminal-badge">tty0 // INQUIRY SOCKET</span>
+            <span class="terminal-title">console_inquiry.sh</span>
+          </div>
+          <span class="terminal-coords">Node: Thessaloniki [40.64° N, 22.94° E]</span>
+        </div>
+
+        <div class="terminal-body">
+          <div class="terminal-banner">
+            <span class="terminal-banner__accent">FOTISP-OS v2.6.0 · Cloudflare Edge D1 Endpoint</span>
+            <span class="terminal-banner__sub">Select an engagement scope or dispatch an inquiry payload below.</span>
+          </div>
+
+          <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
+            {/* Honeypots */}
+            <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
+            <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
+
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="contact-subject" class="form-label">ENGAGEMENT_SCOPE:</label>
+                <select id="contact-subject" name="subject" class="form-control">
+                  <option value="general">General / Advisory Inquiry</option>
+                  <option value="ux-research">Scoped Inquiry: UX Research & Validation</option>
+                  <option value="design-systems">Scoped Inquiry: Design Systems Architecture</option>
+                  <option value="ux-strategy">Scoped Inquiry: OOUX & Cognitive Load Analysis</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="contact-name" class="form-label">OPERATOR_NAME:</label>
+                <input
+                  type="text"
+                  id="contact-name"
+                  name="name"
+                  required
+                  placeholder="Dr. / Ms. / Mr. Name"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="form-field form-field--full">
+                <label for="contact-email" class="form-label">TRANSMISSION_RETURN_ADDR:</label>
+                <input
+                  type="email"
+                  id="contact-email"
+                  name="email"
+                  required
+                  placeholder="name@organization.com"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="form-field form-field--full">
+                <label for="contact-message" class="form-label">PAYLOAD_BUFFER:</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  required
+                  rows="4"
+                  placeholder="Specify systems requirements, advisory scope, or problem space..."
+                  class="form-control form-control--textarea"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="terminal-footer">
+              <span id="contactStatus" class="contact-status" aria-live="polite">
+                [STATUS: IDLE — AWAITING OPERATOR DISPATCH]
+              </span>
+              <button type="submit" id="submitBtn" class="btn-transmit">
+                [ TRANSMIT PACKET → ]
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Minimal Dark Footer -->
+    <footer class="footer-minimal u-container" role="contentinfo">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="footer-brand">
+            <span class="footer-badge">[FP]</span>
+            <span class="footer-wordmark">fotisp.gr</span>
+          </div>
+          <span class="footer-coords">NODE: THESSALONIKI · 40.64° N, 22.94° E · CLOUDFLARE EDGE</span>
+        </div>
+
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="#work" class="footer-link">Work</a>
+          <a href="/about" class="footer-link">About</a>
+          <a
+            href="https://www.linkedin.com/in/fotispastrakis"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+          >
+            LinkedIn
+          </a>
+          <button type="button" class="footer-btn" id="footerEraToggle">
+            1984 Mode (⇧⌥E)
+          </button>
+          <button type="button" class="footer-btn" id="footerDiagToggle">
+            Diagnostic (⇧⌥D)
+          </button>
+        </nav>
+      </div>
+    </footer>
+  </div>
 </BaseLayout>
 
 <script>
-  function initContactTerminal() {
-    const form = document.getElementById('contactForm') as HTMLFormElement | null;
-    const statusEl = document.getElementById('contactStatus');
-    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
-    const subjectSelect = document.getElementById('contact-subject') as HTMLSelectElement | null;
-
-    // Handle "Initiate Scoped Inquiry" clicks across the page
-    const inquiryButtons = document.querySelectorAll<HTMLElement>('[data-service-select]');
-    inquiryButtons.forEach((btn) => {
-      if (btn.dataset.listenerAttached === 'true') return;
-      btn.dataset.listenerAttached = 'true';
-
-      btn.addEventListener('click', (e) => {
-        const svcId = btn.getAttribute('data-service-select');
-        if (svcId && subjectSelect) {
-          subjectSelect.value = svcId;
-        }
+  function initPageScripts() {
+    // 1. Hook "Book a discovery call" CTA button
+    const bookBtn = document.getElementById('heroBookCallBtn');
+    if (bookBtn && bookBtn.dataset.listener !== 'true') {
+      bookBtn.dataset.listener = 'true';
+      bookBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         const drawer = document.getElementById('contact-drawer');
         if (drawer) {
           drawer.scrollIntoView({ behavior: 'smooth' });
           setTimeout(() => {
             const nameInput = document.getElementById('contact-name');
             nameInput?.focus();
-          }, 400);
+          }, 350);
         }
       });
-    });
-
-    // Check URL query parameters for ?service=...
-    const urlParams = new URLSearchParams(window.location.search);
-    const requestedService = urlParams.get('service');
-    if (requestedService && subjectSelect) {
-      subjectSelect.value = requestedService;
     }
 
-    if (!form || !statusEl || !submitBtn) return;
-    if (form.dataset.listenerAttached === 'true') return;
-    form.dataset.listenerAttached = 'true';
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      statusEl.textContent = '[STATUS: TRANSMITTING... DISPATCHING PACKET TO /api/contact]';
-      statusEl.style.color = 'var(--color-text-muted)';
-      submitBtn.disabled = true;
-
-      try {
-        const formData = new FormData(form);
-        const data: Record<string, string> = {};
-        formData.forEach((value, key) => {
-          data[key] = value.toString();
+    // 2. Hook "Copy email" button
+    const copyBtn = document.getElementById('copyEmailBtn');
+    const copyText = document.getElementById('copyEmailText');
+    if (copyBtn && copyBtn.dataset.listener !== 'true') {
+      copyBtn.dataset.listener = 'true';
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText('fotispastrakis@gmail.com').then(() => {
+          if (copyText) {
+            const orig = copyText.textContent;
+            copyText.textContent = 'Copied to clipboard!';
+            setTimeout(() => {
+              copyText.textContent = orig;
+            }, 2500);
+          }
         });
+      });
+    }
 
-        // Pass active client era
-        data.era = document.documentElement.dataset.era || '2026';
+    // 3. Footer Era Toggle and Diagnostic Buttons
+    const footerEra = document.getElementById('footerEraToggle');
+    if (footerEra && footerEra.dataset.listener !== 'true') {
+      footerEra.dataset.listener = 'true';
+      footerEra.addEventListener('click', () => {
+        const cur = document.documentElement.dataset.era || '2026';
+        const next = cur === '2026' ? '1984' : '2026';
+        document.documentElement.dataset.era = next;
+        localStorage.setItem('fotisp-era', next);
+        window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
+      });
+    }
 
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
+    const footerDiag = document.getElementById('footerDiagToggle');
+    if (footerDiag && footerDiag.dataset.listener !== 'true') {
+      footerDiag.dataset.listener = 'true';
+      footerDiag.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-webdrift-installer'));
+      });
+    }
 
-        const json = await res.json();
-        if (res.ok && json.success) {
-          statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
-          statusEl.style.color = 'var(--color-success)';
-          form.reset();
-        } else {
-          statusEl.innerHTML = `[STATUS: ERR_RETRY_OR_MAILTO — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>`;
+    // 4. Contact Form Dispatch to /api/contact
+    const form = document.getElementById('contactForm') as HTMLFormElement | null;
+    const statusEl = document.getElementById('contactStatus');
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+
+    if (form && statusEl && submitBtn && form.dataset.listener !== 'true') {
+      form.dataset.listener = 'true';
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        statusEl.textContent = '[STATUS: TRANSMITTING PACKET TO /api/contact...]';
+        statusEl.style.color = 'var(--color-text-muted)';
+        submitBtn.disabled = true;
+
+        try {
+          const formData = new FormData(form);
+          const data: Record<string, string> = {};
+          formData.forEach((value, key) => {
+            data[key] = value.toString();
+          });
+          data.era = document.documentElement.dataset.era || '2026';
+
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+
+          const json = await res.json();
+          if (res.ok && json.success) {
+            statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
+            statusEl.style.color = 'var(--color-success)';
+            form.reset();
+          } else {
+            statusEl.innerHTML = `[STATUS: ERR_RETRY — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotispastrakis@gmail.com" style="color: var(--color-accent); text-decoration: underline;">[MAILTO FALLBACK]</a>`;
+            statusEl.style.color = 'var(--color-accent)';
+          }
+        } catch (err) {
+          statusEl.innerHTML = `[STATUS: ERR_NETWORK] <a href="mailto:fotispastrakis@gmail.com" style="color: var(--color-accent); text-decoration: underline;">[MAILTO FALLBACK]</a>`;
           statusEl.style.color = 'var(--color-accent)';
+        } finally {
+          submitBtn.disabled = false;
         }
-      } catch (err) {
-        statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — NETWORK DROPPED] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>';
-        statusEl.style.color = 'var(--color-accent)';
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
+      });
+    }
   }
 
-  initContactTerminal();
-  document.addEventListener('astro:page-load', initContactTerminal);
+  initPageScripts();
+  document.addEventListener('astro:page-load', initPageScripts);
 </script>
 
 <style>
-  /* ── Layout variables ─────────────────────────── */
-  :root {
-    --section-gap: clamp(4rem, 10vw, 8rem);
+  /* ── Layout Framework ────────────────────────────── */
+  .homepage {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4rem, 8vw, 7rem);
+    padding-bottom: var(--space-12, 48px);
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  /* ── Hero ─────────────────────────────────────── */
-  .hero {
-    padding-top: calc(var(--systembar-height) + var(--space-16));
-    padding-bottom: var(--section-gap);
+  /* ── SECTION 1: HERO & HUD ───────────────────────── */
+  .hero-section {
+    padding-top: calc(var(--systembar-height, 84px) + var(--space-8, 32px));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10, 40px);
   }
 
-  .hero__meta { margin-bottom: var(--space-6); }
-
-  .hero__grid {
+  .hero-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-12);
-    align-items: start;
-    position: relative;
-  }
-
-  .hero__copy {
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero__status-window {
-    position: relative;
-    z-index: 1;
+    gap: var(--space-10, 40px);
+    align-items: center;
   }
 
   @media (min-width: 1024px) {
-    .hero__grid {
+    .hero-grid {
       grid-template-columns: 7fr 5fr;
-      gap: var(--space-16);
+      gap: 56px;
     }
   }
 
-  .hero__eyebrow {
-    display: block;
-    margin-bottom: var(--space-4);
-    color: var(--color-accent);
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5, 20px);
   }
 
-  .hero__headline {
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .hero-h1 {
     font-family: var(--font-display);
-    font-size: clamp(2.8rem, 2rem + 4.5vw, 5.5rem);
-    font-weight: var(--weight-black);
-    letter-spacing: var(--tracking-tight);
+    font-size: clamp(2.8rem, 2.2rem + 3.8vw, 5.2rem);
+    font-weight: var(--weight-black, 900);
+    letter-spacing: -0.04em;
     line-height: 0.98;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-h1__line1 {
     color: var(--color-text-main);
-    margin-bottom: var(--space-6);
   }
 
-  .hero__sub {
-    font-size: var(--text-lg);
-    line-height: var(--leading-relaxed);
+  .hero-h1__line2 {
+    color: var(--color-accent);
+  }
+
+  .hero-body {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 0.95rem + 0.35vw, 1.15rem);
+    line-height: 1.65;
     color: var(--color-text-muted);
-    max-width: 54ch;
-    margin-bottom: var(--space-10);
+    max-width: 52ch;
   }
 
-  .hero__cta-row {
+  .hero-cta-row {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-4, 16px);
     flex-wrap: wrap;
+    padding-top: var(--space-2, 8px);
   }
 
-  /* ── Buttons ──────────────────────────────────── */
-  .btn-primary {
+  .btn-hero-primary {
     display: inline-flex;
     align-items: center;
-    padding: var(--space-3) var(--space-6);
+    gap: 8px;
+    padding: 12px 26px;
     background-color: var(--color-accent);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-bold);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
     text-decoration: none;
-    border: var(--border-1bit-accent);
-    transition: background-color var(--duration-fast) var(--ease-out-quart),
-                color var(--duration-fast) var(--ease-out-quart);
+    box-shadow: 0 0 24px rgba(238, 38, 38, 0.45);
+    transition: all 0.2s ease;
   }
 
-  .btn-primary:hover {
-    background-color: transparent;
-    color: var(--color-accent);
-  }
-
-  .btn-primary:focus-visible {
-    outline: 2px solid var(--color-text);
-    outline-offset: 3px;
-  }
-
-  .btn-ghost {
-    display: inline-flex;
-    align-items: center;
-    padding: var(--space-3) var(--space-6);
-    background-color: transparent;
-    color: var(--color-text-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-wide);
-    text-decoration: none;
-    border: var(--border-1bit);
-    transition: color var(--duration-fast) var(--ease-out-quart),
-                border-color var(--duration-fast) var(--ease-out-quart);
-  }
-
-  .btn-ghost:hover {
-    color: var(--color-text);
-    border-color: var(--color-border-strong);
-  }
-
-  .btn-ghost:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
-  }
-
-  /* ── Status list ──────────────────────────────── */
-  .status-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .status-list__row {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: var(--space-4);
-    padding: var(--space-2) 0;
-    border-bottom: var(--border-1bit-subtle);
-  }
-
-  .status-list__row:last-child { border-bottom: none; }
-
-  /* ── Section header ───────────────────────────── */
-  .section-header {
-    margin-bottom: var(--space-10);
-  }
-
-  .section-title {
-    font-size: var(--text-3xl);
-    font-weight: var(--weight-black);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text);
-  }
-
-  /* ── Work section ─────────────────────────────── */
-  .work-section {
-    padding-block: var(--section-gap);
-    border-top: var(--border-1bit);
-  }
-
-  .work-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-  }
-
-  @media (min-width: 768px) {
-    .work-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* ── Case card ────────────────────────────────── */
-  .case-card__link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .case-card__cover {
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-bottom: var(--border-1bit);
-  }
-
-  .case-card__cover-placeholder {
-    width: 100%;
-    height: 100%;
-    background-color: var(--color-surface-raised);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .case-card__content {
-    padding: var(--space-6);
-  }
-
-  .case-card__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
-    flex-wrap: wrap;
-  }
-
-  .tag {
-    display: inline-block;
-    padding: 2px var(--space-2);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--color-text-faint);
-    border: var(--border-1bit-subtle);
-    letter-spacing: var(--tracking-wide);
-  }
-
-  .tag--category { color: var(--color-text-muted); border-color: var(--color-border); }
-  .tag--protected { color: var(--color-accent); border-color: var(--color-accent); }
-
-  .case-card__title {
-    font-size: var(--text-lg);
-    font-weight: var(--weight-bold);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text);
-    margin-bottom: var(--space-2);
-    line-height: var(--leading-snug);
-  }
-
-  .case-card__tagline {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    line-height: var(--leading-relaxed);
-    margin-bottom: var(--space-4);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .case-card__metrics {
-    display: flex;
-    gap: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: var(--border-1bit-subtle);
-  }
-
-  .metric__value {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-black);
-    color: var(--color-accent);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .metric__label {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--color-text-faint);
-    letter-spacing: var(--tracking-wide);
-  }
-
-  /* ── Services ─────────────────────────────────── */
-  .services-section {
-    padding-block: var(--section-gap);
-    border-top: var(--border-1bit);
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-  }
-
-  @media (min-width: 768px) {
-    .services-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  .service-card {
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .service-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .service-card__tag {
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
-  }
-
-  .service-card__id {
-    letter-spacing: var(--tracking-wider);
-  }
-
-  .service-card__title {
-    font-size: var(--text-xl);
-    font-weight: var(--weight-bold);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text);
-    line-height: var(--leading-snug);
-  }
-
-  .service-card__desc {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    line-height: var(--leading-relaxed);
-  }
-
-  .service-card__block {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .service-card__label {
-    letter-spacing: var(--tracking-widest);
-  }
-
-  .method-tags {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .method-tags li {
-    padding: 2px 6px;
-    background-color: var(--color-surface-sunken);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
-  }
-
-  .deliverables-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .deliverables-list li::before {
-    content: '→ ';
-    color: var(--color-accent);
-  }
-
-  .service-card__rel-block {
-    padding-top: var(--space-3);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .proving-list,
-  .grounding-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .proving-list a,
-  .grounding-list a {
-    color: var(--color-text-muted);
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .proving-list a:hover,
-  .grounding-list a:hover {
-    color: var(--color-accent);
-  }
-
-  .service-card__cta {
-    margin-top: auto;
-    padding-top: var(--space-4);
-  }
-
-  .btn-scoped-inquiry {
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    padding: var(--space-3);
-    background-color: var(--color-surface-sunken);
-    border: 1px solid var(--color-accent);
-    color: var(--color-text);
-    text-decoration: none;
-    letter-spacing: var(--tracking-wider);
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  .btn-scoped-inquiry:hover {
-    background-color: var(--color-accent);
+  .btn-hero-primary:hover {
+    box-shadow: 0 0 32px rgba(238, 38, 38, 0.7);
+    transform: translateY(-1px);
     color: #ffffff;
   }
 
-  /* ── Contact Section / Terminal ─────────────── */
-  .contact-section {
-    padding-block: var(--section-gap);
-    border-top: var(--border-1bit);
+  .btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(18, 12, 14, 0.7);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    transition: all 0.2s ease;
   }
 
-  .terminal-box {
+  .btn-hero-secondary:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+  }
+
+  .arrow-right,
+  .arrow-down {
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+
+  /* ── Right Column: Orbital HUD Card ──────────────── */
+  .hero-hud-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-crimson);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
   }
 
-  .terminal-banner {
-    padding: var(--space-3);
-    background: rgba(238, 38, 38, 0.05);
-    border: 1px dashed var(--color-accent);
+  .hud-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: rgba(22, 14, 17, 0.85);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+  }
+
+  .hud-card__dot-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hud-card__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    box-shadow: 0 0 8px var(--color-accent);
+  }
+
+  .hud-card__label {
+    letter-spacing: 0.1em;
+    color: var(--color-text-main);
+  }
+
+  .hud-card__coords {
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+  }
+
+  .hud-card__canvas {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #080303;
+  }
+
+  /* ── Metadata Strip ──────────────────────────────── */
+  .hero-metadata-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px 0;
+    gap: 16px;
+  }
+
+  .metadata-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4px 12px;
+  }
+
+  .metadata-col:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+  }
+
+  .metadata-col__text {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .hero-metadata-strip {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .metadata-col:not(:last-child) {
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 10px;
+    }
+  }
+
+  /* ── SECTION 4: 2-COLUMN PHILOSOPHY SECTION ──────── */
+  .methodology-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .methodology-grid {
+      grid-template-columns: 5fr 7fr;
+      gap: 64px;
+    }
+
+    .methodology-left {
+      position: sticky;
+      top: 110px;
+    }
+  }
+
+  .methodology-left {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .methodology-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .methodology-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.8rem + 1.2vw, 2.8rem);
+    font-weight: var(--weight-black, 900);
+    letter-spacing: -0.03em;
+    color: var(--color-text-main);
+    line-height: 1.05;
+  }
+
+  .methodology-narrative {
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+  }
+
+  .methodology-right {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .methodology-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .methodology-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(238, 38, 38, 0.12);
+    border: 1px solid var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .icon-dot {
+    color: var(--color-accent);
+    font-size: 12px;
+  }
+
+  .methodology-row__content {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
+  .methodology-row__title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    letter-spacing: -0.01em;
+  }
+
+  .methodology-row__desc {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  /* ── SECTION 5: CRIMSON GRADIENT BIO BANNER ──────── */
+  .crimson-bio-banner {
+    border-radius: var(--radius-banner);
+    background: linear-gradient(135deg, #2B070C 0%, #4D0C16 55%, #1D0408 100%);
+    border: 1px solid rgba(238, 38, 38, 0.45);
+    padding: clamp(28px, 4vw, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 36px;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+    flex-wrap: wrap;
+  }
+
+  .bio-banner__left {
+    flex: 1 1 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .bio-banner__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #ffffff;
+    line-height: 1.15;
+  }
+
+  .bio-banner__desc {
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.65;
+    color: #D4D4D8;
+    max-width: 64ch;
+  }
+
+  .bio-banner__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .bio-kicker {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #FF8585;
+    text-transform: uppercase;
+  }
+
+  .btn-discovery-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    box-shadow: 0 0 25px rgba(238, 38, 38, 0.6);
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-discovery-cta:hover {
+    box-shadow: 0 0 35px rgba(238, 38, 38, 0.85);
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+
+  .btn-copy-email {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: #A1A1AA;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+
+  .btn-copy-email:hover {
+    color: #ffffff;
+  }
+
+  /* ── SECTION 6: CONTACT DRAWER & FOOTER ───────────── */
+  .terminal-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .terminal-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: rgba(22, 14, 17, 0.9);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+  }
+
+  .terminal-header__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .terminal-badge {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .terminal-title {
+    color: var(--color-text-muted);
+  }
+
+  .terminal-coords {
+    color: var(--color-text-faint);
+  }
+
+  .terminal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .terminal-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 14px;
+    background: rgba(238, 38, 38, 0.05);
+    border: 1px dashed var(--color-border-crimson);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .terminal-banner__accent {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .terminal-banner__sub {
+    color: var(--color-text-muted);
+  }
+
   .terminal-form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 16px;
   }
 
-  .form-row {
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .form-field--full {
+      grid-column: span 2;
+    }
+  }
+
+  .form-field {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: 6px;
   }
 
-  .terminal-input {
-    background-color: var(--color-surface-sunken);
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    padding: var(--space-2) var(--space-3);
+  .form-label {
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: 10.5px;
+    color: var(--color-text-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .form-control {
+    background: #090406;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-main);
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
     width: 100%;
     transition: border-color 0.15s ease;
   }
 
-  .terminal-input:focus {
+  .form-control:focus {
     outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 8px rgba(238, 38, 38, 0.25);
   }
 
-  .terminal-select {
-    cursor: pointer;
-  }
-
-  .terminal-textarea {
+  .form-control--textarea {
     resize: vertical;
     min-height: 90px;
   }
 
-  .terminal-form__footer {
+  .terminal-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
     flex-wrap: wrap;
-    padding-top: var(--space-2);
+    gap: 16px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-border);
   }
 
-  .terminal-btn {
-    background-color: var(--color-accent);
-    color: var(--color-text);
+  .contact-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-muted);
+  }
+
+  .btn-transmit {
+    padding: 10px 20px;
+    background: var(--color-accent);
+    color: #ffffff;
     border: 1px solid var(--color-accent);
-    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: var(--weight-bold);
-    letter-spacing: var(--tracking-widest);
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: all 0.2s ease;
   }
 
-  .terminal-btn:hover:not(:disabled) {
-    background-color: transparent;
+  .btn-transmit:hover:not(:disabled) {
+    background: transparent;
     color: var(--color-accent);
+    box-shadow: 0 0 12px rgba(238, 38, 38, 0.4);
   }
 
-  .terminal-btn:disabled {
+  .btn-transmit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  /* ── Publications ─────────────────────────────── */
-  .pubs-section {
-    padding-block: var(--section-gap);
-    border-top: var(--border-1bit);
+  /* ── Minimal Dark Footer ─────────────────────────── */
+  .footer-minimal {
+    border-top: 1px solid var(--color-border);
+    padding-top: 32px;
+    margin-top: 16px;
   }
 
-  .pub-list {
-    list-style: none;
-  }
-
-  .pub-item {
-    display: grid;
-    grid-template-columns: 60px 1fr;
-    gap: var(--space-6);
-    padding: var(--space-6) 0;
-    align-items: start;
-  }
-
-  .pub-item:last-child { border-bottom: none; }
-
-  .pub-item__year {
-    padding-top: 2px;
-  }
-
-  .pub-item__title {
-    font-size: var(--text-base);
-    font-weight: var(--weight-semibold);
-    color: var(--color-text);
-    line-height: var(--leading-snug);
-    margin-bottom: var(--space-2);
-  }
-
-  .pub-item__title a {
-    text-decoration-line: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: var(--color-border-strong);
-    color: inherit;
-    transition: color var(--duration-fast) var(--ease-out-quart),
-                text-decoration-color var(--duration-fast) var(--ease-out-quart);
-  }
-
-  .pub-item__title a:hover {
-    color: var(--color-accent);
-    text-decoration-color: var(--color-accent);
-  }
-
-  .pub-item__meta {
-    line-height: var(--leading-relaxed);
-    margin-bottom: var(--space-1);
-  }
-
-  .pub-item__doi {
-    color: var(--color-text-faint);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-color: var(--color-border);
-    transition: color var(--duration-fast) var(--ease-out-quart);
-  }
-
-  .pub-item__doi:hover { color: var(--color-accent); }
-
-  /* ── Testimonials Grid ─────────────────────────── */
-  .testimonials-section {
-    padding-bottom: var(--section-gap);
-  }
-  .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
-  }
-  @media (max-width: 900px) {
-    .testimonials-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  .testimonial-card {
+  .footer-inner {
     display: flex;
-    flex-direction: column;
-    height: 100%;
+    align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
-  }
-  .testimonial-quote {
-    color: var(--color-text-main);
-    line-height: var(--leading-relaxed);
-    font-style: italic;
-  }
-  .testimonial-author {
-    padding-top: var(--space-3);
-  }
-  .testimonial-author__name {
-    font-weight: var(--weight-bold);
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
-  /* ── Bio Callout Banner ────────────────────────── */
-  .bio-callout {
-    margin-bottom: var(--section-gap);
-  }
-  .bio-callout__content {
+  .footer-left {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: 6px;
   }
-  @media (min-width: 900px) {
-    .bio-callout__content {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .bio-callout__copy {
-    max-width: 680px;
-  }
-  .bio-callout__title {
+
+  .footer-badge {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
-    color: var(--color-text-main);
-    margin-bottom: var(--space-2);
+    font-weight: 900;
+    font-size: 12px;
+    color: var(--color-accent);
   }
-  .bio-callout__actions {
+
+  .footer-wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-text-main);
+  }
+
+  .footer-coords {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-text-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-nav {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    flex-shrink: 0;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-link,
+  .footer-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
+  }
+
+  .footer-link:hover,
+  .footer-btn:hover {
+    color: var(--color-accent);
+  }
+
+  /* ── 1984 Era Retro Overrides ─────────────────────── */
+  [data-era="1984"] .btn-hero-primary,
+  [data-era="1984"] .btn-hero-secondary,
+  [data-era="1984"] .hero-hud-card,
+  [data-era="1984"] .methodology-icon-badge,
+  [data-era="1984"] .crimson-bio-banner,
+  [data-era="1984"] .btn-discovery-cta,
+  [data-era="1984"] .terminal-card,
+  [data-era="1984"] .terminal-banner,
+  [data-era="1984"] .form-control,
+  [data-era="1984"] .btn-transmit {
+    border-radius: 0px !important;
+    border-color: #EE2626 !important;
+    font-family: var(--font-mono) !important;
+  }
+
+  [data-era="1984"] .crimson-bio-banner {
+    background: #000000 !important;
+    border: 1px solid #EE2626 !important;
   }
 </style>
