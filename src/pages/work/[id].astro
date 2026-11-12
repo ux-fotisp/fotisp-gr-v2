@@ -5,6 +5,7 @@ import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DesktopWindow from '../../components/DesktopWindow.astro';
 import JsonLd from '../../components/JsonLd.astro';
+import CaseStudyDiagram from '../../components/CaseStudyDiagram.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('caseStudies');
@@ -195,6 +196,11 @@ const schema = [
           </ol>
         </section>
       )}
+
+      <!-- Visual Architectural Schematic -->
+      <section class="case-schematic-section" aria-label="System Architecture Schematic">
+        <CaseStudyDiagram id={slug} figureTag={d.figureTag ?? 'Fig. 01'} />
+      </section>
 
       <!-- MDX body content -->
       <div class="case-prose">

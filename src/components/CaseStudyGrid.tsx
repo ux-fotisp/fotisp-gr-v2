@@ -138,6 +138,58 @@ function CaseStudyCard({
           </a>
         </h3>
 
+        {/* Vector Architectural Schematic Thumbnail */}
+        <div className="cs-card__thumb u-border-1bit" aria-hidden="true">
+          {item.id === 'medipulse' && (
+            <svg viewBox="0 0 320 70" className="cs-card__thumb-svg">
+              <line x1="20" y1="35" x2="85" y2="35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="85" y="15" width="75" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="93" y="38" fontFamily="monospace" fontSize="8" fill="var(--color-accent)">800ms BUF</text>
+              <line x1="160" y1="35" x2="220" y2="35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="220" y="10" width="80" height="50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="228" y="32" fontFamily="monospace" fontSize="7" fill="currentColor">56px TOUCH</text>
+              <text x="228" y="48" fontFamily="monospace" fontSize="7" fill="var(--color-accent)">FLOOR ARCH</text>
+            </svg>
+          )}
+          {item.id === 'aethra' && (
+            <svg viewBox="0 0 320 70" className="cs-card__thumb-svg">
+              <rect x="20" y="15" width="70" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" />
+              <text x="26" y="38" fontFamily="monospace" fontSize="8" fill="currentColor">OPEN EU DATA</text>
+              <path d="M 90 35 L 135 35" stroke="currentColor" strokeWidth="1.5" />
+              <polygon points="135,35 175,15 215,35 175,55" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+              <text x="157" y="38" fontFamily="monospace" fontSize="8" fill="var(--color-accent)">AI NARR</text>
+              <path d="M 215 35 L 255 35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="255" y="15" width="55" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="261" y="38" fontFamily="monospace" fontSize="8" fill="currentColor">CITYOPS</text>
+            </svg>
+          )}
+          {item.id === 'healthpulse' && (
+            <svg viewBox="0 0 320 70" className="cs-card__thumb-svg">
+              <rect x="20" y="15" width="80" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="28" y="38" fontFamily="monospace" fontSize="8" fill="currentColor">DUAL BIOMETRIC</text>
+              <path d="M 100 35 L 145 35" stroke="currentColor" strokeWidth="1.5" />
+              <polygon points="145,35 180,12 215,35 180,58" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+              <text x="158" y="38" fontFamily="monospace" fontSize="7" fill="var(--color-accent)">CALM GATE</text>
+              <path d="M 215 35 L 255 35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="255" y="15" width="55" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="261" y="38" fontFamily="monospace" fontSize="7" fill="currentColor">WCAG AAA</text>
+            </svg>
+          )}
+          {item.id === 'food-we-love' && (
+            <svg viewBox="0 0 320 70" className="cs-card__thumb-svg">
+              <rect x="20" y="15" width="60" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" />
+              <text x="26" y="38" fontFamily="monospace" fontSize="8" fill="currentColor">1.4K SKUs</text>
+              <path d="M 80 35 L 125 35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="125" y="10" width="85" height="50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <text x="131" y="32" fontFamily="monospace" fontSize="8" fill="currentColor">FACETED IA</text>
+              <text x="131" y="47" fontFamily="monospace" fontSize="7" fill="var(--color-accent)">PROVENANCE</text>
+              <path d="M 210 35 L 255 35" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="255" y="15" width="55" height="40" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+              <text x="259" y="38" fontFamily="monospace" fontSize="7" fill="var(--color-accent)">3-STEP OUT</text>
+            </svg>
+          )}
+        </div>
+
         <p className="cs-card__summary u-text-sm u-text-muted">
           {item.summary || item.tagline}
         </p>
@@ -540,6 +592,21 @@ export default function CaseStudyGrid({ items, mode = 'grid' }: Props) {
         }
         .cs-card__link:hover {
           color: var(--color-accent);
+        }
+
+        .cs-card__thumb {
+          background-color: var(--color-surface-sunken);
+          border: 1px solid var(--color-border);
+          padding: 6px 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .cs-card__thumb-svg {
+          width: 100%;
+          height: 60px;
+          color: var(--color-text);
         }
 
         .cs-card__summary {

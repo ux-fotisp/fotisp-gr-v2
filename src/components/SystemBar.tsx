@@ -5,7 +5,7 @@
  * Features:
  *   - File / Edit / View / Special dropdown menus with full keyboard navigation
  *   - Shift+Alt+E (⇧⌥E) 1984 ↔ 2026 era toggle (ignoring input/textarea/select)
- *   - Run System Diagnostic (⌘D) triggering WebdriftInstaller modal
+ *   - Run System Diagnostic (⇧⌥D) triggering WebdriftInstaller modal
  *   - Live clock — Thessaloniki time (Europe/Athens)
  *   - Uses 'fotisp-era' in localStorage
  */
@@ -130,7 +130,7 @@ function buildMenus(
       items: [
         {
           label: 'Run System Diagnostic',
-          shortcut: '⌘D',
+          shortcut: '⇧⌥D',
           action: triggerDiagnostic,
         },
         {
@@ -377,8 +377,8 @@ export default function SystemBar() {
         return;
       }
 
-      // 3. Cmd+D / Ctrl+D: Run System Diagnostic
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'd' || e.key === 'D')) {
+      // 3. Shift+Alt+D: Run System Diagnostic (guarded against browser bookmark collision)
+      if (e.shiftKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
         e.preventDefault();
         triggerDiagnostic();
         return;

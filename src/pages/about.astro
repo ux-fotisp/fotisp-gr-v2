@@ -205,6 +205,13 @@ const careerSteps = [
               ></textarea>
             </div>
 
+            {import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
+              <div class="form-row turnstile-wrapper">
+                <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY} data-theme="dark"></div>
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+              </div>
+            )}
+
             <div class="terminal-form__footer">
               <span id="contactStatus" class="u-mono u-text-xs u-text-faint" aria-live="polite">
                 [STATUS: IDLE — AWAITING OPERATOR DISPATCH]

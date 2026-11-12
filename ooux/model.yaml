@@ -1,0 +1,287 @@
+# ==============================================================================
+# OOUX ORCA DOMAIN MODEL: FOTIS PASTRAKIS PORTFOLIO (fotisp-gr-v2)
+# ==============================================================================
+# Methodology: Object-Oriented User Experience (OOUX) / ORCA Framework
+# Author: Senior Creative Technologist & OOUX Systems Architect
+# Version: 2.6.0
+# Target System: Astro 5 Content Collections + Cloudflare Edge Architecture
+# ==============================================================================
+
+system:
+  name: "Fotis Pastrakis Systems & Portfolio"
+  domain: "fotisp.gr"
+  architecture_pattern: "Static Generation (SSG) with Cloudflare Edge Serverless Functions"
+  era_modes:
+    - id: "2026"
+      label: "Swiss Contemporary Precision (Obsidian #080303 & Crimson #EE2626)"
+      typography: "Newsreader / Space Grotesk / JetBrains Mono"
+    - id: "1984"
+      label: "Macintosh 1-Bit OS Dithering (Threshold Monochrome Matrix)"
+      typography: "Chicago / Monaco / 1-Bit Vector Bitmaps"
+
+# ------------------------------------------------------------------------------
+# CORE OBJECT INVENTORY (NOUNS)
+# ------------------------------------------------------------------------------
+objects:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 1. CASE STUDY (Primary Portfolio Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  case_study:
+    id: "case_study"
+    name: "Case Study"
+    plural: "Case Studies"
+    definition: >
+      A comprehensive, evidence-grounded technical narrative documenting an end-to-end
+      UX research, system architecture, and interface design engagement across high-stakes
+      domains (healthcare, civic telemetry, e-commerce, enterprise platforms).
+    desktop_metaphor:
+      type: "Executable Document File (.app / .doc)"
+      icon: "window-blueprint"
+      titlebar: "{id}.app"
+    cardinality_mcsfd:
+      in_system: "Finite (4 flagship studies)"
+      per_user: "Read-only shared public record"
+    attributes:
+      core_metadata:
+        id: "string (slug identifier: medipulse | aethra | healthpulse | food-we-love)"
+        title: "string (Headline title)"
+        tagline: "string (Architectural summary statement)"
+        client: "string (Entity / Organization name)"
+        year: "string (Project completion or active era, e.g. '2023 — 2024')"
+        role: "string (Engineering & Design role title)"
+        duration: "string (Engagement timeline, e.g. '6 Months')"
+        status: "enum: [production, completed, archived]"
+        featured: "boolean (True for primary landing grid)"
+        order: "integer (Display sort priority)"
+      architectural_properties:
+        scope: "list of strings (Key system deliverables)"
+        stack: "list of strings (Frontend, research tools, protocols)"
+        metrics: "list of objects (Empirically verified UX outcomes: metric, label, verified)"
+        diagram:
+          type: "string (CAD schematic identifier)"
+          caption: "string (Technical caption)"
+          figure_tag: "string (Formal figure reference, e.g. 'Fig. 01')"
+      content_body:
+        problem_statement: "markdown (Clinical / civic domain problem context)"
+        research_methodology: "markdown (Qualitative & quantitative discovery process)"
+        system_architecture: "markdown (Component hierarchy, state machine, latency thresholds)"
+        ux_outcomes: "markdown (Grounded operational impacts, WCAG compliance, user velocity)"
+    relationships:
+      services:
+        target: "service"
+        cardinality: "1:N (A case study exemplifies 1 or more consulting services)"
+        optionality: "Mandatory (Every case study must link to at least 1 service)"
+        direction: "Bidirectional (case_study.services -> service.case_studies)"
+      publications:
+        target: "publication"
+        cardinality: "0:N (A case study may cite 0 or more peer-reviewed publications)"
+        optionality: "Optional (Grounds research when academic methodology was utilized)"
+        direction: "Bidirectional (case_study.citations -> publication.related_studies)"
+      inquiry_context:
+        target: "inquiry"
+        cardinality: "1:N (A case study initiates context-specific inquiries)"
+        optionality: "Optional"
+    cta_matrix:
+      guest:
+        - action: "Inspect Case Study"
+          target: "/work/{id}"
+          intent: "Full architectural breakdown reading"
+        - action: "Toggle 1984 Dither Mode"
+          target: "Client DOM data-era toggle"
+          intent: "Inspect 1-bit high-contrast schematic rendering"
+        - action: "Initiate Scoped Inquiry"
+          target: "/#contact-drawer?service={first_service_id}"
+          intent: "Engage Fotis for similar domain scope"
+      owner:
+        - action: "Update Narrative"
+          target: "src/content/case-studies/{id}.md"
+          intent: "Amend findings with zero metric hallucination"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 2. PUBLICATION (Academic Rigour Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  publication:
+    id: "publication"
+    name: "Publication"
+    plural: "Publications"
+    definition: >
+      A peer-reviewed scientific paper, taxonomy, or conference proceeding authored or
+      co-authored by Fotis Pastrakis, validated with permanent DOI and indexed in MDPI,
+      Scopus, or IEEE.
+    desktop_metaphor:
+      type: "Academic Volume Reference (.pdf / .ref)"
+      icon: "paper-scroll"
+      titlebar: "reference_{venue}_{year}.pdf"
+    cardinality_mcsfd:
+      in_system: "Finite (4 verified MDPI papers: 2026, 2025, 2024, 2023)"
+      per_user: "Read-only public citations"
+    attributes:
+      bibliographic_metadata:
+        id: "string (mdpi-info-2026 | mdpi-digital-2025 | mdpi-info-2024 | mdpi-info-2023)"
+        title: "string (Canonical paper title)"
+        authors: "list of strings (Full author roster, Fotios Pastrakis marked)"
+        venue: "string (Journal / Conference name, e.g. MDPI Information)"
+        year: "integer (Year of publication)"
+        doi: "string (Digital Object Identifier, e.g. 10.3390/info17050472)"
+        url: "url (Permanent canonical publication landing page)"
+        status: "enum: [published, in_review, pre_print]"
+      research_properties:
+        abstract: "string (Formal paper abstract)"
+        keywords: "list of strings (Taxonomic indices)"
+        taxonomy_type: "enum: [cultural_ux, modular_ia, empirical_hci, accessibility]"
+        verified_peer_reviewed: "boolean (Strict ground-truth check)"
+    relationships:
+      services:
+        target: "service"
+        cardinality: "0:N (Publications inform service theoretical foundations)"
+        optionality: "Optional"
+      case_studies:
+        target: "case_study"
+        cardinality: "0:N (Direct methodology transfer to case studies)"
+        optionality: "Optional"
+    cta_matrix:
+      guest:
+        - action: "Resolve Canonical DOI"
+          target: "https://doi.org/{doi}"
+          intent: "Access open-access full-text PDF at publisher"
+        - action: "Copy Citation"
+          target: "Clipboard BibTeX / APA text"
+          intent: "Academic academic citation"
+      owner:
+        - action: "Register New Proceeding"
+          target: "src/content/publications/{id}.md"
+          intent: "Append newly accepted peer-reviewed work"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 3. SERVICE (Professional Practice Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  service:
+    id: "service"
+    name: "Service Scope"
+    plural: "Service Scopes"
+    definition: >
+      A structured consulting offering, advisory engagement, or architectural capability
+      offered by Fotis Pastrakis to enterprise, clinical, and high-growth organizations.
+    desktop_metaphor:
+      type: "System Daemon / Capability Module (.service / .dylib)"
+      icon: "cpu-chip"
+      titlebar: "service_{id}.daemon"
+    cardinality_mcsfd:
+      in_system: "Finite (3 core offerings: ux-research | design-systems | ux-strategy)"
+      per_user: "Read-only engagement offerings"
+    attributes:
+      specification:
+        id: "string (ux-research | design-systems | ux-strategy)"
+        name: "string (Full service title)"
+        headline: "string (One-line value proposition)"
+        deliverables: "list of strings (Concrete tangible artifacts produced)"
+        methodology: "list of strings (Theoretical frameworks and operational methods)"
+        target_stakeholders: "list of strings (CPO, VP Engineering, Clinical Director)"
+    relationships:
+      case_studies:
+        target: "case_study"
+        cardinality: "1:N (Each service has at least 1 illustrative case study proof)"
+        optionality: "Mandatory"
+      inquiries:
+        target: "inquiry"
+        cardinality: "1:N (Inquiries can be pre-scoped to a specific service)"
+        optionality: "Optional"
+    cta_matrix:
+      guest:
+        - action: "Initiate Scoped Inquiry"
+          target: "/#contact-drawer?service={id}"
+          intent: "Auto-select engagement scope in contact terminal"
+        - action: "Filter Related Work"
+          target: "/work?service={id}"
+          intent: "Review case studies proving this service competency"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 4. INQUIRY (Asynchronous Transmission Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  inquiry:
+    id: "inquiry"
+    name: "Inquiry Transmission"
+    plural: "Inquiries"
+    definition: >
+      An asynchronous communication packet dispatched by an external stakeholder
+      (recruiter, founder, academic collaborator) through the Cloudflare Pages edge
+      endpoint to Fotis Pastrakis, validated via anti-bot honeypots, Turnstile,
+      and persisted to Cloudflare D1.
+    desktop_metaphor:
+      type: "Terminal Socket Packet (tty0 / console_inquiry.sh)"
+      icon: "network-packet"
+      titlebar: "packet_dispatch.log"
+    cardinality_mcsfd:
+      in_system: "Unbounded (D1 SQL database records)"
+      per_user: "Rate-limited per IP hash (5 transmissions / hour)"
+    attributes:
+      transmission_data:
+        id: "integer (Auto-increment primary key in D1)"
+        name: "string (Operator / Sender name, mandatory)"
+        email: "string (Valid RFC 5322 email address, mandatory)"
+        subject: "enum: [general, ux-research, design-systems, ux-strategy]"
+        message: "string (Payload body, min 10 chars, max 5000 chars)"
+      telemetry_metadata:
+        era_mode: "enum: [1984, 2026] (Active client visual mode during dispatch)"
+        ip_hash: "string (SHA-256 pseudonymized hash of CF-Connecting-IP)"
+        created_at: "timestamp (Edge server UTC timestamp)"
+      security_tokens:
+        _gotcha: "string (Must be empty; bot honeypot)"
+        company_fax: "string (Must be empty; bot honeypot)"
+        turnstile_token: "string (Optional Cloudflare Turnstile token for verification)"
+    relationships:
+      scoped_service:
+        target: "service"
+        cardinality: "0:1 (Inquiry optionally references a specific service scope)"
+        optionality: "Optional (defaults to 'general')"
+    cta_matrix:
+      guest:
+        - action: "Transmit Packet"
+          target: "POST /api/contact"
+          intent: "Dispatch asynchronous inquiry to D1 database"
+        - action: "Reset Buffer"
+          target: "DOM Form Reset"
+          intent: "Clear draft payload"
+        - action: "Mailto Fallback"
+          target: "mailto:fotis@fotisp.gr"
+          intent: "Direct mailto invocation when offline or network drops"
+      system:
+        - action: "Evaluate Bot Honeypots"
+          target: "functions/api/contact.ts"
+          intent: "Silently discard if _gotcha or company_fax populated"
+        - action: "Hash Client IP"
+          target: "Web Crypto SHA-256"
+          intent: "GDPR-compliant anonymized rate-limiting"
+        - action: "Persist to D1"
+          target: "INSERT INTO inquiries ... bound to fotisp_db"
+          intent: "Durable Cloudflare D1 storage"
+      owner:
+        - action: "Inspect Inquiries"
+          target: "Wrangler D1 CLI / Cloudflare Dashboard"
+          intent: "Review incoming client transmissions"
+
+# ------------------------------------------------------------------------------
+# OBJECT RELATIONSHIP MATRIX (CROSS-REFERENCE)
+# ------------------------------------------------------------------------------
+matrix:
+  - source: "case_study"
+    relates_to: "service"
+    type: "implements / demonstrates"
+    multiplicity: "M:N"
+    enforcement: "Zod reference('services') in src/content.config.ts"
+  - source: "case_study"
+    relates_to: "publication"
+    type: "cites / operationalizes"
+    multiplicity: "M:N"
+    enforcement: "Zod reference('publications') in src/content.config.ts"
+  - source: "service"
+    relates_to: "case_study"
+    type: "evidenced_by"
+    multiplicity: "1:N"
+    enforcement: "Reverse lookup via collection query"
+  - source: "inquiry"
+    relates_to: "service"
+    type: "scoped_to"
+    multiplicity: "N:1"
+    enforcement: "Foreign key / subject enum match"
