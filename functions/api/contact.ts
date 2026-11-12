@@ -20,6 +20,13 @@ interface Env {
       };
     };
   };
+  fotisp_db?: {
+    prepare: (query: string) => {
+      bind: (...args: unknown[]) => {
+        run: () => Promise<{ success: boolean }>;
+      };
+    };
+  };
 }
 
 type PagesFunction<T = Record<string, unknown>> = (context: {
@@ -126,10 +133,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     // 4. Cloudflare D1 persistence (if DB binding is present)
-    if (context.env.DB) {
+    const db = context.env.DB || context.env.fotisp_db;
+    if (db) {
       try {
         // Attempt D1 insert into inquiries table
-        await context.env.DB.prepare(
+        await db.prepare(
           `INSERT INTO inquiries (name, email, subject, message, era, created_at)
            VALUES (?, ?, ?, ?, ?, datetime('now'))`
         )
