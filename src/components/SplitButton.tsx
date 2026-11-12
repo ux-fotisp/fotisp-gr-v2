@@ -22,6 +22,8 @@ export interface SplitButtonItem {
   shortcut?: string;
   icon?: string;
   copyText?: string;
+  target?: string;
+  rel?: string;
 }
 
 export interface SplitButtonProps {
@@ -48,10 +50,12 @@ const DEFAULT_ITEMS: SplitButtonItem[] = [
     shortcut: 'WRK',
   },
   {
-    label: 'Download CV.pdf',
-    href: '/about#cv',
-    icon: '📄',
-    shortcut: 'CV',
+    label: 'LinkedIn Profile',
+    href: 'https://www.linkedin.com/in/fotispastrakis',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    icon: '↗',
+    shortcut: 'LNK',
   },
 ];
 
@@ -135,7 +139,9 @@ export default function SplitButton({
     if (item.action) {
       item.action();
     } else if (item.href) {
-      if (item.href.startsWith('mailto:')) {
+      if (item.target === '_blank' || item.href.startsWith('http')) {
+        window.open(item.href, '_blank', 'noopener,noreferrer');
+      } else if (item.href.startsWith('mailto:')) {
         window.location.href = item.href;
       } else if (item.href.startsWith('#')) {
         const el = document.querySelector(item.href);

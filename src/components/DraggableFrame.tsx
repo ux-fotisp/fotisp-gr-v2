@@ -7,7 +7,7 @@
  * - Only initiates drag from the window titlebar (.desktop-window__titlebar, .u-window-titlebar).
  * - Click/drag brings clicked window to the front (incrementing global z-index).
  * - Constrained to viewport boundaries.
- * - Respects prefers-reduced-motion.
+ * - Automatically disabled on mobile viewports (< 768px) and when prefers-reduced-motion is true.
  */
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -30,6 +30,7 @@ export default function DraggableFrame({
   const containerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const shouldReduceMotion = useReducedMotion();
+  const [isDesktop, setIsDesktop] = useState(false);
   const [zIndex, setZIndex] = useState(defaultZIndex);
   const [constraints, setConstraints] = useState<{
     top: number;
@@ -37,6 +38,18 @@ export default function DraggableFrame({
     right: number;
     bottom: number;
   } | false>(false);
+
+  // Monitor desktop viewport (>= 768px)
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  const canDrag = isDesktop && !shouldReduceMotion;
 
   // Bring this window to the top
   const bringToFront = () => {
@@ -48,7 +61,7 @@ export default function DraggableFrame({
   const updateConstraints = () => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    // Allow dragging within viewport, keeping below top systembar (approx 36px)
+    // Allow dragging within viewport, keeping below top systembar (approx 38px)
     setConstraints({
       top: -rect.top + 38,
       left: -rect.left + 12,
@@ -59,7 +72,7 @@ export default function DraggableFrame({
 
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || shouldReduceMotion) return;
+    if (!el || !canDrag) return;
 
     // Locate the titlebar handle inside slotted Astro markup
     const titlebar = el.querySelector<HTMLElement>(
@@ -99,13 +112,13 @@ export default function DraggableFrame({
       titlebar.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [dragControls, shouldReduceMotion]);
+  }, [dragControls, canDrag]);
 
   return (
     <motion.div
       ref={containerRef}
       className={`draggable-frame ${className}`}
-      drag={!shouldReduceMotion}
+      drag={canDrag}
       dragListener={false}
       dragControls={dragControls}
       dragMomentum={false}
@@ -116,7 +129,7 @@ export default function DraggableFrame({
       style={{
         zIndex,
         position: 'relative',
-        touchAction: 'none',
+        touchAction: canDrag ? 'none' : 'auto',
       }}
     >
       {children}

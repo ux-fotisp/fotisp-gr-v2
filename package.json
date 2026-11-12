@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "create:object": "node scripts/create-object.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.0.0",

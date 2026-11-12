@@ -27,7 +27,8 @@ This document establishes the bidirectional traceability between the domain mode
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Case Study** | `*.app` Executable Document | `src/content/case-studies/*.md` via `defineCollection()` | `src/pages/work/[id].astro`<br>`src/pages/work/index.astro` | `CaseStudyGrid.tsx`<br>`CaseStudyDiagram.astro` | `dist/work/*/index.html` (Static Pages) |
 | **Publication** | `reference_*.pdf` Volume | `src/content/publications/*.md` via `defineCollection()` | `src/pages/index.astro#publications`<br>`src/pages/about.astro` | `DesktopWindow.astro`<br>1-Bit DOI Badge | Canonical DOI Resolver (`https://doi.org/*`) |
-| **Service** | `service_*.daemon` Daemon | In-Memory / Config in `src/pages/index.astro` | `src/pages/index.astro#services`<br>`src/pages/work/index.astro` | `ServiceCard`<br>`data-service-select` | Statically baked in HTML |
+| **Service** | `service_*.daemon` Daemon | `src/content/services/*.md` via `defineCollection()` | `src/pages/index.astro#services`<br>`src/pages/work/index.astro` | `ServiceCard`<br>`data-service-select` | Statically baked in HTML |
+| **Testimonial** | `*.sig` Signature Certificate | `src/content/testimonials/*.md` via `defineCollection()` | `src/pages/about.astro#testimonials`<br>`src/pages/index.astro#testimonials` | `DesktopWindow.astro`<br>Verified Ref Badge | Statically baked in HTML |
 | **Inquiry** | `tty0 / console_inquiry.sh` | Dynamic Payload Interface in `functions/api/contact.ts` | `/#contact-drawer`<br>`/about#contact-drawer` | `#contactForm`<br>`Turnstile` (optional) | Cloudflare D1 `inquiries` table (`fotisp_db`) |
 
 ---
@@ -113,6 +114,26 @@ This document establishes the bidirectional traceability between the domain mode
        ```
     6. **Graceful Fallback:** If D1 table is absent or in local preview, returns structured success JSON with console trace, never terminating with an unhandled 500 error.
 
+### 3.5 Testimonial (`testimonial`)
+- **Domain Role:** Verified peer and leadership endorsements from senior executives at enterprise organizations (Pfizer, Deloitte) confirming Fotis Pastrakis's architectural rigor and UX execution.
+- **Content Collection Schema (`src/content.config.ts`):**
+  ```ts
+  const testimonials = defineCollection({
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/testimonials' }),
+    schema: z.object({
+      author: z.string(),
+      role: z.string(),
+      company: z.string(),
+      quote: z.string(),
+    }),
+  });
+  ```
+- **Relational Integrity:** Linked relationally into `caseStudies` (`testimonials: z.array(reference('testimonials')).max(3)`) and `services` (`testimonials: z.array(reference('testimonials')).max(3)`).
+- **Ground-Truth Data:** 3 verified records in `src/content/testimonials/`:
+  1. `deloitte-greece.md` — Panagiotis Tsakiridis, Senior Product Designer, Deloitte Digital Greece
+  2. `deloitte-finland.md` — Tomi Sepa, Senior Manager, Risk Advisory, Deloitte Finland
+  3. `pfizer.md` — Christoforos K. Gravas, Product Owner, Pfizer
+
 ---
 
 ## 4. MCSFD Cardinality Matrix
@@ -121,8 +142,11 @@ This document establishes the bidirectional traceability between the domain mode
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `case_study` | *demonstrates* | `service` | 1 | N | Mandatory |
 | `case_study` | *cites* | `publication` | 0 | N | Optional |
+| `case_study` | *validated by* | `testimonial` | 0 | 3 | Optional |
 | `service` | *evidenced by* | `case_study` | 1 | N | Mandatory |
+| `service` | *endorsed by* | `testimonial` | 0 | 3 | Optional |
 | `publication` | *underpins* | `case_study` | 0 | N | Optional |
+| `testimonial` | *validates* | `case_study` | 0 | N | Optional |
 | `inquiry` | *scoped to* | `service` | 0 | 1 | Optional (defaults to 'general') |
 
 ---
@@ -135,15 +159,30 @@ This document establishes the bidirectional traceability between the domain mode
 | **GUEST** | `case_study` | *Toggle Era Mode* | `SystemBar` / `⇧⌥E` | Toggles `document.documentElement.dataset.era` |
 | **GUEST** | `publication` | *Resolve DOI* | `https://doi.org/{doi}` | Opens external canonical journal link |
 | **GUEST** | `service` | *Initiate Scoped Inquiry* | `/#contact-drawer` | Pre-selects service option and focuses terminal input |
+| **GUEST** | `testimonial` | *Inspect Verified Reference* | `/about#testimonials` | Navigates to leadership endorsement grid |
 | **GUEST** | `inquiry` | *Transmit Packet* | `POST /api/contact` | Submits form, shows terminal dispatch confirmation |
 | **SYSTEM** | `inquiry` | *Filter Spam* | `functions/api/contact.ts` | Discards bot submissions silently |
 | **SYSTEM** | `inquiry` | *Persist Record* | `fotisp_db.inquiries` | Writes permanent audit record to D1 |
 | **OWNER** | `case_study` | *Update Case Study* | `src/content/case-studies/*.md` | Git commit on `dev` branch |
 | **OWNER** | `publication` | *Register Publication* | `src/content/publications/*.md` | Git commit on `dev` branch |
+| **OWNER** | `testimonial` | *Register Endorsement* | `src/content/testimonials/*.md` | Git commit on `dev` branch |
 
 ---
 
-## 6. Verification and Compliance
+## 6. Interactive React 19 Islands & Motion Architecture
+
+| Component Island | File Path | Lifecycle Hydration | Motion & Accessibility Safeguards |
+| :--- | :--- | :--- | :--- |
+| **EdgeLottie** | `src/components/EdgeLottie.tsx` | `client:visible` | Wraps `@lottiefiles/dotlottie-react`. When `era === '1984'`, crushes canvas via `filter: url(#dither-1bit); image-rendering: pixelated;`. Animated Thessaloniki radar HUD fallback. |
+| **SplitButton** | `src/components/SplitButton.tsx` | `client:load` / `client:visible` | Primary action button with attached dropdown toggle (`[ v ]`), separated by `--border-1bit`. Framer Motion height disclosure (`height: 0` $\rightarrow$ `auto`), live `[ COPIED TO CLIPBOARD ]` state, keyboard navigation (`Escape`, `Tab`). |
+| **DraggableFrame** | `src/components/DraggableFrame.tsx` | `client:idle` | Titlebar-only handle drag with Framer Motion `useDragControls` and click-to-front `z-index`. **Disabled on `< 768px`** and `prefers-reduced-motion` so mobile touch scrolling is never hijacked. |
+| **MagneticTarget** | `src/components/MagneticTarget.tsx` | `client:load` / `client:visible` | Spring physics (`damping: 16, stiffness: 220`) pulling CTAs toward cursor within 40px radius. Disabled on touch (`pointerType === 'touch'`) and `prefers-reduced-motion`. |
+| **RevealText** | `src/components/RevealText.tsx` | `client:load` | Swiss editorial line-by-line staggered reveal using clip-path masks. Instant render when reduced motion is preferred. |
+| **SystemBar** | `src/components/SystemBar.tsx` | `client:load` | Fixed OS menu bar with 300ms hardware CRT static/glitch transition on era switch (`Shift+Alt+E`) with 150ms midpoint dataset swap. |
+
+---
+
+## 7. Verification and Compliance
 
 - **Build Verification:** All routes compile statically via `astro build` (`output: 'static'`).
 - **Zero Tailwind:** Styles use custom CSS tokens (`src/styles/tokens.css`) and atomic utilities (`src/styles/atomic.css`).

@@ -171,32 +171,38 @@ const indexSchema = [
           I turn raw data into seamless user journeys. With 10+ years navigating high-stakes, regulated industries for global giants like Deloitte and Pfizer, I architect logic through evidence and craft visual communication through behavior.
         </p>
         <nav class="hero__cta-row" aria-label="Primary navigation">
-          <a href="/work" class="btn-primary">View Case Studies</a>
-          <SplitButton
-            client:load
-            primaryLabel="[ BOOK A CALL ]"
-            primaryHref="#contact-drawer"
-            items={[
-              {
-                label: 'Copy Email (fotispastrakis@gmail.com)',
-                copyText: 'fotispastrakis@gmail.com',
-                icon: '📋',
-                shortcut: 'CPY',
-              },
-              {
-                label: 'Explore Case Studies (/work)',
-                href: '/work',
-                icon: '↗',
-                shortcut: 'WRK',
-              },
-              {
-                label: 'Download CV.pdf',
-                href: '/about#cv',
-                icon: '📄',
-                shortcut: 'CV',
-              },
-            ]}
-          />
+          <MagneticTarget client:load strength={0.25} maxOffset={8}>
+            <a href="/work" class="btn-primary">View Case Studies</a>
+          </MagneticTarget>
+          <MagneticTarget client:load strength={0.2} maxOffset={6}>
+            <SplitButton
+              client:load
+              primaryLabel="[ BOOK A CALL ]"
+              primaryHref="#contact-drawer"
+              items={[
+                {
+                  label: 'Copy Email (fotispastrakis@gmail.com)',
+                  copyText: 'fotispastrakis@gmail.com',
+                  icon: '📋',
+                  shortcut: 'CPY',
+                },
+                {
+                  label: 'Explore Case Studies (/work)',
+                  href: '/work',
+                  icon: '↗',
+                  shortcut: 'WRK',
+                },
+                {
+                  label: 'LinkedIn Profile',
+                  href: 'https://www.linkedin.com/in/fotispastrakis',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  icon: '↗',
+                  shortcut: 'LNK',
+                },
+              ]}
+            />
+          </MagneticTarget>
         </nav>
       </div>
 
@@ -456,25 +462,29 @@ const indexSchema = [
           </p>
         </div>
         <div class="bio-callout__actions">
-          <SplitButton
-            client:visible
-            primaryLabel="[ BOOK A CALL ]"
-            primaryHref="#contact-drawer"
-            items={[
-              {
-                label: 'Copy Email (fotispastrakis@gmail.com)',
-                copyText: 'fotispastrakis@gmail.com',
-                icon: '📋',
-                shortcut: 'CPY',
-              },
-              {
-                label: 'Download CV.pdf',
-                href: '/about#cv',
-                icon: '📄',
-                shortcut: 'CV',
-              },
-            ]}
-          />
+          <MagneticTarget client:visible strength={0.25} maxOffset={6}>
+            <SplitButton
+              client:visible
+              primaryLabel="[ BOOK A CALL ]"
+              primaryHref="#contact-drawer"
+              items={[
+                {
+                  label: 'Copy Email (fotispastrakis@gmail.com)',
+                  copyText: 'fotispastrakis@gmail.com',
+                  icon: '📋',
+                  shortcut: 'CPY',
+                },
+                {
+                  label: 'LinkedIn Profile',
+                  href: 'https://www.linkedin.com/in/fotispastrakis',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  icon: '↗',
+                  shortcut: 'LNK',
+                },
+              ]}
+            />
+          </MagneticTarget>
           <span class="u-mono u-text-xs u-text-accent">fotispastrakis@gmail.com</span>
         </div>
       </div>

@@ -78,6 +78,12 @@ objects:
         cardinality: "0:N (A case study may cite 0 or more peer-reviewed publications)"
         optionality: "Optional (Grounds research when academic methodology was utilized)"
         direction: "Bidirectional (case_study.citations -> publication.related_studies)"
+      testimonials:
+        target: "testimonial"
+        cardinality: "0..3 (A case study may feature up to 3 verified leadership testimonials)"
+        optionality: "Optional (Grounds commercial credibility with peer quotes)"
+        direction: "Bidirectional (case_study.testimonials -> testimonial.case_studies)"
+        enforcement: "Zod reference('testimonials').max(3)"
       inquiry_context:
         target: "inquiry"
         cardinality: "1:N (A case study initiates context-specific inquiries)"
@@ -183,6 +189,12 @@ objects:
         target: "case_study"
         cardinality: "1:N (Each service has at least 1 illustrative case study proof)"
         optionality: "Mandatory"
+      testimonials:
+        target: "testimonial"
+        cardinality: "0..3 (A service may feature up to 3 verified client/leadership endorsements)"
+        optionality: "Optional"
+        direction: "Bidirectional (service.testimonials -> testimonial.services)"
+        enforcement: "Zod reference('testimonials').max(3)"
       inquiries:
         target: "inquiry"
         cardinality: "1:N (Inquiries can be pre-scoped to a specific service)"
@@ -261,6 +273,50 @@ objects:
           target: "Wrangler D1 CLI / Cloudflare Dashboard"
           intent: "Review incoming client transmissions"
 
+  # ────────────────────────────────────────────────────────────────────────────
+  # 5. TESTIMONIAL (Validated Leadership Endorsement Unit)
+  # ────────────────────────────────────────────────────────────────────────────
+  testimonial:
+    id: "testimonial"
+    name: "Leadership Testimonial"
+    plural: "Testimonials"
+    definition: >
+      A verified peer or leadership endorsement from senior engineering, product, or
+      advisory leaders at global enterprise organizations (Pfizer, Deloitte) confirming
+      Fotis Pastrakis's architectural rigor, systems leadership, and UX execution.
+    desktop_metaphor:
+      type: "Cryptographic Signature Certificate (.sig / .cert)"
+      icon: "key-certificate"
+      titlebar: "{id}_endorsement.sig"
+    cardinality_mcsfd:
+      in_system: "Finite (3 verified leadership endorsements: deloitte-greece | deloitte-finland | pfizer)"
+      per_user: "Read-only verified public credentials"
+    attributes:
+      core_properties:
+        id: "string (deloitte-greece | deloitte-finland | pfizer)"
+        author: "string (Full name of endorsing leader)"
+        role: "string (Professional leadership title)"
+        company: "string (Enterprise organization name)"
+        quote: "string (Ground-truth verified testimonial statement)"
+    relationships:
+      case_studies:
+        target: "case_study"
+        cardinality: "0..3 (Testimonial validates specific case studies)"
+        optionality: "Optional"
+      services:
+        target: "service"
+        cardinality: "0..3 (Testimonial endorses specific service scopes)"
+        optionality: "Optional"
+    cta_matrix:
+      guest:
+        - action: "Read Verified Reference"
+          target: "src/pages/about.astro#testimonials"
+          intent: "Verify leadership credibility"
+      owner:
+        - action: "Register Verified Endorsement"
+          target: "src/content/testimonials/{id}.md"
+          intent: "Append ground-truth leadership reference"
+
 # ------------------------------------------------------------------------------
 # OBJECT RELATIONSHIP MATRIX (CROSS-REFERENCE)
 # ------------------------------------------------------------------------------
@@ -275,13 +331,51 @@ matrix:
     type: "cites / operationalizes"
     multiplicity: "M:N"
     enforcement: "Zod reference('publications') in src/content.config.ts"
+  - source: "case_study"
+    relates_to: "testimonial"
+    type: "validated_by"
+    multiplicity: "0..3"
+    enforcement: "Zod reference('testimonials').max(3) in src/content.config.ts"
   - source: "service"
     relates_to: "case_study"
     type: "evidenced_by"
     multiplicity: "1:N"
+    enforcement: "Reverse lookup via collection query"
+  - source: "service"
+    relates_to: "testimonial"
+    type: "endorsed_by"
+    multiplicity: "0..3"
+    enforcement: "Zod reference('testimonials').max(3) in src/content.config.ts"
+  - source: "testimonial"
+    relates_to: "case_study"
+    type: "proves"
+    multiplicity: "0..N"
     enforcement: "Reverse lookup via collection query"
   - source: "inquiry"
     relates_to: "service"
     type: "scoped_to"
     multiplicity: "N:1"
     enforcement: "Foreign key / subject enum match"
+
+# ------------------------------------------------------------------------------
+# INTERACTIVE UI ISLANDS & MOTION LAYER
+# ------------------------------------------------------------------------------
+react_islands:
+  - component: "src/components/EdgeLottie.tsx"
+    purpose: "Lottie animation wrapper with 1-bit Macintosh dither fallback & Thessaloniki orbital radar HUD"
+    lifecycle: "client:visible"
+  - component: "src/components/SplitButton.tsx"
+    purpose: "Interactive primary action button with attached dropdown toggle, live [COPIED] feedback, and keyboard accessibility"
+    lifecycle: "client:load / client:visible"
+  - component: "src/components/DraggableFrame.tsx"
+    purpose: "1-bit OS window draggable container with titlebar handle, click-to-front z-index, and mobile viewport guards"
+    lifecycle: "client:idle"
+  - component: "src/components/MagneticTarget.tsx"
+    purpose: "Tactile spring-physics CTA magnetic pull respecting reduced motion"
+    lifecycle: "client:load / client:visible"
+  - component: "src/components/RevealText.tsx"
+    purpose: "Swiss editorial bottom-up clip-path line reveal"
+    lifecycle: "client:load"
+  - component: "src/components/SystemBar.tsx"
+    purpose: "Fixed top retro menu bar with era switcher (Shift+Alt+E) and diagnostic trigger (Shift+Alt+D)"
+    lifecycle: "client:load"
