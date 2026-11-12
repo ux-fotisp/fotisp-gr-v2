@@ -3,11 +3,12 @@
  * React 19 island with Framer Motion dropdown reveal.
  *
  * Requirements:
- * - Primary action button and secondary attached dropdown toggle ([ v ]).
- * - Styled with --border-1bit (crimson #EE2626).
- * - Solid #EE2626 hover state that inverts text color to #080303 (Obsidian).
- * - Framer Motion dropdown animation for secondary options.
- * - Keyboard navigation (Escape to close, Tab trap / arrow focus).
+ * - Primary action button (`[ BOOK A CALL ]` by default) that executes an onClick or anchor jump.
+ * - Secondary attached dropdown arrow (`[ v ]`) separated by a `--border-1bit` (`1px solid #EE2626`).
+ * - Framer Motion dropdown animation (`animate={{ height: isOpen ? 'auto' : 0 }}`).
+ * - Solid `#080303` background, `--color-accent` (`#EE2626`) text, and stark 1px crimson borders.
+ * - Solid `#EE2626` hover state that inverts text color to `#080303` (Obsidian).
+ * - Keyboard navigation (Escape to close, Tab / arrow focus).
  */
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -21,21 +22,36 @@ export interface SplitButtonItem {
   icon?: string;
 }
 
-interface SplitButtonProps {
-  primaryLabel: string;
+export interface SplitButtonProps {
+  primaryLabel?: string;
   primaryHref?: string;
   onPrimaryClick?: () => void;
-  items: SplitButtonItem[];
+  items?: SplitButtonItem[];
   className?: string;
   align?: 'left' | 'right';
   id?: string;
 }
 
+const DEFAULT_ITEMS: SplitButtonItem[] = [
+  { label: 'Download CV.pdf', href: '/resume.pdf', icon: '📄', shortcut: 'CV' },
+  {
+    label: 'Copy Email',
+    action: () => {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText('hello@fotisp.gr');
+      }
+    },
+    icon: '📋',
+    shortcut: 'CPY',
+  },
+  { label: 'Schedule Intake', href: '#contact-drawer', icon: '⚡', shortcut: 'INT' },
+];
+
 export default function SplitButton({
-  primaryLabel,
-  primaryHref,
+  primaryLabel = '[ BOOK A CALL ]',
+  primaryHref = '#contact-drawer',
   onPrimaryClick,
-  items,
+  items = DEFAULT_ITEMS,
   className = '',
   align = 'left',
   id,
@@ -44,7 +60,7 @@ export default function SplitButton({
   const containerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Close on outside click
+  // Close on outside click or Escape key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -113,7 +129,7 @@ export default function SplitButton({
       }}
     >
       {/* Primary Action Button */}
-      {primaryHref ? (
+      {primaryHref && !onPrimaryClick ? (
         <a
           href={primaryHref}
           onClick={handlePrimaryClick}
@@ -131,7 +147,7 @@ export default function SplitButton({
         </button>
       )}
 
-      {/* Secondary Toggle ([ v ]) */}
+      {/* Secondary Toggle ([ v ]) separated by 1px solid #EE2626 */}
       <button
         ref={toggleRef}
         type="button"
@@ -143,22 +159,23 @@ export default function SplitButton({
           isOpen ? 'edge-split-btn--open' : ''
         }`}
       >
-        <span aria-hidden="true" style={{ fontSize: '10px' }}>
-          {isOpen ? '▲' : '▼'}
+        <span aria-hidden="true" style={{ fontSize: '11px', letterSpacing: '-0.5px' }}>
+          {isOpen ? '[ ^ ]' : '[ v ]'}
         </span>
       </button>
 
-      {/* Animated Dropdown Menu */}
+      {/* Animated Dropdown Menu with Framer Motion height reveal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             className={`edge-split-dropdown u-window ${
               align === 'right' ? 'edge-split-dropdown--right' : ''
             }`}
-            initial={{ opacity: 0, y: -4, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.97 }}
-            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ overflow: 'hidden' }}
             role="menu"
           >
             {/* 1-Bit OS Mini Titlebar */}
@@ -209,8 +226,8 @@ export default function SplitButton({
           justify-content: center;
           height: 38px;
           padding: 0 var(--space-4);
-          background-color: var(--color-surface);
-          color: var(--color-text-main);
+          background-color: #080303;
+          color: var(--color-accent);
           border: 1px solid var(--color-accent);
           text-decoration: none;
           font-weight: var(--weight-bold);
@@ -231,9 +248,11 @@ export default function SplitButton({
 
         /* Solid #EE2626 hover state that inverts text color to #080303 */
         .edge-split-btn:hover,
+        .edge-split-btn:focus-visible,
         .edge-split-btn--open {
           background-color: #EE2626 !important;
           color: #080303 !important;
+          outline: none;
         }
 
         .edge-split-dropdown {
@@ -241,10 +260,10 @@ export default function SplitButton({
           top: calc(100% + 4px);
           left: 0;
           min-width: 260px;
-          background-color: var(--color-surface);
+          background-color: #080303;
           border: 1px solid var(--color-accent);
           z-index: 1000;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
         }
 
         .edge-split-dropdown--right {
@@ -257,7 +276,7 @@ export default function SplitButton({
           align-items: center;
           justify-content: space-between;
           padding: 4px var(--space-3);
-          background-color: var(--color-chrome-bg);
+          background-color: #0d0405;
           border-bottom: 1px solid var(--color-accent);
           height: 24px;
         }
@@ -274,9 +293,9 @@ export default function SplitButton({
           justify-content: space-between;
           width: 100%;
           padding: var(--space-2) var(--space-3);
-          background: transparent;
+          background: #080303;
           border: none;
-          color: var(--color-text-main);
+          color: #F4F4F5;
           cursor: pointer;
           text-align: left;
           transition: background-color 0.12s ease, color 0.12s ease;
