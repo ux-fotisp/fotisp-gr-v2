@@ -13,6 +13,8 @@ services:
 publications:
   - "mdpi-info-2026-modular-ia"
   - "mdpi-info-2026-cultural-ux-taxonomy"
+testimonials:
+  - "deloitte-finland"
 tagline: "Civic intelligence platform combining Open EU datasets, real-time incident mapping, and AI-driven narrative synthesis for city operations centres."
 client: "Research prototype — Pfizer / University of the Aegean"
 category: "civic-tech"

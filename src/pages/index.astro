@@ -8,7 +8,15 @@ import RevealText from '../components/RevealText';
 import MagneticTarget from '../components/MagneticTarget';
 import CosmicPolygonMotif from '../components/CosmicPolygonMotif.astro';
 import SplitButton from '../components/SplitButton';
+import EdgeLottie from '../components/EdgeLottie';
 import { getCollection, getEntries } from 'astro:content';
+
+const testimonials = await getCollection('testimonials');
+const testimonialBadgeMap: Record<string, string> = {
+  'pfizer': 'pfizer_endorsement.sig',
+  'deloitte-greece': 'deloitte_gr.sig',
+  'deloitte-finland': 'deloitte_fi.sig',
+};
 
 const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
   .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
@@ -141,6 +149,7 @@ const indexSchema = [
   <section class="hero u-container" aria-labelledby="hero-headline">
     <div class="hero__meta">
       <span class="section-label" aria-hidden="true">fp://index</span>
+      <span class="u-mono u-text-xs u-text-faint">Node: Thessaloniki [40.64° N, 22.94° E]</span>
     </div>
 
     <div class="hero__grid">
@@ -149,7 +158,7 @@ const indexSchema = [
 
       <div class="hero__copy">
         <p class="hero__eyebrow u-mono u-text-xs u-tracking-widest u-uppercase u-text-accent">
-          Senior UX Researcher · Product Designer · Athens
+          COMPLEXITY, DECODED // SYSTEMS, DESIGNED
         </p>
         <RevealText
           client:load
@@ -159,18 +168,33 @@ const indexSchema = [
           className="hero__headline"
         />
         <p class="hero__sub">
-          I research, design, and systematise digital products that hold up under real use — in hospitals, civic operations centres, and consumer apps serving millions.
+          I turn raw data into seamless user journeys. With 10+ years navigating high-stakes, regulated industries for global giants like Deloitte and Pfizer, I architect logic through evidence and craft visual communication through behavior.
         </p>
         <nav class="hero__cta-row" aria-label="Primary navigation">
           <a href="/work" class="btn-primary">View Case Studies</a>
           <SplitButton
             client:load
-            primaryLabel="[ DOWNLOAD CV.PDF ]"
-            primaryHref="/about"
+            primaryLabel="[ BOOK A CALL ]"
+            primaryHref="#contact-drawer"
             items={[
-              { label: 'View Career Timeline', href: '/about#timeline', icon: '↗' },
-              { label: 'Publications & DOIs', href: '/#publications', icon: '⊞' },
-              { label: 'Direct Email (Athens)', href: 'mailto:fotis@fotisp.gr', shortcut: '⌘C', icon: '✉' },
+              {
+                label: 'Copy Email (fotispastrakis@gmail.com)',
+                copyText: 'fotispastrakis@gmail.com',
+                icon: '📋',
+                shortcut: 'CPY',
+              },
+              {
+                label: 'Explore Case Studies (/work)',
+                href: '/work',
+                icon: '↗',
+                shortcut: 'WRK',
+              },
+              {
+                label: 'Download CV.pdf',
+                href: '/about#cv',
+                icon: '📄',
+                shortcut: 'CV',
+              },
             ]}
           />
         </nav>
@@ -178,25 +202,28 @@ const indexSchema = [
 
       <aside class="hero__status-window">
         <DesktopWindow
-          title="system_status.log"
-          fileBadge="v2.0"
+          title="telemetry_hud.lottie"
+          fileBadge="40.64°N 22.94°E"
           figureTag="Fig. 00"
           coordX={0.00}
           coordY={0.00}
-          padded
+          padded={false}
         >
-          <dl class="status-list">
+          <div class="telemetry-hud-container" style="padding: var(--space-2); background: #080303;">
+            <EdgeLottie client:visible height="230px" fallbackText="[ ORBITAL_RADAR // THESSALONIKI_NODE: 40.64° N, 22.94° E ]" />
+          </div>
+          <dl class="status-list u-border-1bit-top" style="padding: var(--space-3);">
+            <div class="status-list__row">
+              <dt class="u-mono u-text-xs u-text-faint">Host Telemetry</dt>
+              <dd class="u-mono u-text-xs u-text-accent">Thessaloniki [40.64° N, 22.94° E]</dd>
+            </div>
             <div class="status-list__row">
               <dt class="u-mono u-text-xs u-text-faint">Current Role</dt>
               <dd class="u-mono u-text-xs u-text-muted">Senior Assoc. / CX Designer — Pfizer</dd>
             </div>
             <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">Research Area</dt>
-              <dd class="u-mono u-text-xs u-text-muted">Clinical UX · AI transparency · Cultural HCI</dd>
-            </div>
-            <div class="status-list__row">
-              <dt class="u-mono u-text-xs u-text-faint">MSc GPA</dt>
-              <dd class="u-mono u-text-xs u-text-muted">9.78 / 10 — Univ. of the Aegean</dd>
+              <dt class="u-mono u-text-xs u-text-faint">Experience</dt>
+              <dd class="u-mono u-text-xs u-text-muted">10+ yrs · Deloitte & Pfizer Enterprise UX</dd>
             </div>
             <div class="status-list__row">
               <dt class="u-mono u-text-xs u-text-faint">Publications</dt>
@@ -375,6 +402,85 @@ const indexSchema = [
     </DesktopWindow>
   </section>
 
+  <!-- ── VERIFIED ENDORSEMENTS ([O] TESTIMONIAL) ────────────────── -->
+  <section class="testimonials-section u-container" aria-labelledby="testimonials-heading" id="testimonials">
+    <header class="section-header">
+      <span class="section-label">Verified Peer & Leadership Endorsements</span>
+      <h2 id="testimonials-heading" class="section-title">Leadership Feedback</h2>
+    </header>
+
+    <div class="testimonials-grid">
+      {testimonials.map((t, idx) => {
+        const fileTitle = testimonialBadgeMap[t.id] || `${t.id.replace(/-/g, '_')}.sig`;
+        return (
+          <DesktopWindow
+            title={fileTitle}
+            fileBadge={`REF 0${idx + 1}`}
+            figureTag={`Sig. 0${idx + 1}`}
+            padded
+          >
+            <div class="testimonial-card">
+              <blockquote class="testimonial-quote u-mono u-text-xs">
+                "{t.data.quote}"
+              </blockquote>
+              <div class="testimonial-author u-border-1bit-top">
+                <div class="testimonial-author__name u-mono u-text-xs u-text-accent">
+                  {t.data.author}
+                </div>
+                <div class="testimonial-author__role u-mono u-text-xs u-text-muted">
+                  {t.data.role} · {t.data.company}
+                </div>
+              </div>
+            </div>
+          </DesktopWindow>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- ── BIO CALLOUT BANNER ─────────────────────────────────────── -->
+  <aside class="bio-callout u-container" aria-label="Personal Introduction">
+    <DesktopWindow
+      title="operator_profile.md"
+      fileBadge="10+ YRS"
+      figureTag="Bio. 01"
+      padded
+    >
+      <div class="bio-callout__content">
+        <div class="bio-callout__copy">
+          <h3 class="bio-callout__title">
+            Hi, I'm Fotis. I make the complicated feel considered.
+          </h3>
+          <p class="bio-callout__sub u-text-muted">
+            UX researcher, Senior Product Designer & Systems Architect. Looking at the intersection of human need, fluid execution, and enterprise scale. 10+ years turning tough problems into quiet software.
+          </p>
+        </div>
+        <div class="bio-callout__actions">
+          <SplitButton
+            client:visible
+            primaryLabel="[ BOOK A CALL ]"
+            primaryHref="#contact-drawer"
+            items={[
+              {
+                label: 'Copy Email (fotispastrakis@gmail.com)',
+                copyText: 'fotispastrakis@gmail.com',
+                icon: '📋',
+                shortcut: 'CPY',
+              },
+              {
+                label: 'Download CV.pdf',
+                href: '/about#cv',
+                icon: '📄',
+                shortcut: 'CV',
+              },
+            ]}
+          />
+          <span class="u-mono u-text-xs u-text-accent">fotispastrakis@gmail.com</span>
+        </div>
+      </div>
+    </DesktopWindow>
+  </aside>
+
   <!-- ── CONTACT DRAWER / RETRO TERMINAL ───────────────────────── -->
   <section class="contact-section u-container" id="contact-drawer" tabindex="-1" aria-labelledby="contact-heading">
     <header class="section-header">
@@ -392,7 +498,7 @@ const indexSchema = [
     >
       <div class="terminal-box">
         <div class="terminal-banner u-mono u-text-xs">
-          <p class="u-text-accent">FOTISP-OS v2.6.0 [Athens Host Node · Cloudflare Edge]</p>
+          <p class="u-text-accent">FOTISP-OS v2.6.0 [Thessaloniki Host Node: 40.64° N, 22.94° E · Cloudflare Edge]</p>
           <p class="u-text-faint">Select a service scope or dispatch an asynchronous inquiry payload below.</p>
         </div>
 
@@ -1128,4 +1234,70 @@ const indexSchema = [
   }
 
   .pub-item__doi:hover { color: var(--color-accent); }
+
+  /* ── Testimonials Grid ─────────────────────────── */
+  .testimonials-section {
+    padding-bottom: var(--section-gap);
+  }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+  @media (max-width: 900px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .testimonial-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .testimonial-quote {
+    color: var(--color-text-main);
+    line-height: var(--leading-relaxed);
+    font-style: italic;
+  }
+  .testimonial-author {
+    padding-top: var(--space-3);
+  }
+  .testimonial-author__name {
+    font-weight: var(--weight-bold);
+  }
+
+  /* ── Bio Callout Banner ────────────────────────── */
+  .bio-callout {
+    margin-bottom: var(--section-gap);
+  }
+  .bio-callout__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  @media (min-width: 900px) {
+    .bio-callout__content {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  .bio-callout__copy {
+    max-width: 680px;
+  }
+  .bio-callout__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-text-main);
+    margin-bottom: var(--space-2);
+  }
+  .bio-callout__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
 </style>

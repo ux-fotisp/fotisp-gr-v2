@@ -12,6 +12,8 @@ services:
   - "ux-research"
 publications:
   - "mdpi-info-2026-modular-ia"
+testimonials:
+  - "pfizer"
 tagline: "Redesigning a clinical literature platform for hospital floors — 56px touch-bar, high-density filter panels, and 800ms debounced auto-save."
 client: "MediPulse Health Technologies"
 category: "health-tech"

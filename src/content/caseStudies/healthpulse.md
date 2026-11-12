@@ -12,6 +12,8 @@ services:
   - "design-systems"
 publications:
   - "mdpi-info-2026-cultural-ux-taxonomy"
+testimonials:
+  - "deloitte-greece"
 tagline: "A calm health companion that turned daily self-monitoring from a source of anxiety into a tool for agency — for patients managing hypertension and Type 2 diabetes."
 client: "HealthPulse (MediPulse consumer arm)"
 category: "health-tech"

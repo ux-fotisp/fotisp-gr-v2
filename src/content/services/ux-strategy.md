@@ -22,6 +22,8 @@ isDraft: false
 publications:
   - "mdpi-info-2026-modular-ia"
   - "acux-recommender-2022"
+testimonials:
+  - "deloitte-finland"
 relatedCaseStudies: ["scientific-discovery"]
 available: true
 order: 3

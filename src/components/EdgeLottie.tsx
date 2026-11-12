@@ -51,7 +51,7 @@ export default function EdgeLottie({
   style,
   width = '100%',
   height = '100%',
-  fallbackText = '[ ORBITAL_RADAR // ATHENS_NODE: 37.98° N, 23.73° E ]',
+  fallbackText = '[ ORBITAL_RADAR // THESSALONIKI_NODE: 40.64° N, 22.94° E ]',
 }: EdgeLottieProps) {
   const [era, setEra] = useState<'1984' | '2026'>('2026');
   const [isClient, setIsClient] = useState(false);

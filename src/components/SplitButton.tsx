@@ -3,11 +3,12 @@
  * React 19 island with Framer Motion dropdown reveal.
  *
  * Requirements:
- * - Primary action button (`[ BOOK A CALL ]` by default) that executes an onClick or anchor jump.
+ * - Primary action button (`[ BOOK A CALL ]` by default) that scrolls to #contact-drawer and focuses contact-name.
  * - Secondary attached dropdown arrow (`[ v ]`) separated by a `--border-1bit` (`1px solid #EE2626`).
  * - Framer Motion dropdown animation (`animate={{ height: isOpen ? 'auto' : 0 }}`).
  * - Solid `#080303` background, `--color-accent` (`#EE2626`) text, and stark 1px crimson borders.
  * - Solid `#EE2626` hover state that inverts text color to `#080303` (Obsidian).
+ * - Dropdown items include `Copy Email (fotispastrakis@gmail.com)` with live `[ COPIED ]` feedback state.
  * - Keyboard navigation (Escape to close, Tab / arrow focus).
  */
 
@@ -20,6 +21,7 @@ export interface SplitButtonItem {
   action?: () => void;
   shortcut?: string;
   icon?: string;
+  copyText?: string;
 }
 
 export interface SplitButtonProps {
@@ -33,18 +35,24 @@ export interface SplitButtonProps {
 }
 
 const DEFAULT_ITEMS: SplitButtonItem[] = [
-  { label: 'Download CV.pdf', href: '/resume.pdf', icon: '📄', shortcut: 'CV' },
   {
-    label: 'Copy Email',
-    action: () => {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        navigator.clipboard.writeText('hello@fotisp.gr');
-      }
-    },
+    label: 'Copy Email (fotispastrakis@gmail.com)',
+    copyText: 'fotispastrakis@gmail.com',
     icon: '📋',
     shortcut: 'CPY',
   },
-  { label: 'Schedule Intake', href: '#contact-drawer', icon: '⚡', shortcut: 'INT' },
+  {
+    label: 'Explore Case Studies (/work)',
+    href: '/work',
+    icon: '↗',
+    shortcut: 'WRK',
+  },
+  {
+    label: 'Download CV.pdf',
+    href: '/about#cv',
+    icon: '📄',
+    shortcut: 'CV',
+  },
 ];
 
 export default function SplitButton({
@@ -57,6 +65,7 @@ export default function SplitButton({
   id,
 }: SplitButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
@@ -95,6 +104,13 @@ export default function SplitButton({
       if (primaryHref.startsWith('#')) {
         const el = document.querySelector(primaryHref);
         el?.scrollIntoView({ behavior: 'smooth' });
+        // Smoothly focus contact-name input
+        if (primaryHref === '#contact-drawer') {
+          setTimeout(() => {
+            const nameInput = document.getElementById('contact-name') as HTMLInputElement | null;
+            nameInput?.focus();
+          }, 350);
+        }
       } else {
         window.location.href = primaryHref;
       }
@@ -102,6 +118,19 @@ export default function SplitButton({
   };
 
   const handleItemClick = (item: SplitButtonItem) => {
+    if (item.copyText || item.label.toLowerCase().includes('copy email')) {
+      const emailToCopy = item.copyText || 'fotispastrakis@gmail.com';
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText(emailToCopy);
+      }
+      setCopiedItem(item.label);
+      setTimeout(() => {
+        setCopiedItem(null);
+        setIsOpen(false);
+      }, 1200);
+      return;
+    }
+
     setIsOpen(false);
     if (item.action) {
       item.action();
@@ -111,6 +140,12 @@ export default function SplitButton({
       } else if (item.href.startsWith('#')) {
         const el = document.querySelector(item.href);
         el?.scrollIntoView({ behavior: 'smooth' });
+        if (item.href === '#contact-drawer') {
+          setTimeout(() => {
+            const nameInput = document.getElementById('contact-name') as HTMLInputElement | null;
+            nameInput?.focus();
+          }, 350);
+        }
       } else {
         window.location.href = item.href;
       }
@@ -189,26 +224,31 @@ export default function SplitButton({
             </div>
 
             <ul className="edge-split-dropdown__list">
-              {items.map((item, idx) => (
-                <li key={idx} role="none">
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => handleItemClick(item)}
-                    className="edge-split-dropdown__item u-mono u-text-xs"
-                  >
-                    <span className="edge-split-dropdown__item-label">
-                      {item.icon && <span style={{ marginRight: '6px' }}>{item.icon}</span>}
-                      {item.label}
-                    </span>
-                    {item.shortcut && (
-                      <kbd className="edge-split-dropdown__kbd u-mono u-text-xs">
-                        {item.shortcut}
-                      </kbd>
-                    )}
-                  </button>
-                </li>
-              ))}
+              {items.map((item, idx) => {
+                const isItemCopied = copiedItem === item.label;
+                return (
+                  <li key={idx} role="none">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => handleItemClick(item)}
+                      className={`edge-split-dropdown__item u-mono u-text-xs ${
+                        isItemCopied ? 'edge-split-dropdown__item--copied' : ''
+                      }`}
+                    >
+                      <span className="edge-split-dropdown__item-label">
+                        {item.icon && <span style={{ marginRight: '6px' }}>{item.icon}</span>}
+                        {isItemCopied ? '[ COPIED TO CLIPBOARD ]' : item.label}
+                      </span>
+                      {item.shortcut && !isItemCopied && (
+                        <kbd className="edge-split-dropdown__kbd u-mono u-text-xs">
+                          {item.shortcut}
+                        </kbd>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </motion.div>
         )}
@@ -259,7 +299,7 @@ export default function SplitButton({
           position: absolute;
           top: calc(100% + 4px);
           left: 0;
-          min-width: 260px;
+          min-width: 280px;
           background-color: #080303;
           border: 1px solid var(--color-accent);
           z-index: 1000;
@@ -302,9 +342,10 @@ export default function SplitButton({
         }
 
         .edge-split-dropdown__item:hover,
-        .edge-split-dropdown__item:focus-visible {
-          background-color: #EE2626;
-          color: #080303;
+        .edge-split-dropdown__item:focus-visible,
+        .edge-split-dropdown__item--copied {
+          background-color: #EE2626 !important;
+          color: #080303 !important;
           outline: none;
         }
 

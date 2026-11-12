@@ -21,6 +21,8 @@ featuredOrder: 2
 isDraft: false
 publications:
   - "mdpi-info-2026-modular-ia"
+testimonials:
+  - "deloitte-greece"
 relatedCaseStudies: ["medipulse", "healthpulse"]
 available: true
 order: 2

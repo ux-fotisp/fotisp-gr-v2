@@ -3,6 +3,15 @@
 // Career timeline + verified credentials + interactive retro terminal contact drawer
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DesktopWindow from '../components/DesktopWindow.astro';
+import SplitButton from '../components/SplitButton';
+import { getCollection } from 'astro:content';
+
+const testimonials = await getCollection('testimonials');
+const testimonialBadgeMap: Record<string, string> = {
+  'pfizer': 'pfizer_endorsement.sig',
+  'deloitte-greece': 'deloitte_gr.sig',
+  'deloitte-finland': 'deloitte_fi.sig',
+};
 
 const careerSteps = [
   {
@@ -73,7 +82,7 @@ const careerSteps = [
     </header>
 
     <div class="about-grid">
-      <!-- Left Column: Bio & Core Principles -->
+      <!-- Left Column: Bio & Methodology -->
       <section class="about-bio">
         <DesktopWindow
           title="executive_summary.txt"
@@ -84,26 +93,40 @@ const careerSteps = [
           padded
         >
           <div class="bio-content">
-            <h2 class="bio-content__heading">The Practice</h2>
-            <p>
-              I sit at the intersection of rigorous qualitative UX research, cognitive ergonomics, and modern web architectures. Over the past decade, I have focused on domains where interface mistakes carry real-world consequences: ICU clinical monitoring, chronic illness management, and civic operations.
+            <h2 class="bio-content__heading">The Practice & Methodology</h2>
+            <p class="bio-lead u-text-main" style="line-height: var(--leading-relaxed); margin-bottom: var(--space-4);">
+              Hi, I'm Fotis — UX Strategist, Product Designer, and HCI Researcher. I utilize Object-Oriented UX (OOUX) to break down complex problems and conversational design to reduce cognitive load. Generative and Agentic AI are my comrades in UX Research, allowing me to move at terminal velocity. While I'm UX-first, I'm a technical polyglot who speaks fluent CSS/JS, bridging strategy and production.
             </p>
-            <p>
-              My academic research with the University of the Aegean (i-Lab) addresses the taxonomy of Cultural UX and AI-driven Modular Information Architecture. My industry work at Pfizer and Deloitte scales these insights to enterprise platforms deployed globally.
+            <p style="line-height: var(--leading-relaxed); margin-bottom: var(--space-6);">
+              Over the past decade, I have focused on domains where interface mistakes carry real-world consequences: ICU clinical monitoring, chronic illness management, and civic operations. My academic research with the University of the Aegean (i-Lab) addresses the taxonomy of Cultural UX and AI-driven Modular Information Architecture. My industry work at Pfizer and Deloitte scales these insights to enterprise platforms deployed globally.
             </p>
 
-            <h3 class="bio-content__subheading">Core Principles</h3>
-            <ul class="principles-list">
-              <li>
-                <strong class="u-text-main">Calm Over Novelty:</strong> An interface is an instrument, not an amusement park. If an interaction increases pulse rate, it is broken.
-              </li>
-              <li>
-                <strong class="u-text-main">Architecture Before Pixels:</strong> OOUX, entity modeling, and token schemas survive redesigns. Aesthetic trends do not.
-              </li>
-              <li>
-                <strong class="u-text-main">Evidence Above Assertion:</strong> Usability testing with 8 gloved nurses in an ICU will overturn 6 months of boardroom debate in 45 minutes.
-              </li>
-            </ul>
+            <h3 class="bio-content__subheading" style="margin-bottom: var(--space-3);">OOUX Architectural Pillars</h3>
+            <div class="pillars-grid">
+              <div class="pillar-module u-border-1bit">
+                <div class="pillar-module__kicker u-mono u-text-xs u-text-accent">01 // Find the Objects</div>
+                <h4 class="pillar-module__title u-text-sm u-text-main">SIP-Validated Domain Modeling</h4>
+                <p class="u-mono u-text-xs u-text-muted">
+                  Begin by identifying the real-world nouns that give the domain its shape. Define core entities, attributes, and user mental models before touching UI screens.
+                </p>
+              </div>
+
+              <div class="pillar-module u-border-1bit">
+                <div class="pillar-module__kicker u-mono u-text-xs u-text-accent">02 // Make the System Explicit</div>
+                <h4 class="pillar-module__title u-text-sm u-text-main">Relationships & Role-Based CTAs</h4>
+                <p class="u-mono u-text-xs u-text-muted">
+                  Uncover implicit assumptions. Map bidirectional relationships, cardinality, and role-based permissions to eliminate navigation dead-ends and cognitive disorientation.
+                </p>
+              </div>
+
+              <div class="pillar-module u-border-1bit">
+                <div class="pillar-module__kicker u-mono u-text-xs u-text-accent">03 // Design for the Edges</div>
+                <h4 class="pillar-module__title u-text-sm u-text-main">Clinical Accessibility & Resilience</h4>
+                <p class="u-mono u-text-xs u-text-muted">
+                  Stress-test for scale, offline states, high latency, and clinical emergency. Build WCAG AAA legibility, 56px touch targets, and resilient recovery states.
+                </p>
+              </div>
+            </div>
           </div>
         </DesktopWindow>
       </section>
@@ -141,6 +164,42 @@ const careerSteps = [
       </section>
     </div>
 
+    <!-- Verified Endorsements Section ([O] TESTIMONIAL) -->
+    <section class="endorsements-section" aria-labelledby="endorsements-title">
+      <header class="section-header">
+        <span class="section-label">Verified Peer & Leadership Endorsements</span>
+        <h2 id="endorsements-title" class="section-title">Leadership References</h2>
+      </header>
+
+      <div class="testimonials-grid">
+        {testimonials.map((t, idx) => {
+          const fileTitle = testimonialBadgeMap[t.id] || `${t.id.replace(/-/g, '_')}.sig`;
+          return (
+            <DesktopWindow
+              title={fileTitle}
+              fileBadge={`REF 0${idx + 1}`}
+              figureTag={`Sig. 0${idx + 1}`}
+              padded
+            >
+              <div class="testimonial-card">
+                <blockquote class="testimonial-quote u-mono u-text-xs">
+                  "{t.data.quote}"
+                </blockquote>
+                <div class="testimonial-author u-border-1bit-top">
+                  <div class="testimonial-author__name u-mono u-text-xs u-text-accent">
+                    {t.data.author}
+                  </div>
+                  <div class="testimonial-author__role u-mono u-text-xs u-text-muted">
+                    {t.data.role} · {t.data.company}
+                  </div>
+                </div>
+              </div>
+            </DesktopWindow>
+          );
+        })}
+      </div>
+    </section>
+
     <!-- Contact Drawer / Retro Terminal -->
     <section class="contact-section" id="contact-drawer" tabindex="-1">
       <DesktopWindow
@@ -153,8 +212,31 @@ const careerSteps = [
       >
         <div class="terminal-box">
           <div class="terminal-banner u-mono u-text-xs">
-            <p class="u-text-accent">FOTISP-OS v2.6.0 [Thessaloniki Host Node]</p>
-            <p class="u-text-faint">Type in your parameters or dispatch an asynchronous message below.</p>
+            <div class="terminal-banner__row">
+              <div>
+                <p class="u-text-accent">FOTISP-OS v2.6.0 [Thessaloniki Host Node: 40.64° N, 22.94° E]</p>
+                <p class="u-text-faint">Type in your parameters or dispatch an asynchronous message below.</p>
+              </div>
+              <SplitButton
+                client:visible
+                primaryLabel="[ BOOK A CALL ]"
+                primaryHref="#contact-drawer"
+                items={[
+                  {
+                    label: 'Copy Email (fotispastrakis@gmail.com)',
+                    copyText: 'fotispastrakis@gmail.com',
+                    icon: '📋',
+                    shortcut: 'CPY',
+                  },
+                  {
+                    label: 'Explore Case Studies (/work)',
+                    href: '/work',
+                    icon: '↗',
+                    shortcut: 'WRK',
+                  },
+                ]}
+              />
+            </div>
           </div>
 
           <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
@@ -505,5 +587,68 @@ const careerSteps = [
   .terminal-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* ── Pillars Grid ──────────────────────────────── */
+  .pillars-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .pillar-module {
+    padding: var(--space-3);
+    background-color: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .pillar-module__kicker {
+    letter-spacing: var(--tracking-wider);
+    font-weight: var(--weight-bold);
+  }
+  .pillar-module__title {
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ── Testimonials Grid ─────────────────────────── */
+  .endorsements-section {
+    margin-bottom: var(--space-16);
+  }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+  @media (max-width: 900px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .testimonial-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .testimonial-quote {
+    color: var(--color-text-main);
+    line-height: var(--leading-relaxed);
+    font-style: italic;
+  }
+  .testimonial-author {
+    padding-top: var(--space-3);
+  }
+  .testimonial-author__name {
+    font-weight: var(--weight-bold);
+  }
+
+  /* ── Terminal Banner Row ───────────────────────── */
+  .terminal-banner__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
   }
 </style>

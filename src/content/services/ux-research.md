@@ -23,6 +23,8 @@ isDraft: false
 publications:
   - "mdpi-info-2026-cultural-ux-taxonomy"
   - "mdpi-digital-2022-acux-typology"
+testimonials:
+  - "pfizer"
 relatedCaseStudies: ["medipulse", "healthpulse", "scientific-discovery"]
 available: true
 order: 1

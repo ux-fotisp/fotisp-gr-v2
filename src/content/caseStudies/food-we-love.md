@@ -13,6 +13,8 @@ services:
 publications:
   - "acux-recommender-2022"
   - "mdpi-digital-2022-acux-typology"
+testimonials:
+  - "deloitte-greece"
 tagline: "Redesigning the discovery and checkout experience for Greece's leading organic food e-tailer — from artisan marketplace to trust-first digital grocery."
 client: "FoodWeLove S.A."
 category: "e-commerce"
