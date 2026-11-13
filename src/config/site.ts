@@ -4,7 +4,7 @@
  */
 
 export interface NavLink {
-  id: 'top' | 'work' | 'methodology' | 'about';
+  id: 'top' | 'work' | 'research' | 'architecture' | 'about';
   label: string;
   href: string;
 }
@@ -262,9 +262,9 @@ export const siteConfig: SiteConfig = {
   },
 
   navLinks: [
-    { label: 'Start', href: '/#top', id: 'top' },
-    { label: 'Selected work', href: '/#work', id: 'work' },
-    { label: 'Methodology', href: '/#methodology', id: 'methodology' },
+    { label: 'Work', href: '/#work', id: 'work' },
+    { label: 'Research', href: '/#research', id: 'research' },
+    { label: 'Architecture', href: '/#methodology', id: 'architecture' },
     { label: 'About', href: '/about', id: 'about' },
   ],
 };

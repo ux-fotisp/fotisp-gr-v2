@@ -1,6 +1,6 @@
 /* =================================================================
    systembar.css — Floating Pill Navigation Header
-   fotisp.gr v2 | Stage 11 Design System Alignment
+   fotisp.gr v2 | Exact Figma "Home · Desktop v2" (node-id="7:54")
    ================================================================= */
 
 /* ── Floating Header Shell ────────────────────────────────────────── */
@@ -9,318 +9,299 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: var(--z-systembar);
-  padding: 14px var(--gutter);
-  background: linear-gradient(180deg, rgba(8, 3, 3, 0.92) 0%, rgba(8, 3, 3, 0.6) 80%, transparent 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  pointer-events: none;
+  z-index: var(--z-systembar, 100);
+  background: rgba(10, 10, 12, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid #ff1e56;
+  padding: 24px 120px;
+  pointer-events: auto;
   user-select: none;
+  transition: background-color var(--duration-fast, 150ms) var(--ease-out-quart, cubic-bezier(0.25, 1, 0.5, 1));
 }
 
 .systembar__inner {
-  max-width: var(--container-2xl);
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  pointer-events: auto;
+  gap: 24px;
 }
 
-/* ── Brand: [FP] Badge + fotisp.gr Wordmark ─────────────────────── */
+/* ── Identity & Brand (data-node-id="7:56") ───────────────────────── */
 .systembar__brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
   text-decoration: none;
-  color: var(--color-text-main);
-  transition: opacity var(--duration-fast) var(--ease-out-quart);
+  color: #f3f4f6;
   flex-shrink: 0;
+  transition: opacity 150ms ease;
 }
 
 .systembar__brand:hover {
   opacity: 0.9;
 }
 
-.systembar__brand-badge {
+.systembar__brand-logo-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background-color: var(--color-accent);
-  color: #FFFFFF;
-  font-family: var(--font-display);
-  font-weight: var(--weight-black);
-  font-size: 12px;
-  letter-spacing: -0.02em;
-  border-radius: 6px;
-  box-shadow: 0 0 12px rgba(238, 38, 38, 0.4);
+  width: 44.57px;
+  height: 48px;
   flex-shrink: 0;
 }
 
-.systembar__brand-text {
-  font-family: var(--font-display);
-  font-weight: var(--weight-bold);
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  color: var(--color-text-main);
+.systembar__brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-/* ── Center Floating Pill Nav ────────────────────────────────────── */
+.systembar__brand-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: normal;
+  color: #f3f4f6;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* ── Segmented Navigation (data-node-id="7:59") ────────────────────── */
 .systembar__nav {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
-  background: rgba(18, 12, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  justify-content: center;
+  gap: 16px;
+  padding: 8px;
+  background-color: #030304;
+  border: 1px solid #ff1e56;
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .systembar__nav-link {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: var(--weight-medium);
-  color: var(--color-text-muted);
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
   text-decoration: none;
-  border-radius: var(--radius-pill);
-  transition: all var(--duration-fast) var(--ease-out-quart);
+  background: transparent;
+  transition: all 150ms cubic-bezier(0.25, 1, 0.5, 1);
   white-space: nowrap;
 }
 
-.systembar__nav-link:hover {
-  color: var(--color-text-main);
-  background-color: rgba(255, 255, 255, 0.05);
+.systembar__nav-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0.54px;
+  color: #9ca3af;
+  transition: color 150ms ease;
+}
+
+.systembar__nav-link:hover .systembar__nav-text {
+  color: #f3f4f6;
 }
 
 .systembar__nav-link.is-active {
-  color: var(--color-text-main);
-  background-color: rgba(255, 255, 255, 0.1);
-  font-weight: var(--weight-semibold);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  background-color: #191b23;
 }
 
-/* ── Right Status & Controls ─────────────────────────────────────── */
-.systembar__controls {
+.systembar__nav-link.is-active .systembar__nav-text {
+  color: #f3f4f6;
+}
+
+/* ── Actions & Utilities (Right) ─────────────────────────────────── */
+.systembar__actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   flex-shrink: 0;
 }
 
-/* Availability Status Pill */
-.systembar__status-pill {
+/* Primary Action Button: "Book a Call" (data-node-id="33:13") */
+.systembar__cta-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  background: rgba(18, 12, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-muted);
+  justify-content: center;
+  padding: 16px 24px;
+  background: linear-gradient(90deg, #fe113d 0%, #56061a 100%);
+  border: 1px solid #fe113d;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(254, 17, 61, 0.35);
+  transition: transform 150ms ease, box-shadow 150ms ease;
   white-space: nowrap;
 }
 
-.systembar__status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: var(--color-success);
-  box-shadow: 0 0 8px var(--color-success);
-  animation: pulse-dot 2.2s ease-in-out infinite;
-  display: inline-block;
-  flex-shrink: 0;
+.systembar__cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(254, 17, 61, 0.6);
 }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.85); }
+.systembar__cta-btn:active {
+  transform: translateY(0);
 }
 
-/* Compact Era Toggle Pill */
+.systembar__cta-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 18px;
+  color: #f3f4f6;
+  line-height: normal;
+}
+
+/* System Utilities: Era Toggle & Diagnostic Button */
+.systembar__utilities {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .systembar__era-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  background: rgba(18, 12, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-faint);
+  padding: 8px 14px;
+  background: #030304;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #71717A;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-quart);
+  transition: all 150ms ease;
   white-space: nowrap;
 }
 
 .systembar__era-btn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-text-main);
+  border-color: #ff1e56;
+  color: #f3f4f6;
 }
 
 .systembar__era-opt {
-  transition: color var(--duration-fast) var(--ease-out-quart);
+  transition: color 150ms ease;
 }
 
 .systembar__era-opt.is-active {
-  color: var(--color-accent);
-  font-weight: var(--weight-bold);
+  color: #ff1e56;
+  font-weight: 700;
 }
 
 .systembar__era-sep {
   opacity: 0.4;
 }
 
-/* Diagnostic Trigger Button */
 .systembar__diag-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
-  background: rgba(18, 12, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-faint);
+  padding: 8px 12px;
+  background: #030304;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #71717A;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-quart);
+  transition: all 150ms ease;
   white-space: nowrap;
 }
 
 .systembar__diag-btn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  background-color: rgba(238, 38, 38, 0.08);
+  border-color: #ff1e56;
+  color: #ff1e56;
+  background-color: rgba(255, 30, 86, 0.1);
+}
+
+/* ── Responsive Adaptations ───────────────────────────────────────── */
+@media (max-width: 1280px) {
+  .systembar {
+    padding: 16px 40px;
+  }
+  .systembar__brand-text {
+    font-size: 17px;
+  }
+  .systembar__nav-text {
+    font-size: 15px;
+  }
+  .systembar__cta-text {
+    font-size: 15px;
+  }
+  .systembar__cta-btn {
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .systembar {
+    padding: 16px 24px;
+  }
+  .systembar__utilities {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .systembar {
+    padding: 16px;
+  }
+  .systembar__inner {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .systembar__brand-logo-wrap {
+    width: 32px;
+    height: 35px;
+  }
+  .systembar__brand-text {
+    font-size: 16px;
+  }
+  .systembar__cta-btn {
+    padding: 8px 16px;
+  }
+  .systembar__cta-text {
+    font-size: 13px;
+  }
+  .systembar__nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-around;
+    padding: 6px;
+    gap: 4px;
+  }
+  .systembar__nav-link {
+    padding: 6px 12px;
+  }
+  .systembar__nav-text {
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
 }
 
 /* ── 1984 Era Retro Overrides ────────────────────────────────────── */
 [data-era="1984"] .systembar {
   background: #000000;
-  border-bottom: 1px solid #EE2626;
+  border-bottom: 2px solid #ff1e56;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-[data-era="1984"] .systembar__brand-badge,
 [data-era="1984"] .systembar__nav,
 [data-era="1984"] .systembar__nav-link,
-[data-era="1984"] .systembar__status-pill,
+[data-era="1984"] .systembar__cta-btn,
 [data-era="1984"] .systembar__era-btn,
 [data-era="1984"] .systembar__diag-btn {
   border-radius: 0px !important;
-  border-color: #EE2626 !important;
-  font-family: var(--font-mono) !important;
 }
 
-[data-era="1984"] .systembar__status-dot {
-  background-color: #EE2626;
-  box-shadow: 0 0 6px #EE2626;
-  border-radius: 0px;
-}
-
-[data-era="1984"] .systembar__nav-link.is-active {
-  background-color: #EE2626;
-  color: #000000;
-}
-
-/* ── Mobile Layout (< 768px) ─────────────────────────────────────── */
-.systembar__mobile-top {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .systembar {
-    padding: 10px 12px;
-  }
-
-  .systembar__inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .systembar__mobile-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  /* Hide the desktop row items that are now in mobile-top */
-  .systembar__inner > .systembar__brand,
-  .systembar__inner > .systembar__controls {
-    display: none;
-  }
-
-  /* Full-width 2nd row floating pill nav */
-  .systembar__nav {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 3px 4px;
-    box-sizing: border-box;
-  }
-
-  .systembar__nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .systembar__nav-link {
-    padding: 5px 8px;
-    font-size: 11.5px;
-    flex: 1;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .systembar__status-pill {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .systembar__era-btn {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .systembar__diag-btn {
-    padding: 4px 6px;
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 420px) {
-  .systembar__status-text-full {
-    display: none;
-  }
-  .systembar__status-text-compact {
-    display: inline;
-  }
-}
-
-@media (min-width: 421px) {
-  .systembar__status-text-compact {
-    display: none;
-  }
+[data-era="1984"] .systembar__cta-btn {
+  background: #ff1e56;
+  box-shadow: none;
 }

@@ -1,15 +1,24 @@
 /**
- * SystemBar.tsx — Floating Pill Navigation Header
+ * SystemBar.tsx — Header & Navigation Bar
  * React 19 island: client:load
  *
- * Implements Stage 11 Design System Alignment:
- *  - Left Brand: Crimson square badge [FP] (radius 6px) + fotisp.gr wordmark linking to /
- *  - Center Floating Pill Nav: Glassmorphic dark container with Start (/#top),
- *    Selected work (/#work), Methodology (/#methodology), About (/about)
- *  - Highlight active route/section with subtle elevated pill surface
- *  - Mobile (< 768px): 2-row layout with full-width scrollable pill nav, 0 horizontal overflow
- *  - Right Status & Controls: Availability status pill (pulsing dot) + compact 2026 / 1984 era toggle (Shift+Alt+E)
- *    and diagnostic trigger (⇧⌥D)
+ * Implements EXACT Figma "Home · Desktop v2" (node-id="7:54"):
+ *  - Border: 1px solid #ff1e56 (bottom border on full header)
+ *  - Background: rgba(10, 10, 12, 0.75) with backdrop-blur(8px)
+ *  - Identity (Left):
+ *      - Logo: /images/fotisp-logo.png (44.57px x 48px)
+ *      - Text: "Fotios Pastrakis" in JetBrains Mono 20px #f3f4f6
+ *  - Segmented Navigation (Center):
+ *      - Container: pill (border-radius: 999px), bg: #030304, border: 1px solid #ff1e56, p: 8px, gap: 16px
+ *      - Active link: bg: #191b23, px: 16px, py: 8px, rounded: 999px, text: #f3f4f6 18px tracking: 0.54px
+ *      - Inactive link: bg: transparent, px: 16px, py: 8px, text: #9ca3af 18px tracking: 0.54px
+ *      - Links: Work (/#work), Research (/#research), Architecture (/#methodology), About (/about)
+ *  - Call to Action (Right):
+ *      - Primary Button: "Book a Call", bg-gradient to right (#fe113d to #56061a), border: 1px solid #fe113d,
+ *        rounded: 999px, px: 24px, py: 16px, font: JetBrains Mono Bold 18px #f3f4f6
+ *      - Smooth scroll to #contact-drawer and focus input
+ *  - Integrated Controls:
+ *      - 2026 / 1984 era toggle (Shift+Alt+E) & diagnostic (⇧⌥D) preserved seamlessly
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -30,7 +39,7 @@ function isInteractiveElement(el: Element | null): boolean {
 
 export default function SystemBar() {
   const [era, setEra] = useState<'2026' | '1984'>('2026');
-  const [activeSection, setActiveSection] = useState<'top' | 'work' | 'methodology' | 'about'>('top');
+  const [activeSection, setActiveSection] = useState<'work' | 'research' | 'architecture' | 'about'>('work');
   const [isGlitching, setIsGlitching] = useState(false);
 
   // Sync era state from DOM and localStorage
@@ -69,10 +78,8 @@ export default function SystemBar() {
       return;
     }
 
-    // 1. Mount hardware glitch overlay immediately
     setIsGlitching(true);
 
-    // 2. Perform DOM dataset swap at midpoint (150ms)
     setTimeout(() => {
       setEra(next);
       document.documentElement.dataset.era = next;
@@ -80,7 +87,6 @@ export default function SystemBar() {
       window.dispatchEvent(new CustomEvent('era-changed', { detail: { era: next } }));
     }, 150);
 
-    // 3. Dismount glitch overlay at 300ms
     setTimeout(() => {
       setIsGlitching(false);
     }, 300);
@@ -100,14 +106,12 @@ export default function SystemBar() {
       if (e.shiftKey && e.altKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
         toggleEra();
-        return;
       }
 
-      // Shift+Alt+D: Run System Diagnostic
+      // Shift+Alt+D: Trigger diagnostic
       if (e.shiftKey && e.altKey && (e.key === 'D' || e.key === 'd')) {
         e.preventDefault();
         triggerDiagnostic();
-        return;
       }
     };
 
@@ -115,25 +119,33 @@ export default function SystemBar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleEra, triggerDiagnostic]);
 
-  // Track active section on scroll & path
+  // Section observer to update active nav pill
   useEffect(() => {
-    const checkActiveSection = () => {
-      if (typeof window === 'undefined') return;
-      const pathname = window.location.pathname;
+    if (typeof window === 'undefined') return;
 
-      if (pathname.includes('/about')) {
+    const checkActiveSection = () => {
+      const pathname = window.location.pathname;
+      if (pathname === '/about' || pathname === '/about/') {
         setActiveSection('about');
         return;
       }
 
-      const scrollY = window.scrollY;
-      const methodologyEl = document.getElementById('methodology');
+      const methodEl = document.getElementById('methodology');
+      const researchEl = document.getElementById('research');
       const workEl = document.getElementById('work');
 
-      if (methodologyEl) {
-        const rect = methodologyEl.getBoundingClientRect();
+      if (methodEl) {
+        const rect = methodEl.getBoundingClientRect();
         if (rect.top <= 250 && rect.bottom >= 100) {
-          setActiveSection('methodology');
+          setActiveSection('architecture');
+          return;
+        }
+      }
+
+      if (researchEl) {
+        const rect = researchEl.getBoundingClientRect();
+        if (rect.top <= 250 && rect.bottom >= 100) {
+          setActiveSection('research');
           return;
         }
       }
@@ -146,9 +158,7 @@ export default function SystemBar() {
         }
       }
 
-      if (scrollY < 350) {
-        setActiveSection('top');
-      }
+      setActiveSection('work');
     };
 
     checkActiveSection();
@@ -175,7 +185,23 @@ export default function SystemBar() {
         e.preventDefault();
         el.scrollIntoView({ behavior: 'smooth' });
         window.history.pushState(null, '', `#${id}`);
-        setActiveSection(id as any);
+        setActiveSection(id === 'methodology' ? 'architecture' : (id as any));
+      }
+    }
+  };
+
+  // CTA button click handler -> scrolls to contact drawer
+  const handleBookCall = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window === 'undefined') return;
+    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+    if (isHomePage) {
+      const el = document.getElementById('contact-drawer');
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth' });
+        window.history.pushState(null, '', '#contact-drawer');
+        const input = document.getElementById('contact-name');
+        if (input) input.focus();
       }
     }
   };
@@ -203,22 +229,61 @@ export default function SystemBar() {
         )}
       </AnimatePresence>
 
-      <header className="systembar" role="banner" aria-label="System floating navigation">
-        <div className="systembar__inner">
-          {/* Mobile Top Row (< 768px) */}
-          <div className="systembar__mobile-top">
-            <a href="/" className="systembar__brand" aria-label={`${siteConfig.brand.name} — homepage`}>
-              <span className="systembar__brand-badge">[FP]</span>
-              <span className="systembar__brand-text">{siteConfig.brand.name}</span>
+      <header className="systembar" role="banner" aria-label="System floating navigation" data-node-id="7:54">
+        <div className="systembar__inner" data-node-id="7:55">
+          {/* Identity & Brand (data-node-id="7:56") */}
+          <a href="/" className="systembar__brand" aria-label="Fotios Pastrakis — homepage">
+            <div className="systembar__brand-logo-wrap" data-node-id="32:5">
+              <img
+                src="/images/fotisp-logo.png"
+                alt="Fotios Pastrakis Logo"
+                className="systembar__brand-logo"
+                width={44}
+                height={48}
+                data-node-id="32:6"
+              />
+            </div>
+            <span className="systembar__brand-text" data-node-id="33:8">
+              Fotios Pastrakis
+            </span>
+          </a>
+
+          {/* Segmented Navigation (data-node-id="7:59") */}
+          <nav className="systembar__nav" aria-label="Primary navigation" data-node-id="7:59">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  className={clsx('systembar__nav-link', isActive && 'is-active')}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  aria-current={isActive ? 'page' : undefined}
+                  data-name="Navigation item"
+                >
+                  <span className="systembar__nav-text">{link.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+
+          {/* Actions & Utilities (Right) */}
+          <div className="systembar__actions">
+            {/* Primary Action Button (data-node-id="33:13") */}
+            <a
+              href="#contact-drawer"
+              className="systembar__cta-btn"
+              onClick={handleBookCall}
+              data-node-id="33:13"
+              data-name="Button / Primary"
+            >
+              <span className="systembar__cta-text" data-node-id="33:14">
+                Book a Call
+              </span>
             </a>
 
-            <div className="systembar__controls" aria-label="System status & controls">
-              <span className="systembar__status-pill" title={`Status: ${siteConfig.availability.status}`}>
-                <span className="systembar__status-dot" aria-hidden="true" />
-                <span className="systembar__status-text-full">{siteConfig.availability.status}</span>
-                <span className="systembar__status-text-compact">{siteConfig.availability.statusCompact}</span>
-              </span>
-
+            {/* Compact Era & Diagnostic Controls */}
+            <div className="systembar__utilities" aria-label="System utilities">
               <button
                 type="button"
                 className="systembar__era-btn"
@@ -241,60 +306,6 @@ export default function SystemBar() {
                 ⇧⌥D
               </button>
             </div>
-          </div>
-
-          {/* Desktop Left Brand */}
-          <a href="/" className="systembar__brand" aria-label={`${siteConfig.brand.name} — homepage`}>
-            <span className="systembar__brand-badge">[FP]</span>
-            <span className="systembar__brand-text">{siteConfig.brand.name}</span>
-          </a>
-
-          {/* Center Floating Pill Nav (Row 2 on mobile) */}
-          <nav className="systembar__nav" aria-label="Primary navigation">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
-              return (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  className={clsx('systembar__nav-link', isActive && 'is-active')}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Right Controls */}
-          <div className="systembar__controls" aria-label="System status & controls">
-            <span className="systembar__status-pill" title={`Status: ${siteConfig.availability.status}`}>
-              <span className="systembar__status-dot" aria-hidden="true" />
-              <span className="systembar__status-text-full">{siteConfig.availability.status}</span>
-            </span>
-
-            <button
-              type="button"
-              className="systembar__era-btn"
-              onClick={toggleEra}
-              aria-label={`Toggle era: current ${era} (Shift+Alt+E)`}
-              title={`Switch era to ${era === '2026' ? '1984' : '2026'} (Shift+Alt+E)`}
-            >
-              <span className={clsx('systembar__era-opt', era === '2026' && 'is-active')}>2026</span>
-              <span className="systembar__era-sep">/</span>
-              <span className={clsx('systembar__era-opt', era === '1984' && 'is-active')}>1984</span>
-            </button>
-
-            <button
-              type="button"
-              className="systembar__diag-btn"
-              onClick={triggerDiagnostic}
-              aria-label="Run System Diagnostic (⇧⌥D)"
-              title="Run System Diagnostic (⇧⌥D)"
-            >
-              ⇧⌥D
-            </button>
           </div>
         </div>
       </header>

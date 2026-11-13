@@ -17,11 +17,14 @@
   --color-border-crimson:  rgba(238, 38, 38, 0.35);
   --color-border-subtle:   rgba(255, 255, 255, 0.08);
   --color-border-strong:   rgba(255, 255, 255, 0.15);
+  --color-border-figma-red:#ff1e56;
 
   /* Accent */
   --color-accent:          #EE2626;
   --color-accent-dim:      #9b1a1a;
   --color-accent-glow:     rgba(238, 38, 38, 0.25);
+  --color-accent-figma:    #ff1e56;
+  --color-accent-pink:     #ff4d6d;
 
   /* Surface Radius Architecture (Stage 11 & Bento) */
   --radius-card:           16px;
