@@ -1,0 +1,198 @@
+---
+export interface PrincipleItem {
+  index: string;
+  title: string;
+  detail: string;
+}
+
+interface Props {
+  kicker?: string;
+  title?: string;
+  summary?: string;
+  principles?: PrincipleItem[];
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  kicker = 'REGULATED SAFETY ARCHITECTURE',
+  title = 'The patient is not a dashboard.',
+  summary = 'In GxP-regulated pharma and clinical environments, cognitive overload is a safety risk. I architect progressive disclosure systems and deterministic alert hierarchies that protect operator focus under high-stakes conditions.',
+  principles = [
+    {
+      index: '01',
+      title: 'Regulated GxP & ISO 31000',
+      detail: 'Audit-ready state transitions and traceable clinical logic.',
+    },
+    {
+      index: '02',
+      title: 'Deterministic alert hierarchy',
+      detail: 'Signal-to-noise filtering that prevents alarm fatigue.',
+    },
+    {
+      index: '03',
+      title: 'Zero-ambiguity dev handoff',
+      detail: 'Typed component contracts ready for production sprints.',
+    },
+  ],
+  ctaLabel = 'Inspect clinical architecture →',
+  ctaHref = '/work/medipulse',
+} = Astro.props;
+---
+
+<article class="editorial-card">
+  <div class="editorial-card__head">
+    <span class="editorial-card__kicker">{kicker}</span>
+    <h3 class="editorial-card__title">{title}</h3>
+    <p class="editorial-card__summary">{summary}</p>
+  </div>
+
+  <ul class="principles-list">
+    {principles.map((item) => (
+      <li class="principle-row">
+        <span class="principle-row__idx">{item.index}</span>
+        <div class="principle-row__body">
+          <strong class="principle-row__title">{item.title}</strong>
+          <span class="principle-row__detail">{item.detail}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <a href={ctaHref} class="editorial-card__link">
+    <span>{ctaLabel}</span>
+  </a>
+</article>
+
+<style>
+  .editorial-card {
+    height: 100%;
+    background: var(--color-bento-bg, rgba(15, 10, 12, 0.72));
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento, 24px);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .editorial-card__kicker {
+    display: inline-block;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent, #ee2626);
+    margin-bottom: 0.65rem;
+  }
+
+  .editorial-card__title {
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.3rem, 2vw, 1.55rem);
+    font-weight: 700;
+    line-height: 1.2;
+    color: #f4f4f5;
+    margin: 0 0 0.75rem;
+  }
+
+  .editorial-card__summary {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #a1a1aa;
+    margin: 0;
+  }
+
+  .principles-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .principle-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+  }
+
+  .principle-row:last-child {
+    border-bottom: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+  }
+
+  .principle-row__idx {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-accent, #ee2626);
+    background: rgba(238, 38, 38, 0.1);
+    border: 1px solid rgba(238, 38, 38, 0.35);
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.2rem 0.42rem;
+    line-height: 1;
+    margin-top: 0.1rem;
+  }
+
+  .principle-row__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .principle-row__title {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #f4f4f5;
+  }
+
+  .principle-row__detail {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.78rem;
+    color: #a1a1aa;
+    line-height: 1.45;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .principle-row,
+    .principle-row__idx,
+    .editorial-card__link {
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 200ms ease,
+        color 200ms ease;
+    }
+
+    .principle-row:hover {
+      transform: translateX(4px);
+    }
+
+    .principle-row:hover .principle-row__idx {
+      background: var(--color-accent, #ee2626);
+      color: #080303;
+    }
+  }
+
+  .editorial-card__link {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.76rem;
+    color: #f4f4f5;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .editorial-card__link:hover {
+    color: var(--color-accent, #ee2626);
+  }
+
+  :global(html[data-era='1984']) .editorial-card {
+    background: #000000;
+    border-color: #ee2626;
+    border-radius: 0 !important;
+  }
+</style>

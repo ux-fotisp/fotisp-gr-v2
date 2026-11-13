@@ -23,10 +23,19 @@
   --color-accent-dim:      #9b1a1a;
   --color-accent-glow:     rgba(238, 38, 38, 0.25);
 
-  /* Surface Radius Architecture (Stage 11) */
+  /* Surface Radius Architecture (Stage 11 & Bento) */
   --radius-card:           16px;
   --radius-banner:         20px;
+  --radius-bento:          24px;
+  --radius-bento-inner:    16px;
   --radius-pill:           9999px;
+  --radius-subtle:         6px;
+
+  /* Bento Specific Color Tokens */
+  --color-bento-bg:        rgba(15, 10, 12, 0.72);
+  --color-bento-border:    rgba(255, 255, 255, 0.08);
+  --color-bento-border-hover: rgba(238, 38, 38, 0.35);
+  --color-bento-glow:      rgba(238, 38, 38, 0.12);
 
   /* Text */
   --color-text-main:       #F4F4F5;
@@ -46,20 +55,26 @@
   --color-error:           var(--color-accent);
 }
 
-/* 1984 Era Token & Radius Overrides */
+/* 1984 Era Token & Radius Overrides — Zero Radii Enforced */
 html[data-era="1984"],
 [data-era="1984"] {
-  --radius-card:           0px;
-  --radius-banner:         0px;
-  --radius-pill:           0px;
-  --color-border:          #EE2626;
-  --color-border-crimson:  #EE2626;
-  --color-border-subtle:   rgba(238, 38, 38, 0.4);
-  --color-border-strong:   #EE2626;
-  --color-bg:              #000000;
-  --color-surface:         #0d0d0d;
-  --color-surface-elevated:#141414;
-  --color-surface-raised:  #141414;
+  --radius-card:           0px !important;
+  --radius-banner:         0px !important;
+  --radius-bento:          0px !important;
+  --radius-bento-inner:    0px !important;
+  --radius-pill:           0px !important;
+  --radius-subtle:         0px !important;
+
+  --color-border:          #EE2626 !important;
+  --color-border-crimson:  #EE2626 !important;
+  --color-border-subtle:   rgba(238, 38, 38, 0.5) !important;
+  --color-border-strong:   #EE2626 !important;
+  --color-bg:              #000000 !important;
+  --color-surface:         #000000 !important;
+  --color-surface-elevated:#0A0A0A !important;
+  --color-surface-raised:  #0A0A0A !important;
+  --color-bento-bg:        #000000 !important;
+  --color-bento-border:    #EE2626 !important;
 }
 
 /* ── Typography Scale ───────────────────────────────────────────── */

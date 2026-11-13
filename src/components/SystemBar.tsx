@@ -15,6 +15,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { siteConfig } from '../config/site';
 
 function isInteractiveElement(el: Element | null): boolean {
   if (!el) return false;
@@ -179,12 +180,7 @@ export default function SystemBar() {
     }
   };
 
-  const navLinks = [
-    { label: 'Start', href: '/#top', id: 'top' },
-    { label: 'Selected work', href: '/#work', id: 'work' },
-    { label: 'Methodology', href: '/#methodology', id: 'methodology' },
-    { label: 'About', href: '/about', id: 'about' },
-  ];
+  const navLinks = siteConfig.navLinks;
 
   return (
     <>
@@ -211,16 +207,16 @@ export default function SystemBar() {
         <div className="systembar__inner">
           {/* Mobile Top Row (< 768px) */}
           <div className="systembar__mobile-top">
-            <a href="/" className="systembar__brand" aria-label="fotisp.gr — homepage">
+            <a href="/" className="systembar__brand" aria-label={`${siteConfig.brand.name} — homepage`}>
               <span className="systembar__brand-badge">[FP]</span>
-              <span className="systembar__brand-text">fotisp.gr</span>
+              <span className="systembar__brand-text">{siteConfig.brand.name}</span>
             </a>
 
             <div className="systembar__controls" aria-label="System status & controls">
-              <span className="systembar__status-pill" title="Status: Available for advisory">
+              <span className="systembar__status-pill" title={`Status: ${siteConfig.availability.status}`}>
                 <span className="systembar__status-dot" aria-hidden="true" />
-                <span className="systembar__status-text-full">Available for advisory</span>
-                <span className="systembar__status-text-compact">Available</span>
+                <span className="systembar__status-text-full">{siteConfig.availability.status}</span>
+                <span className="systembar__status-text-compact">{siteConfig.availability.statusCompact}</span>
               </span>
 
               <button
@@ -248,9 +244,9 @@ export default function SystemBar() {
           </div>
 
           {/* Desktop Left Brand */}
-          <a href="/" className="systembar__brand" aria-label="fotisp.gr — homepage">
+          <a href="/" className="systembar__brand" aria-label={`${siteConfig.brand.name} — homepage`}>
             <span className="systembar__brand-badge">[FP]</span>
-            <span className="systembar__brand-text">fotisp.gr</span>
+            <span className="systembar__brand-text">{siteConfig.brand.name}</span>
           </a>
 
           {/* Center Floating Pill Nav (Row 2 on mobile) */}
@@ -273,9 +269,9 @@ export default function SystemBar() {
 
           {/* Desktop Right Controls */}
           <div className="systembar__controls" aria-label="System status & controls">
-            <span className="systembar__status-pill" title="Status: Available for advisory">
+            <span className="systembar__status-pill" title={`Status: ${siteConfig.availability.status}`}>
               <span className="systembar__status-dot" aria-hidden="true" />
-              <span className="systembar__status-text-full">Available for advisory</span>
+              <span className="systembar__status-text-full">{siteConfig.availability.status}</span>
             </span>
 
             <button

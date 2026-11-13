@@ -1,0 +1,229 @@
+---
+export interface KpiItem {
+  value: string;
+  label: string;
+}
+
+export interface ChartBar {
+  height: number; // percentage 20..100
+  highlight?: boolean;
+  label?: string;
+}
+
+interface Props {
+  headerLabel?: string;
+  statusTag?: string;
+  kpis?: KpiItem[];
+  bars?: ChartBar[];
+  footnote?: string;
+}
+
+const {
+  headerLabel = 'Prototypes over slides',
+  statusTag = 'LIVE_BUILD // v2.4',
+  kpis = [
+    { value: '98%', label: 'Schema parity' },
+    { value: '81%', label: 'Faster PO sign-off' },
+    { value: '3.1s', label: 'Interactive load' },
+  ],
+  bars = [
+    { height: 42, label: 'S1' },
+    { height: 54, label: 'S2' },
+    { height: 48, label: 'S3' },
+    { height: 66, label: 'S4' },
+    { height: 58, label: 'S5' },
+    { height: 62, label: 'S6' },
+    { height: 51, label: 'S7' },
+    { height: 78, highlight: true, label: 'OOUX' },
+    { height: 86, highlight: true, label: 'AI-UI' },
+    { height: 92, highlight: true, label: 'WCAG' },
+    { height: 98, highlight: true, label: 'PROD' },
+  ],
+  footnote = 'Validated in interactive browser builds before engineering sprint lock.',
+} = Astro.props;
+---
+
+<div class="kpi-widget" role="img" aria-label={`${headerLabel}: ${kpis.map((k) => `${k.value} ${k.label}`).join(', ')}`}>
+  <div class="kpi-widget__top">
+    <span class="kpi-widget__title">{headerLabel}</span>
+    <span class="kpi-widget__badge">{statusTag}</span>
+  </div>
+
+  <div class="kpi-widget__metrics">
+    {kpis.map((kpi) => (
+      <div class="kpi-tile">
+        <span class="kpi-tile__val">{kpi.value}</span>
+        <span class="kpi-tile__lbl">{kpi.label}</span>
+      </div>
+    ))}
+  </div>
+
+  <div class="kpi-widget__chart" aria-hidden="true">
+    {bars.map((bar) => (
+      <div class="chart-col" title={bar.label ? `${bar.label}: ${bar.height}%` : `${bar.height}%`}>
+        <span
+          class:list={['chart-bar', { 'chart-bar--active': bar.highlight }]}
+          style={`height: ${bar.height}%;`}
+        />
+      </div>
+    ))}
+  </div>
+
+  <div class="kpi-widget__foot">
+    <span class="pulse-dot" aria-hidden="true"></span>
+    <span>{footnote}</span>
+  </div>
+</div>
+
+<style>
+  .kpi-widget {
+    background: rgba(10, 6, 8, 0.9);
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento-inner, 16px);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .kpi-widget__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .kpi-widget__title {
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f4f4f5;
+    letter-spacing: -0.01em;
+  }
+
+  .kpi-widget__badge {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-accent, #ee2626);
+    border: 1px solid rgba(238, 38, 38, 0.35);
+    border-radius: var(--radius-pill, 9999px);
+    padding: 0.15rem 0.55rem;
+    letter-spacing: 0.04em;
+  }
+
+  .kpi-widget__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .kpi-tile {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.6rem 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .kpi-tile__val {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f4f4f5;
+    line-height: 1.1;
+  }
+
+  .kpi-tile__lbl {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: #a1a1aa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .kpi-widget__chart {
+    height: 74px;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.65rem 0.6rem 0.45rem;
+    display: grid;
+    grid-template-columns: repeat(11, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.35rem;
+  }
+
+  .chart-col {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .chart-bar {
+    width: 100%;
+    background: rgba(161, 161, 170, 0.35);
+    border-radius: 3px 3px 0 0;
+    transform-origin: bottom;
+  }
+
+  .chart-bar--active {
+    background: var(--color-accent, #ee2626);
+    box-shadow: 0 0 12px rgba(238, 38, 38, 0.28);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .kpi-tile,
+    .chart-bar {
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 200ms ease,
+        background-color 200ms ease;
+    }
+
+    .kpi-tile:hover {
+      border-color: var(--color-accent, #ee2626);
+    }
+
+    .chart-col:hover .chart-bar {
+      transform: scaleY(1.08);
+      background: #ff4d4d;
+    }
+  }
+
+  .kpi-widget__foot {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: #d4d4d8;
+    background: rgba(238, 38, 38, 0.08);
+    border: 1px solid rgba(238, 38, 38, 0.28);
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.45rem 0.65rem;
+  }
+
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent, #ee2626);
+    flex-shrink: 0;
+  }
+
+  :global(html[data-era='1984']) .kpi-widget,
+  :global(html[data-era='1984']) .kpi-tile,
+  :global(html[data-era='1984']) .kpi-widget__chart,
+  :global(html[data-era='1984']) .kpi-widget__foot,
+  :global(html[data-era='1984']) .chart-bar {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  :global(html[data-era='1984']) .kpi-widget {
+    background: #000000;
+    border-color: #ee2626;
+  }
+</style>
