@@ -15,8 +15,8 @@
  *  - Card 5: FoodWeLove (for E-Commerce filter or expanded view)
  */
 
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useState, useMemo } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export interface CaseStudyItem {
   id: string;

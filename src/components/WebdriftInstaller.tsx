@@ -6,7 +6,7 @@
  * (from SystemBar "Special -> Run System Diagnostic" or footer link)
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DIAGNOSTIC_STEPS = [

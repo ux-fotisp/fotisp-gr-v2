@@ -5,6 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import DesktopWindow from '../components/DesktopWindow.astro';
 import SplitButton from '../components/SplitButton';
 import { getCollection } from 'astro:content';
+import { siteConfig } from '../config/site';
 
 const testimonials = await getCollection('testimonials');
 const testimonialBadgeMap: Record<string, string> = {
@@ -172,7 +173,7 @@ const careerSteps = [
       </header>
 
       <div class="testimonials-grid">
-        {testimonials.map((t, idx) => {
+        {testimonials.map((t: any, idx: number) => {
           const fileTitle = testimonialBadgeMap[t.id] || `${t.id.replace(/-/g, '_')}.sig`;
           return (
             <DesktopWindow
@@ -205,17 +206,17 @@ const careerSteps = [
       <div class="crimson-bio-banner">
         <div class="bio-banner__left">
           <h2 class="bio-banner__title">
-            Hi, I'm Fotis. I make the complicated feel considered.
+            {siteConfig.executiveBio.headline}
           </h2>
           <p class="bio-banner__desc">
-            Senior UX Researcher & Systems Architect with 10+ years navigating high-stakes, regulated environments with Pfizer and Deloitte. Specializing in clinical interfaces, OOUX, and design systems for mission-critical software. MSc in HCI from University of the Aegean (GPA 9.78/10).
+            {siteConfig.executiveBio.body}
           </p>
         </div>
 
         <div class="bio-banner__right">
-          <span class="bio-kicker">OPEN FOR ADVISORY & ROLES</span>
+          <span class="bio-kicker">{siteConfig.availability.status.toUpperCase()}</span>
           <a href="#contact-drawer" class="btn-discovery-cta" id="aboutBookCallBtn">
-            Book a discovery call <span class="arrow-right" aria-hidden="true">→</span>
+            {siteConfig.executiveBio.ctaLabel}
           </a>
           <button type="button" class="btn-copy-email" id="aboutCopyEmailBtn">
             <span id="aboutCopyEmailText">Copy email</span>
@@ -271,10 +272,9 @@ const careerSteps = [
             <div class="form-row">
               <label for="contact-subject" class="u-mono u-text-xs u-text-faint">ENGAGEMENT_SCOPE:</label>
               <select id="contact-subject" name="subject" class="terminal-input terminal-select">
-                <option value="general">General / Advisory Inquiry</option>
-                <option value="ux-research">Scoped Inquiry: UX Research</option>
-                <option value="design-systems">Scoped Inquiry: Design Systems</option>
-                <option value="ux-strategy">Scoped Inquiry: UX Strategy & Leadership</option>
+                {siteConfig.contactDrawer.scopes.map((scope) => (
+                  <option value={scope}>{scope}</option>
+                ))}
               </select>
             </div>
 

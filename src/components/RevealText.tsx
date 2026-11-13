@@ -8,7 +8,6 @@
  * - Respects prefers-reduced-motion for instantaneous rendering.
  */
 
-import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface RevealTextProps {

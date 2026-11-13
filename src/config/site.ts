@@ -208,7 +208,7 @@ export const siteConfig: SiteConfig = {
         thesis:
           'How OOUX and ORCA prevent database and UI refactoring in large-scale enterprise platforms.',
         citation: 'MDPI Information (2026)',
-        url: 'https://doi.org/10.3390/info-example',
+        url: 'https://doi.org/10.3390/info17010092',
       },
       {
         number: '02',
@@ -223,6 +223,7 @@ export const siteConfig: SiteConfig = {
         thesis:
           'Translating mixed-methods behavioral research into strict Zod/TypeScript contracts and adaptive user profiles.',
         citation: 'MDPI Digital / Information (2022–2026)',
+        url: 'https://www.mdpi.com/2078-2489/17/5/472',
       },
     ],
   },

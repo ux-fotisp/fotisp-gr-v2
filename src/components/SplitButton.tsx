@@ -101,7 +101,7 @@ export default function SplitButton({
     };
   }, [isOpen]);
 
-  const handlePrimaryClick = (e: React.MouseEvent) => {
+  const handlePrimaryClick = (_e: React.MouseEvent) => {
     if (onPrimaryClick) {
       onPrimaryClick();
     } else if (primaryHref) {

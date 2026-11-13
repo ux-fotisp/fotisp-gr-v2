@@ -11,7 +11,7 @@
  *    - Right: → arrow linking directly to verified MDPI/DOI URL
  */
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 export interface PublicationItem {

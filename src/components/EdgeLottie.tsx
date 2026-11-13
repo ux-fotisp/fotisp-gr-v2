@@ -54,12 +54,10 @@ export default function EdgeLottie({
   fallbackText = '[ ORBITAL_RADAR // THESSALONIKI_NODE: 40.64° N, 22.94° E ]',
 }: EdgeLottieProps) {
   const [era, setEra] = useState<'1984' | '2026'>('2026');
-  const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Synchronize era state with document element and navigation lifecycle
   useEffect(() => {
-    setIsClient(true);
 
     const syncEra = () => {
       if (typeof document !== 'undefined') {

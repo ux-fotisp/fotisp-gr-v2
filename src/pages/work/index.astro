@@ -3,12 +3,12 @@
 // Work index — Interactive domain-filtered case studies directory
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudyGrid from '../../components/CaseStudyGrid';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
-const caseStudies = (await getCollection('caseStudies', e => !e.data.isDraft))
-  .sort((a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99));
+const caseStudies = (await getCollection('caseStudies', (e: CollectionEntry<'caseStudies'>) => !e.data.isDraft))
+  .sort((a: CollectionEntry<'caseStudies'>, b: CollectionEntry<'caseStudies'>) => ((a.data as any).featuredOrder || (a.data as any).order || 99) - ((b.data as any).featuredOrder || (b.data as any).order || 99));
 
-const serializedCaseStudies = caseStudies.map(entry => ({
+const serializedCaseStudies = caseStudies.map((entry: CollectionEntry<'caseStudies'>) => ({
   id: entry.id.replace(/\.mdx?$/, ''),
   title: entry.data.title,
   domain: entry.data.domain,
@@ -17,8 +17,8 @@ const serializedCaseStudies = caseStudies.map(entry => ({
   summary: entry.data.summary,
   deliverables: entry.data.deliverables,
   status: entry.data.status,
-  services: entry.data.services ? entry.data.services.map(s => typeof s === 'string' ? s : s.id) : [],
-  publications: entry.data.publications ? entry.data.publications.map(p => typeof p === 'string' ? p : p.id) : [],
+  services: entry.data.services ? entry.data.services.map((s: any) => typeof s === 'string' ? s : s.id) : [],
+  publications: entry.data.publications ? entry.data.publications.map((p: any) => typeof p === 'string' ? p : p.id) : [],
   tagline: entry.data.tagline,
   category: entry.data.category,
   figureTag: entry.data.figureTag,

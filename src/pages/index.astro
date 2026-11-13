@@ -1,58 +1,36 @@
 ---
 // src/pages/index.astro
-// Stage 11: Visual & Structural Alignment to Desktop & Mobile Mockups
+// Stage 12: Executive Positioning & 6-Section Asymmetric Bento Architecture
 import BaseLayout from '../layouts/BaseLayout.astro';
-import BentoCaseStudyGrid from '../components/BentoCaseStudyGrid';
-import ResearchWritingList from '../components/ResearchWritingList';
 import EdgeLottie from '../components/EdgeLottie';
-import { getCollection } from 'astro:content';
+import KpiChartPreview from '../components/bento/KpiChartPreview.astro';
+import EditorialPrinciplesCard from '../components/bento/EditorialPrinciplesCard.astro';
+import DualConnectionPreview from '../components/bento/DualConnectionPreview.astro';
+import TokenSwatchPreview from '../components/bento/TokenSwatchPreview.astro';
+import { siteConfig } from '../config/site';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
-const caseStudies = (await getCollection('caseStudies', (e) => !e.data.isDraft)).sort(
-  (a, b) => (a.data.featuredOrder || a.data.order || 99) - (b.data.featuredOrder || b.data.order || 99)
+const caseStudies = (
+  await getCollection('caseStudies', (e: CollectionEntry<'caseStudies'>) => !e.data.isDraft)
+).sort(
+  (a: CollectionEntry<'caseStudies'>, b: CollectionEntry<'caseStudies'>) =>
+    ((a.data as any).featuredOrder || (a.data as any).order || 99) -
+    ((b.data as any).featuredOrder || (b.data as any).order || 99)
 );
 
-const publications = (await getCollection('publications', (e) => !e.data.isDraft)).sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+const publications = (
+  await getCollection('publications', (e: CollectionEntry<'publications'>) => !e.data.isDraft)
+).sort(
+  (a: CollectionEntry<'publications'>, b: CollectionEntry<'publications'>) =>
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-const serializedCaseStudies = caseStudies.map((entry) => ({
-  id: entry.id.replace(/\.mdx?$/, ''),
-  title: entry.data.title,
-  domain: entry.data.domain,
-  role: entry.data.role,
-  timeline: entry.data.timeline,
-  summary: entry.data.summary,
-  deliverables: entry.data.deliverables,
-  status: entry.data.status,
-  services: entry.data.services ? entry.data.services.map((s) => (typeof s === 'string' ? s : s.id)) : [],
-  tagline: entry.data.tagline,
-  category: entry.data.category,
-  figureTag: entry.data.figureTag,
-  year: entry.data.year,
-  duration: entry.data.duration,
-  protected: entry.data.protected,
-}));
-
-const serializedPublications = publications.map((pub) => ({
-  id: pub.id.replace(/\.mdx?$/, ''),
-  title: pub.data.title,
-  venue: pub.data.venue,
-  date: pub.data.date.toISOString(),
-  doi: pub.data.doi,
-  url: pub.data.url,
-  year: pub.data.year,
-  month: pub.data.month,
-  abstract: pub.data.abstract,
-  keywords: pub.data.keywords,
-  domain: pub.data.domain,
-}));
-
-// Rich Schema.org ScholarlyArticle definitions for verified research
-const scholarlySchemas = publications.map((pub) => ({
+// Rich Schema.org ScholarlyArticle definitions
+const scholarlySchemas = publications.map((pub: CollectionEntry<'publications'>) => ({
   '@type': 'ScholarlyArticle',
   headline: pub.data.title,
   name: pub.data.title,
-  author: pub.data.authors.map((author) => ({
+  author: pub.data.authors.map((author: string) => ({
     '@type': 'Person',
     name: author,
   })),
@@ -67,38 +45,37 @@ const indexSchema = [
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Fotios Pastrakis',
-    alternateName: 'Fotis Pastrakis',
-    url: 'https://fotisp.gr',
-    sameAs: ['https://linkedin.com/in/fotisp', 'https://github.com/ux-fotisp'],
-    jobTitle: 'Senior Associate, CX Designer',
+    alternateName: siteConfig.brand.author,
+    url: siteConfig.brand.url,
+    sameAs: [siteConfig.brand.social.linkedin, siteConfig.brand.social.github],
+    jobTitle: 'Principal Front-End Systems Engineer & OOUX Architect',
     worksFor: {
       '@type': 'Organization',
-      name: 'Pfizer',
-      url: 'https://pfizer.com',
-    },
-    alumniOf: {
-      '@type': 'CollegeOrUniversity',
-      name: 'University of the Aegean',
-      url: 'https://www.aegean.gr',
+      name: 'Pfizer / Deloitte',
     },
     knowsAbout: [
-      'UX Research',
-      'Product Design',
+      'Object-Oriented UX',
       'Design Systems',
-      'Health Technology',
-      'Clinical UX',
+      'Clinical & Regulated UX',
+      'Front-End Engineering',
+      'Frontier & Local AI Architecture',
       'Information Architecture',
-      'Cultural Heritage UX',
-      'Accessibility',
+      'TypeScript',
+      'Astro',
     ],
   },
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Fotis Pastrakis Portfolio',
-    url: 'https://fotisp.gr',
-    description: 'Senior UX researcher, CX designer at Pfizer, and front-end systems architect.',
-    author: { '@type': 'Person', name: 'Fotios Pastrakis' },
+    name: siteConfig.brand.title,
+    url: siteConfig.brand.url,
+    description: siteConfig.hero.subheadline,
+    author: { '@type': 'Person', name: siteConfig.brand.author },
+    hasPart: caseStudies.map((cs: CollectionEntry<'caseStudies'>) => ({
+      '@type': 'CreativeWork',
+      name: cs.data.title,
+      url: `${siteConfig.brand.url}/work/${cs.id.replace(/\.mdx?$/, '')}`,
+    })),
   },
   ...scholarlySchemas,
 ];
@@ -106,22 +83,22 @@ const indexSchema = [
 
 <BaseLayout schema={indexSchema}>
   <div class="homepage" id="top">
-    <!-- ── SECTION 1: 2-COLUMN HERO & ORBITAL RADAR HUD ──────────── -->
+    <!-- ── SECTION 1: 2-COLUMN HERO, ORBITAL RADAR HUD & AUTHORITY STRIP ── -->
     <section class="hero-section u-container" aria-labelledby="hero-title">
       <div class="hero-grid">
-        {/* Left Column */}
+        {/* Left Column: Executive Copy */}
         <div class="hero-copy">
-          <p class="hero-eyebrow">
-            PRODUCT DESIGNER · UX RESEARCHER · SYSTEMS ARCHITECT
+          <p class="hero-kicker">
+            {siteConfig.hero.kicker}
           </p>
 
           <h1 id="hero-title" class="hero-h1">
-            <span class="hero-h1__line1">Complexity, decoded.</span>
-            <span class="hero-h1__line2">Systems, designed.</span>
+            <span class="hero-h1__part1">{siteConfig.hero.headlinePart1}</span>
+            <span class="hero-h1__part2">{siteConfig.hero.headlinePart2}</span>
           </h1>
 
           <p class="hero-body">
-            I connect human needs and technical architecture—between the interface. Systems architecture, OOUX, and human-centered design for the real world.
+            {siteConfig.hero.subheadline}
           </p>
 
           <div class="hero-cta-row">
@@ -134,119 +111,226 @@ const indexSchema = [
           </div>
         </div>
 
-        {/* Right Column: Orbital Radar HUD Card */}
-        <div class="hero-hud-card">
-          <div class="hud-card__header">
-            <div class="hud-card__dot-title">
-              <span class="hud-card__dot" aria-hidden="true"></span>
-              <span class="hud-card__label">ORBITAL RADAR // LIVE</span>
+        {/* Right Column: Orbital Radar HUD Bento Box */}
+        <div class="hero-hud-bento">
+          <div class="hud-bento__header">
+            <div class="hud-bento__dot-title">
+              <span class="hud-bento__dot" aria-hidden="true"></span>
+              <span class="hud-bento__label">ORBITAL RADAR // LIVE</span>
             </div>
-            <span class="hud-card__coords">40.64° N, 22.94° E</span>
+            <span class="hud-bento__coords">
+              {siteConfig.brand.coordinates.lat}, {siteConfig.brand.coordinates.lng}
+            </span>
           </div>
 
-          <div class="hud-card__canvas">
+          <div class="hud-bento__canvas">
             <EdgeLottie
               client:visible
               height="260px"
-              fallbackText="THESSALONIKI · 40.64° N, 22.94° E"
+              fallbackText={`[ RADAR HUD // ${siteConfig.brand.coordinates.label}: ${siteConfig.brand.coordinates.lat}, ${siteConfig.brand.coordinates.lng} ]`}
             />
           </div>
+
+          <div class="hud-bento__footer">
+            <span class="hud-bento__city">{siteConfig.brand.coordinates.label}</span>
+            <span class="hud-bento__status">{siteConfig.availability.statusCompact}</span>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Metadata Strip */}
-      <div class="hero-metadata-strip" aria-label="Professional credentials & research track">
-        <div class="metadata-col">
-          <span class="metadata-col__text">10+ YEARS REGULATED UX · PFIZER & DELOITTE</span>
-        </div>
-        <div class="metadata-col">
-          <span class="metadata-col__text">OOUX & COGNITIVE LOAD ARCHITECTURE</span>
-        </div>
-        <div class="metadata-col">
-          <span class="metadata-col__text">PUBLISHED HCI RESEARCHER · MDPI & IEEE</span>
-        </div>
+      {/* 3-Column Authority Metric Strip */}
+      <div class="hero-authority-strip" aria-label="Executive credentials & authority track">
+        {siteConfig.hero.authorityMetrics.map((item) => (
+          <div class="authority-tile">
+            <span class="authority-tile__val">{item.value}</span>
+            <div class="authority-tile__meta">
+              <strong class="authority-tile__lbl">{item.label}</strong>
+              <span class="authority-tile__ctx">{item.context}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
 
-    <!-- ── SECTION 2: ASYMMETRIC BENTO CASE STUDY GRID ───────────── -->
+    <!-- ── SECTION 2: 12-COLUMN ASYMMETRIC BENTO GRID (#work) ───────── -->
     <section class="section-work u-container" id="work" aria-labelledby="work-title">
-      <BentoCaseStudyGrid client:load items={serializedCaseStudies} />
+      <header class="section-header">
+        <div class="section-header__text">
+          <span class="section-kicker">{siteConfig.bento.sectionKicker}</span>
+          <h2 id="work-title" class="section-title">{siteConfig.bento.sectionTitle}</h2>
+        </div>
+
+        {/* OOUX Domain / Filter Pills */}
+        <div class="bento-filters" role="group" aria-label="Filter case studies by domain">
+          <button type="button" class="filter-pill is-active" data-filter="all">All</button>
+          <button type="button" class="filter-pill" data-filter="clinical">Clinical & HealthTech</button>
+          <button type="button" class="filter-pill" data-filter="cityops">CityOps & AI</button>
+          <button type="button" class="filter-pill" data-filter="ecommerce">E-Commerce</button>
+        </div>
+      </header>
+
+      <div class="bento-grid-12">
+        {/* Card 1 (8-Col Wide Desktop): MediPulse + KpiChartPreview */}
+        <article class="bento-card bento-card--wide" data-domain="clinical">
+          <div class="bento-card__preview">
+            <KpiChartPreview />
+          </div>
+          <div class="bento-card__content">
+            <span class="bento-card__kicker">{siteConfig.bento.cards.medipulse.kicker}</span>
+            <h3 class="bento-card__title">{siteConfig.bento.cards.medipulse.title}</h3>
+            <p class="bento-card__summary">{siteConfig.bento.cards.medipulse.summary}</p>
+            <div class="bento-card__tags">
+              <span class="bento-tag">[O:REF] Clinical Design Systems</span>
+              <span class="bento-tag">[O:REF] Modular IA</span>
+            </div>
+            <a href="/work/medipulse" class="bento-card__link">
+              <span>Inspect case study</span>
+              <span class="arrow-right" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+
+        {/* Card 2 (4-Col Tall Desktop): EditorialPrinciplesCard */}
+        <div class="bento-card bento-card--tall" data-domain="clinical">
+          <EditorialPrinciplesCard />
+        </div>
+
+        {/* Card 3 (6-Col Bottom Left): HealthPulse + DualConnectionPreview */}
+        <article class="bento-card bento-card--half" data-domain="clinical">
+          <div class="bento-card__preview">
+            <DualConnectionPreview />
+          </div>
+          <div class="bento-card__content">
+            <span class="bento-card__kicker">{siteConfig.bento.cards.healthpulse.kicker}</span>
+            <h3 class="bento-card__title">{siteConfig.bento.cards.healthpulse.title}</h3>
+            <p class="bento-card__summary">{siteConfig.bento.cards.healthpulse.summary}</p>
+            <div class="bento-card__tags">
+              <span class="bento-tag">[O:REF] Adaptive AI Recommenders</span>
+              <span class="bento-tag">[O:REF] Behavioral Telemetry</span>
+            </div>
+            <a href="/work/healthpulse" class="bento-card__link">
+              <span>Inspect case study</span>
+              <span class="arrow-right" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+
+        {/* Card 4 (6-Col Bottom Right): AETHRA + TokenSwatchPreview */}
+        <article class="bento-card bento-card--half" data-domain="cityops">
+          <div class="bento-card__preview">
+            <TokenSwatchPreview />
+          </div>
+          <div class="bento-card__content">
+            <span class="bento-card__kicker">{siteConfig.bento.cards.aethra.kicker}</span>
+            <h3 class="bento-card__title">{siteConfig.bento.cards.aethra.title}</h3>
+            <p class="bento-card__summary">{siteConfig.bento.cards.aethra.summary}</p>
+            <div class="bento-card__tags">
+              <span class="bento-tag">[O:REF] Token Governance</span>
+              <span class="bento-tag">[O:REF] Atomic Contracts</span>
+            </div>
+            <a href="/work/aethra" class="bento-card__link">
+              <span>Inspect case study</span>
+              <span class="arrow-right" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <!-- ── SECTION 3: RESEARCH & WRITING LIST ─────────────────────── -->
+    <!-- ── SECTION 3: EMPIRICAL RIGOR & RESEARCH ROWS (#research) ──── -->
     <section class="section-research u-container" id="research" aria-labelledby="research-title">
-      <ResearchWritingList client:load items={serializedPublications} />
+      <header class="section-header">
+        <div class="section-header__text">
+          <span class="section-kicker">{siteConfig.research.sectionKicker}</span>
+          <h2 id="research-title" class="section-title">{siteConfig.research.sectionTitle}</h2>
+        </div>
+        <a href="/about#publications" class="btn-all-writing">
+          All writing <span aria-hidden="true">↗</span>
+        </a>
+      </header>
+
+      <div class="research-table" role="region" aria-label="Peer-reviewed research and architecture publications">
+        {siteConfig.research.rows.map((row) => (
+          <article class="research-row">
+            <div class="research-row__citation-col">
+              <span class="research-citation-pill">{row.citation}</span>
+              <span class="research-row__num">{row.number}</span>
+            </div>
+
+            <div class="research-row__body-col">
+              <h3 class="research-row__title">{row.title}</h3>
+              <p class="research-row__thesis">{row.thesis}</p>
+            </div>
+
+            <div class="research-row__action-col">
+              {row.url ? (
+                <a
+                  href={row.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="research-action-link"
+                  aria-label={`Read paper: ${row.title}`}
+                >
+                  <span class="research-action-link__text">Read paper</span>
+                  <span class="arrow-right" aria-hidden="true">↗</span>
+                </a>
+              ) : (
+                <span class="research-preprint-badge">
+                  [PREPRINT // LOCAL_FIRST]
+                </span>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
 
-    <!-- ── SECTION 4: 2-COLUMN PHILOSOPHY SECTION ─────────────────── -->
+    <!-- ── SECTION 4: 2-COLUMN STICKY PHILOSOPHY (#methodology) ────── -->
     <section class="section-methodology u-container" id="methodology" aria-labelledby="methodology-title">
       <div class="methodology-grid">
-        {/* Left Sticky Column */}
+        {/* Left 5 Cols (Sticky on Desktop) */}
         <div class="methodology-left">
-          <span class="methodology-eyebrow">METHODOLOGY</span>
-          <h2 id="methodology-title" class="methodology-title">Clarity is an architectural decision.</h2>
+          <span class="section-kicker">{siteConfig.methodology.sectionKicker}</span>
+          <h2 id="methodology-title" class="methodology-title">{siteConfig.methodology.sectionTitle}</h2>
           <p class="methodology-narrative">
-            Great software systems don't happen by accident. I use Object-Oriented UX and cognitive load analysis to model complex domains before drawing screens, ensuring resilient architectures that scale.
+            Great software systems don't happen by accident. By extracting the core domain objects before drawing screens, we decouple product logic from ephemeral UI layout and prevent high-cost engineering refactoring.
           </p>
         </div>
 
-        {/* Right Stacked Rows */}
+        {/* Right 7 Cols: 3 Methodology Pillars */}
         <div class="methodology-right">
-          <div class="methodology-row">
-            <div class="methodology-icon-badge" aria-hidden="true">
-              <span class="icon-dot">●</span>
+          {siteConfig.methodology.pillars.map((pillar) => (
+            <div class="methodology-pillar-card">
+              <div class="pillar-node-badge" aria-hidden="true">
+                <span class="pillar-node-dot"></span>
+                <span class="pillar-node-step">{pillar.step}</span>
+              </div>
+              <div class="pillar-content">
+                <h3 class="pillar-title">{pillar.title}</h3>
+                <p class="pillar-description">{pillar.description}</p>
+              </div>
             </div>
-            <div class="methodology-row__content">
-              <h3 class="methodology-row__title">Find the objects</h3>
-              <p class="methodology-row__desc">
-                SIP-validated domain modeling before drawing screens. Map the real-world nouns and user mental models that give the domain its shape.
-              </p>
-            </div>
-          </div>
-
-          <div class="methodology-row">
-            <div class="methodology-icon-badge" aria-hidden="true">
-              <span class="icon-dot">●</span>
-            </div>
-            <div class="methodology-row__content">
-              <h3 class="methodology-row__title">Make the system explicit</h3>
-              <p class="methodology-row__desc">
-                Bidirectional relationships, cardinality, and role-based CTAs to eliminate navigation dead-ends and cognitive disorientation.
-              </p>
-            </div>
-          </div>
-
-          <div class="methodology-row">
-            <div class="methodology-icon-badge" aria-hidden="true">
-              <span class="icon-dot">●</span>
-            </div>
-            <div class="methodology-row__content">
-              <h3 class="methodology-row__title">Design for the edges</h3>
-              <p class="methodology-row__desc">
-                Clinical-grade accessibility, error recovery, and resilient states under high-stress operating conditions.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
 
-    <!-- ── SECTION 5: CRIMSON GRADIENT BIO & CTA BANNER ───────────── -->
-    <section class="section-bio u-container" aria-label="Personal introduction and call to action">
-      <div class="crimson-bio-banner">
-        <div class="bio-banner__left">
-          <h2 class="bio-banner__title">
-            Hi, I'm Fotis. I make the complicated feel considered.
+    <!-- ── SECTION 5: BURGUNDY-CRIMSON EXECUTIVE BIO & CTA BANNER ──── -->
+    <section class="section-bio u-container" aria-label="Executive introduction and advisory inquiry">
+      <div class="executive-bio-banner">
+        <div class="bio-banner__content">
+          <span class="bio-banner__kicker">PRINCIPAL SYSTEMS & ADVISORY SCOPE</span>
+          <h2 class="bio-banner__headline">
+            {siteConfig.executiveBio.headline}
           </h2>
-          <p class="bio-banner__desc">
-            Senior UX Researcher & Systems Architect with 10+ years navigating high-stakes, regulated environments with Pfizer and Deloitte. Specializing in clinical interfaces, OOUX, and design systems for mission-critical software. MSc in HCI from University of the Aegean (GPA 9.78/10).
+          <p class="bio-banner__body">
+            {siteConfig.executiveBio.body}
           </p>
         </div>
 
-        <div class="bio-banner__right">
-          <span class="bio-kicker">OPEN FOR ADVISORY & ROLES</span>
-          <a href="#contact-drawer" class="btn-discovery-cta" id="heroBookCallBtn">
-            Book a discovery call <span class="arrow-right" aria-hidden="true">→</span>
+        <div class="bio-banner__actions">
+          <a href={siteConfig.executiveBio.ctaHref} class="btn-bio-cta" id="heroBookCallBtn">
+            {siteConfig.executiveBio.ctaLabel}
           </a>
           <button type="button" class="btn-copy-email" id="copyEmailBtn">
             <span id="copyEmailText">Copy email</span>
@@ -255,7 +339,7 @@ const indexSchema = [
       </div>
     </section>
 
-    <!-- ── SECTION 6: CONTACT TERMINAL & MINIMAL DARK FOOTER ──────── -->
+    <!-- ── SECTION 6: TERMINAL CONTACT DRAWER & MINIMAL FOOTER ──────── -->
     <section class="section-contact u-container" id="contact-drawer" tabindex="-1" aria-labelledby="contact-heading">
       <div class="terminal-card">
         <div class="terminal-card__header">
@@ -263,13 +347,15 @@ const indexSchema = [
             <span class="terminal-badge">tty0 // INQUIRY SOCKET</span>
             <span class="terminal-title">console_inquiry.sh</span>
           </div>
-          <span class="terminal-coords">Node: Thessaloniki [40.64° N, 22.94° E]</span>
+          <span class="terminal-coords">
+            Node: {siteConfig.brand.coordinates.label} [{siteConfig.brand.coordinates.lat}, {siteConfig.brand.coordinates.lng}]
+          </span>
         </div>
 
         <div class="terminal-body">
           <div class="terminal-banner">
-            <span class="terminal-banner__accent">FOTISP-OS v2.6.0 · Cloudflare Edge D1 Endpoint</span>
-            <span class="terminal-banner__sub">Select an engagement scope or dispatch an inquiry payload below.</span>
+            <span class="terminal-banner__accent">{siteConfig.contactDrawer.title}</span>
+            <span class="terminal-banner__sub">{siteConfig.contactDrawer.subtitle}</span>
           </div>
 
           <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
@@ -281,10 +367,9 @@ const indexSchema = [
               <div class="form-field">
                 <label for="contact-subject" class="form-label">ENGAGEMENT_SCOPE:</label>
                 <select id="contact-subject" name="subject" class="form-control">
-                  <option value="general">General / Advisory Inquiry</option>
-                  <option value="ux-research">Scoped Inquiry: UX Research & Validation</option>
-                  <option value="design-systems">Scoped Inquiry: Design Systems Architecture</option>
-                  <option value="ux-strategy">Scoped Inquiry: OOUX & Cognitive Load Analysis</option>
+                  {siteConfig.contactDrawer.scopes.map((scope) => (
+                    <option value={scope}>{scope}</option>
+                  ))}
                 </select>
               </div>
 
@@ -344,16 +429,18 @@ const indexSchema = [
         <div class="footer-left">
           <div class="footer-brand">
             <span class="footer-badge">[FP]</span>
-            <span class="footer-wordmark">fotisp.gr</span>
+            <span class="footer-wordmark">{siteConfig.brand.name}</span>
           </div>
-          <span class="footer-coords">NODE: THESSALONIKI · 40.64° N, 22.94° E · CLOUDFLARE EDGE</span>
+          <span class="footer-coords">
+            NODE: {siteConfig.brand.coordinates.label.toUpperCase()} · {siteConfig.brand.coordinates.lat}, {siteConfig.brand.coordinates.lng} · STATIC SHIP
+          </span>
         </div>
 
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="#work" class="footer-link">Work</a>
           <a href="/about" class="footer-link">About</a>
           <a
-            href="https://www.linkedin.com/in/fotispastrakis"
+            href={siteConfig.brand.social.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             class="footer-link"
@@ -449,719 +536,1114 @@ const indexSchema = [
           formData.forEach((value, key) => {
             data[key] = value.toString();
           });
-          data.era = document.documentElement.dataset.era || '2026';
 
           const res = await fetch('/api/contact', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
             body: JSON.stringify(data),
           });
 
-          const json = await res.json();
-          if (res.ok && json.success) {
-            statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
-            statusEl.style.color = 'var(--color-success)';
+          if (res.ok) {
+            statusEl.textContent = '[STATUS: 200_OK — INQUIRY LOGGED. DIRECT TRANSMISSION CONFIRMED]';
+            statusEl.style.color = 'var(--color-accent)';
             form.reset();
           } else {
-            statusEl.innerHTML = `[STATUS: ERR_RETRY — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotispastrakis@gmail.com" style="color: var(--color-accent); text-decoration: underline;">[MAILTO FALLBACK]</a>`;
+            statusEl.textContent = '[STATUS: TRANSMISSION ERROR — RETRY OR MAILTO fotispastrakis@gmail.com]';
             statusEl.style.color = 'var(--color-accent)';
           }
-        } catch (err) {
-          statusEl.innerHTML = `[STATUS: ERR_NETWORK] <a href="mailto:fotispastrakis@gmail.com" style="color: var(--color-accent); text-decoration: underline;">[MAILTO FALLBACK]</a>`;
+        } catch (_err) {
+          statusEl.textContent = '[STATUS: NETWORK ERROR — MAIL DIRECTLY TO fotispastrakis@gmail.com]';
           statusEl.style.color = 'var(--color-accent)';
         } finally {
           submitBtn.disabled = false;
         }
       });
     }
+
+    // 5. Bento Category Filter Buttons
+    const filterButtons = document.querySelectorAll('.bento-filters .filter-pill');
+    const bentoCards = document.querySelectorAll('.bento-grid-12 .bento-card');
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach((b) => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+
+        const filter = (btn as HTMLElement).dataset.filter || 'all';
+
+        bentoCards.forEach((card) => {
+          const domain = (card as HTMLElement).dataset.domain || '';
+          if (filter === 'all' || domain.includes(filter)) {
+            (card as HTMLElement).style.opacity = '1';
+            (card as HTMLElement).style.filter = 'none';
+          } else {
+            (card as HTMLElement).style.opacity = '0.35';
+            (card as HTMLElement).style.filter = 'grayscale(0.6)';
+          }
+        });
+      });
+    });
   }
 
-  initPageScripts();
+  document.addEventListener('DOMContentLoaded', initPageScripts);
   document.addEventListener('astro:page-load', initPageScripts);
 </script>
 
 <style>
-  /* ── Layout Framework ────────────────────────────── */
   .homepage {
     display: flex;
     flex-direction: column;
-    gap: clamp(4rem, 8vw, 7rem);
-    padding-bottom: var(--space-12, 48px);
-    width: 100%;
+    gap: var(--space-24, 6rem);
+    padding-top: calc(var(--systembar-height, 84px) + 1.5rem);
+    padding-bottom: var(--space-16, 4rem);
     overflow-x: hidden;
   }
 
-  /* ── SECTION 1: HERO & HUD ───────────────────────── */
+  .u-container {
+    max-width: var(--container-2xl, 1440px);
+    margin-inline: auto;
+    padding-inline: var(--gutter, 1.5rem);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ── SECTION 1: HERO & RADAR HUD ───────────────────────────────── */
   .hero-section {
-    padding-top: calc(var(--systembar-height, 84px) + var(--space-8, 32px));
     display: flex;
     flex-direction: column;
-    gap: var(--space-10, 40px);
+    gap: var(--space-12, 3rem);
   }
 
   .hero-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-10, 40px);
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: var(--space-10, 2.5rem);
     align-items: center;
   }
 
-  @media (min-width: 1024px) {
+  @media (max-width: 900px) {
     .hero-grid {
-      grid-template-columns: 7fr 5fr;
-      gap: 56px;
+      grid-template-columns: 1fr;
     }
   }
 
   .hero-copy {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5, 20px);
+    gap: 1.25rem;
   }
 
-  .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    letter-spacing: 0.14em;
+  .hero-kicker {
+    font-family: var(--font-mono, monospace);
+    font-size: clamp(0.72rem, 0.9vw, 0.82rem);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-accent);
-    font-weight: 600;
+    color: var(--color-accent, #ee2626);
+    margin: 0;
   }
 
   .hero-h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2.8rem, 2.2rem + 3.8vw, 5.2rem);
-    font-weight: var(--weight-black, 900);
-    letter-spacing: -0.04em;
-    line-height: 0.98;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(2.5rem, 5.5vw, 4.4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    margin: 0;
     display: flex;
     flex-direction: column;
   }
 
-  .hero-h1__line1 {
-    color: var(--color-text-main);
+  .hero-h1__part1 {
+    color: #f4f4f5;
   }
 
-  .hero-h1__line2 {
-    color: var(--color-accent);
+  .hero-h1__part2 {
+    color: var(--color-accent, #ee2626);
   }
 
   .hero-body {
-    font-family: var(--font-body);
-    font-size: clamp(1rem, 0.95rem + 0.35vw, 1.15rem);
+    font-family: var(--font-body, sans-serif);
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
     line-height: 1.65;
-    color: var(--color-text-muted);
-    max-width: 52ch;
+    color: var(--color-text-muted, #a1a1aa);
+    max-width: 62ch;
+    margin: 0;
   }
 
   .hero-cta-row {
     display: flex;
     align-items: center;
-    gap: var(--space-4, 16px);
+    gap: 1rem;
     flex-wrap: wrap;
-    padding-top: var(--space-2, 8px);
+    margin-top: 0.5rem;
   }
 
   .btn-hero-primary {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 26px;
-    background-color: var(--color-accent);
+    gap: 0.5rem;
+    padding: 0.75rem 1.6rem;
+    background-color: var(--color-accent, #ee2626);
     color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 13.5px;
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.9rem;
     font-weight: 600;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-pill, 9999px);
     text-decoration: none;
-    box-shadow: 0 0 24px rgba(238, 38, 38, 0.45);
-    transition: all 0.2s ease;
+    box-shadow: 0 0 20px rgba(238, 38, 38, 0.35);
+    transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .btn-hero-primary:hover {
-    box-shadow: 0 0 32px rgba(238, 38, 38, 0.7);
-    transform: translateY(-1px);
-    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 28px rgba(238, 38, 38, 0.55);
   }
 
   .btn-hero-secondary {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: rgba(18, 12, 14, 0.7);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-main);
-    font-family: var(--font-body);
-    font-size: 13.5px;
+    gap: 0.5rem;
+    padding: 0.75rem 1.4rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+    color: var(--color-text-main, #f4f4f5);
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.9rem;
     font-weight: 500;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-pill, 9999px);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .btn-hero-secondary:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-accent, #ee2626);
     color: #ffffff;
   }
 
-  .arrow-right,
-  .arrow-down {
-    font-family: var(--font-mono);
-    font-size: 14px;
-  }
-
-  /* ── Right Column: Orbital HUD Card ──────────────── */
-  .hero-hud-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-crimson);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  /* Orbital Radar HUD Bento Box */
+  .hero-hud-bento {
+    background: var(--color-bento-bg, rgba(15, 10, 12, 0.72));
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento, 24px);
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
-  .hud-card__header {
+  .hud-bento__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
-    background: rgba(22, 14, 17, 0.85);
-    border-bottom: 1px solid var(--color-border);
-    font-family: var(--font-mono);
-    font-size: 10.5px;
+    gap: 0.5rem;
   }
 
-  .hud-card__dot-title {
+  .hud-bento__dot-title {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.45rem;
   }
 
-  .hud-card__dot {
-    width: 6px;
-    height: 6px;
+  .hud-bento__dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background-color: var(--color-accent);
+    background-color: var(--color-accent, #ee2626);
     box-shadow: 0 0 8px var(--color-accent);
   }
 
-  .hud-card__label {
-    letter-spacing: 0.1em;
-    color: var(--color-text-main);
+  .hud-bento__label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--color-accent, #ee2626);
   }
 
-  .hud-card__coords {
-    color: var(--color-accent);
-    letter-spacing: 0.05em;
+  .hud-bento__coords {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-text-muted, #a1a1aa);
   }
 
-  .hud-card__canvas {
-    padding: 16px;
+  .hud-bento__canvas {
+    min-height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #080303;
+    overflow: hidden;
   }
 
-  /* ── Metadata Strip ──────────────────────────────── */
-  .hero-metadata-strip {
+  .hud-bento__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-text-faint, #71717a);
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    padding-top: 0.65rem;
+  }
+
+  /* 3-Column Authority Metric Strip */
+  .hero-authority-strip {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    padding: 16px 0;
-    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    padding-block: 1.5rem;
   }
 
-  .metadata-col {
+  @media (max-width: 640px) {
+    .hero-authority-strip {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+
+  .authority-tile {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 4px 12px;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
-  .metadata-col:not(:last-child) {
-    border-right: 1px solid var(--color-border);
+  .authority-tile__val {
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+    font-weight: 700;
+    color: var(--color-accent, #ee2626);
   }
 
-  .metadata-col__text {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--color-text-muted);
+  .authority-tile__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .authority-tile__lbl {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #f4f4f5;
+  }
+
+  .authority-tile__ctx {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.78rem;
+    color: var(--color-text-muted, #a1a1aa);
+  }
+
+  /* ── SECTION HEADERS COMMON ─────────────────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: var(--space-8, 2rem);
+    flex-wrap: wrap;
+  }
+
+  .section-kicker {
+    display: inline-block;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: var(--color-accent, #ee2626);
+    margin-bottom: 0.5rem;
   }
 
-  @media (max-width: 768px) {
-    .hero-metadata-strip {
+  .section-title {
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #f4f4f5;
+    margin: 0;
+  }
+
+  /* Filter Pills */
+  .bento-filters {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(18, 12, 14, 0.85);
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-pill, 9999px);
+    padding: 0.25rem 0.35rem;
+  }
+
+  .filter-pill {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted, #a1a1aa);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-pill, 9999px);
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+
+  .filter-pill.is-active,
+  .filter-pill:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .filter-pill.is-active {
+    background: var(--color-accent, #ee2626);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  /* ── SECTION 2: 12-COLUMN ASYMMETRIC BENTO GRID ────────────────── */
+  .bento-grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .bento-card {
+    background: var(--color-bento-bg, rgba(15, 10, 12, 0.72));
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento, 24px);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.25rem;
+    backdrop-filter: blur(12px);
+    transition: border-color 220ms ease, opacity 220ms ease, filter 220ms ease;
+    box-sizing: border-box;
+  }
+
+  .bento-card:hover {
+    border-color: var(--color-bento-border-hover, rgba(238, 38, 38, 0.35));
+  }
+
+  .bento-card--wide {
+    grid-column: span 8;
+  }
+
+  .bento-card--tall {
+    grid-column: span 4;
+    padding: 0;
+    background: transparent;
+    border: none;
+  }
+
+  .bento-card--half {
+    grid-column: span 6;
+  }
+
+  @media (max-width: 960px) {
+    .bento-grid-12 {
       grid-template-columns: 1fr;
-      gap: 10px;
     }
-    .metadata-col:not(:last-child) {
-      border-right: none;
-      border-bottom: 1px solid var(--color-border);
-      padding-bottom: 10px;
+    .bento-card--wide,
+    .bento-card--tall,
+    .bento-card--half {
+      grid-column: span 1;
     }
   }
 
-  /* ── SECTION 4: 2-COLUMN PHILOSOPHY SECTION ──────── */
+  .bento-card__preview {
+    width: 100%;
+  }
+
+  .bento-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .bento-card__kicker {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--color-accent, #ee2626);
+  }
+
+  .bento-card__title {
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.2rem, 1.8vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.25;
+    color: #f4f4f5;
+    margin: 0;
+  }
+
+  .bento-card__summary {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--color-text-muted, #a1a1aa);
+    margin: 0;
+  }
+
+  .bento-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .bento-tag {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: #d4d4d8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .bento-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #f4f4f5;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  .bento-card__link:hover {
+    color: var(--color-accent, #ee2626);
+    transform: translateX(3px);
+  }
+
+  /* ── SECTION 3: EMPIRICAL RIGOR & RESEARCH ROWS ────────────────── */
+  .btn-all-writing {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.76rem;
+    color: var(--color-text-main, #f4f4f5);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-pill, 9999px);
+    padding: 0.45rem 1rem;
+    text-decoration: none;
+    transition: all 180ms ease;
+  }
+
+  .btn-all-writing:hover {
+    border-color: var(--color-accent, #ee2626);
+    color: var(--color-accent, #ee2626);
+  }
+
+  .research-table {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+  }
+
+  .research-row {
+    display: grid;
+    grid-template-columns: 240px 1fr 180px;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 0.5rem;
+    border-bottom: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    transition: background-color 200ms ease;
+  }
+
+  .research-row:hover {
+    background-color: rgba(255, 255, 255, 0.015);
+  }
+
+  @media (max-width: 840px) {
+    .research-row {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+  }
+
+  .research-row__citation-col {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .research-citation-pill {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-accent, #ee2626);
+    background: rgba(238, 38, 38, 0.08);
+    border: 1px solid rgba(238, 38, 38, 0.28);
+    border-radius: var(--radius-pill, 9999px);
+    padding: 0.2rem 0.65rem;
+    white-space: nowrap;
+  }
+
+  .research-row__num {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: var(--color-text-faint, #71717a);
+  }
+
+  .research-row__body-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .research-row__title {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f4f4f5;
+    margin: 0;
+  }
+
+  .research-row__thesis {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--color-text-muted, #a1a1aa);
+    margin: 0;
+  }
+
+  .research-row__action-col {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 840px) {
+    .research-row__action-col {
+      justify-content: flex-start;
+    }
+  }
+
+  .research-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.76rem;
+    color: #f4f4f5;
+    text-decoration: none;
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  .research-action-link:hover {
+    color: var(--color-accent, #ee2626);
+    transform: translateX(3px);
+  }
+
+  .research-preprint-badge {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: var(--color-text-faint, #71717a);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* ── SECTION 4: 2-COLUMN STICKY PHILOSOPHY ─────────────────────── */
   .methodology-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 40px;
+    grid-template-columns: 5fr 7fr;
+    gap: 3rem;
     align-items: start;
   }
 
-  @media (min-width: 1024px) {
+  @media (max-width: 880px) {
     .methodology-grid {
-      grid-template-columns: 5fr 7fr;
-      gap: 64px;
-    }
-
-    .methodology-left {
-      position: sticky;
-      top: 110px;
+      grid-template-columns: 1fr;
+      gap: 2rem;
     }
   }
 
   .methodology-left {
+    position: sticky;
+    top: calc(var(--systembar-height, 84px) + 2rem);
     display: flex;
     flex-direction: column;
-    gap: 14px;
-  }
-
-  .methodology-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    font-weight: 600;
+    gap: 1rem;
   }
 
   .methodology-title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 1.8rem + 1.2vw, 2.8rem);
-    font-weight: var(--weight-black, 900);
-    letter-spacing: -0.03em;
-    color: var(--color-text-main);
-    line-height: 1.05;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: #f4f4f5;
+    margin: 0;
   }
 
   .methodology-narrative {
-    font-family: var(--font-body);
-    font-size: 14.5px;
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.95rem;
     line-height: 1.65;
-    color: var(--color-text-muted);
+    color: var(--color-text-muted, #a1a1aa);
+    margin: 0;
   }
 
   .methodology-right {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--color-border);
+    gap: 1rem;
   }
 
-  .methodology-row {
+  .methodology-pillar-card {
+    background: var(--color-bento-bg, rgba(15, 10, 12, 0.72));
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento, 24px);
+    padding: 1.5rem;
     display: flex;
     align-items: flex-start;
-    gap: 20px;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--color-border);
+    gap: 1.25rem;
+    transition: border-color 200ms ease;
   }
 
-  .methodology-icon-badge {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(238, 38, 38, 0.12);
-    border: 1px solid var(--color-accent);
+  .methodology-pillar-card:hover {
+    border-color: var(--color-accent, #ee2626);
+  }
+
+  .pillar-node-badge {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.35rem;
+    background: rgba(238, 38, 38, 0.1);
+    border: 1px solid rgba(238, 38, 38, 0.35);
+    border-radius: var(--radius-pill, 9999px);
+    padding: 0.25rem 0.65rem;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 0.1rem;
   }
 
-  .icon-dot {
-    color: var(--color-accent);
-    font-size: 12px;
+  .pillar-node-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-accent, #ee2626);
   }
 
-  .methodology-row__content {
+  .pillar-node-step {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--color-accent, #ee2626);
+  }
+
+  .pillar-content {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0.35rem;
   }
 
-  .methodology-row__title {
-    font-family: var(--font-display);
-    font-size: 18px;
+  .pillar-title {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.15rem;
     font-weight: 700;
-    color: var(--color-text-main);
-    letter-spacing: -0.01em;
+    color: #f4f4f5;
+    margin: 0;
   }
 
-  .methodology-row__desc {
-    font-family: var(--font-body);
-    font-size: 13.5px;
+  .pillar-description {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.88rem;
     line-height: 1.6;
-    color: var(--color-text-muted);
+    color: var(--color-text-muted, #a1a1aa);
+    margin: 0;
   }
 
-  /* ── SECTION 5: CRIMSON GRADIENT BIO BANNER ──────── */
-  .crimson-bio-banner {
-    border-radius: var(--radius-banner);
-    background: linear-gradient(135deg, #2B070C 0%, #4D0C16 55%, #1D0408 100%);
+  /* ── SECTION 5: BURGUNDY-CRIMSON EXECUTIVE BIO & CTA BANNER ──── */
+  .executive-bio-banner {
+    border-radius: var(--radius-banner, 20px);
+    background: linear-gradient(135deg, #2b070c 0%, #4d0c16 55%, #1d0408 100%);
     border: 1px solid rgba(238, 38, 38, 0.45);
-    padding: clamp(28px, 4vw, 48px);
+    padding: clamp(1.8rem, 4vw, 3rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 36px;
-    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
-    flex-wrap: wrap;
+    gap: 2.5rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
   }
 
-  .bio-banner__left {
-    flex: 1 1 500px;
+  @media (max-width: 900px) {
+    .executive-bio-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+  }
+
+  .bio-banner__content {
+    max-width: 68ch;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0.75rem;
   }
 
-  .bio-banner__title {
-    font-family: var(--font-display);
-    font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.4rem);
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    color: #ffffff;
+  .bio-banner__kicker {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: #ff8080;
+  }
+
+  .bio-banner__headline {
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-weight: 700;
     line-height: 1.15;
+    color: #ffffff;
+    margin: 0;
   }
 
-  .bio-banner__desc {
-    font-family: var(--font-body);
-    font-size: 14px;
+  .bio-banner__body {
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.95rem;
     line-height: 1.65;
-    color: #D4D4D8;
-    max-width: 64ch;
+    color: #f4d0d4;
+    margin: 0;
   }
 
-  .bio-banner__right {
+  .bio-banner__actions {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    gap: 0.75rem;
     flex-shrink: 0;
   }
 
-  .bio-kicker {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    color: #FF8585;
-    text-transform: uppercase;
-  }
-
-  .btn-discovery-cta {
+  .btn-bio-cta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    background-color: var(--color-accent);
+    justify-content: center;
+    padding: 0.85rem 1.6rem;
+    background-color: var(--color-accent, #ee2626);
     color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 14px;
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.9rem;
     font-weight: 600;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-pill, 9999px);
     text-decoration: none;
-    box-shadow: 0 0 25px rgba(238, 38, 38, 0.6);
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
+    box-shadow: 0 0 24px rgba(238, 38, 38, 0.45);
+    white-space: nowrap;
+    transition: all 200ms ease;
   }
 
-  .btn-discovery-cta:hover {
-    box-shadow: 0 0 35px rgba(238, 38, 38, 0.85);
-    transform: translateY(-1px);
-    color: #ffffff;
+  .btn-bio-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 32px rgba(238, 38, 38, 0.65);
   }
 
   .btn-copy-email {
-    background: transparent;
-    border: none;
-    padding: 4px 8px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    color: #A1A1AA;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.4rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f4f4f5;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    border-radius: var(--radius-pill, 9999px);
     cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    transition: color 0.15s ease;
+    transition: all 180ms ease;
   }
 
   .btn-copy-email:hover {
+    border-color: #ffffff;
     color: #ffffff;
   }
 
-  /* ── SECTION 6: CONTACT DRAWER & FOOTER ───────────── */
+  /* ── SECTION 6: CONTACT DRAWER & MINIMAL FOOTER ────────────────── */
   .terminal-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
+    background: #090506;
+    border: 1px solid var(--color-bento-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-bento, 24px);
     overflow: hidden;
   }
 
   .terminal-card__header {
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    padding: 0.85rem 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
-    background: rgba(22, 14, 17, 0.9);
-    border-bottom: 1px solid var(--color-border);
-    font-family: var(--font-mono);
-    font-size: 10.5px;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .terminal-header__left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
   }
 
   .terminal-badge {
-    color: var(--color-accent);
-    font-weight: 600;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-accent, #ee2626);
+    background: rgba(238, 38, 38, 0.1);
+    border: 1px solid rgba(238, 38, 38, 0.3);
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.15rem 0.5rem;
   }
 
   .terminal-title {
-    color: var(--color-text-muted);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    color: #f4f4f5;
   }
 
   .terminal-coords {
-    color: var(--color-text-faint);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-text-faint, #71717a);
   }
 
   .terminal-body {
-    padding: 24px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.25rem;
   }
 
   .terminal-banner {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 10px 14px;
-    background: rgba(238, 38, 38, 0.05);
-    border: 1px dashed var(--color-border-crimson);
-    border-radius: 6px;
-    font-family: var(--font-mono);
-    font-size: 11px;
+    gap: 0.25rem;
   }
 
   .terminal-banner__accent {
-    color: var(--color-accent);
-    font-weight: 600;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-accent, #ee2626);
   }
 
   .terminal-banner__sub {
-    color: var(--color-text-muted);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.74rem;
+    color: var(--color-text-muted, #a1a1aa);
   }
 
   .terminal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1.25rem;
   }
 
   .form-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
   }
 
-  @media (min-width: 640px) {
+  @media (max-width: 640px) {
     .form-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    .form-field--full {
-      grid-column: span 2;
+      grid-template-columns: 1fr;
     }
   }
 
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  .form-field--full {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 640px) {
+    .form-field--full {
+      grid-column: span 1;
+    }
   }
 
   .form-label {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--color-text-faint);
-    letter-spacing: 0.06em;
+    display: block;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--color-text-muted, #a1a1aa);
+    margin-bottom: 0.35rem;
   }
 
   .form-control {
-    background: #090406;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    color: var(--color-text-main);
-    padding: 10px 14px;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
     width: 100%;
-    transition: border-color 0.15s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+    border-radius: var(--radius-subtle, 6px);
+    padding: 0.65rem 0.85rem;
+    color: #f4f4f5;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    box-sizing: border-box;
+    transition: border-color 180ms ease;
   }
 
   .form-control:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 8px rgba(238, 38, 38, 0.25);
+    border-color: var(--color-accent, #ee2626);
+    background: rgba(238, 38, 38, 0.04);
   }
 
   .form-control--textarea {
     resize: vertical;
-    min-height: 90px;
   }
 
   .terminal-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
     flex-wrap: wrap;
-    gap: 16px;
-    padding-top: 8px;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    padding-top: 1rem;
   }
 
   .contact-status {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--color-text-muted);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: var(--color-text-faint, #71717a);
   }
 
   .btn-transmit {
-    padding: 10px 20px;
-    background: var(--color-accent);
+    background: var(--color-accent, #ee2626);
+    border: none;
     color: #ffffff;
-    border: 1px solid var(--color-accent);
-    border-radius: var(--radius-pill);
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    font-weight: 600;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.65rem 1.4rem;
+    border-radius: var(--radius-pill, 9999px);
     cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow: 0 0 16px rgba(238, 38, 38, 0.4);
+    transition: all 180ms ease;
   }
 
-  .btn-transmit:hover:not(:disabled) {
-    background: transparent;
-    color: var(--color-accent);
-    box-shadow: 0 0 12px rgba(238, 38, 38, 0.4);
+  .btn-transmit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px rgba(238, 38, 38, 0.6);
   }
 
-  .btn-transmit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* ── Minimal Dark Footer ─────────────────────────── */
+  /* Minimal Dark Footer */
   .footer-minimal {
-    border-top: 1px solid var(--color-border);
-    padding-top: 32px;
-    margin-top: 16px;
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    padding-top: 2rem;
   }
 
   .footer-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1.5rem;
     flex-wrap: wrap;
-    gap: 20px;
   }
 
   .footer-left {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.35rem;
   }
 
   .footer-brand {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
 
   .footer-badge {
-    font-family: var(--font-display);
+    background: var(--color-accent, #ee2626);
+    color: #ffffff;
+    font-family: var(--font-display, sans-serif);
     font-weight: 900;
-    font-size: 12px;
-    color: var(--color-accent);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
   }
 
   .footer-wordmark {
-    font-family: var(--font-display);
+    font-family: var(--font-display, sans-serif);
+    font-size: 0.95rem;
     font-weight: 700;
-    font-size: 14px;
-    color: var(--color-text-main);
+    color: #f4f4f5;
   }
 
   .footer-coords {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--color-text-faint);
-    letter-spacing: 0.06em;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: var(--color-text-faint, #71717a);
   }
 
   .footer-nav {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1rem;
     flex-wrap: wrap;
   }
 
   .footer-link,
   .footer-btn {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--color-text-muted);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #a1a1aa);
     text-decoration: none;
-    background: none;
+    background: transparent;
     border: none;
     cursor: pointer;
-    padding: 2px 4px;
-    transition: color 0.15s ease;
+    padding: 0;
+    transition: color 180ms ease;
   }
 
   .footer-link:hover,
   .footer-btn:hover {
-    color: var(--color-accent);
+    color: var(--color-accent, #ee2626);
   }
 
-  /* ── 1984 Era Retro Overrides ─────────────────────── */
-  [data-era="1984"] .btn-hero-primary,
-  [data-era="1984"] .btn-hero-secondary,
-  [data-era="1984"] .hero-hud-card,
-  [data-era="1984"] .methodology-icon-badge,
-  [data-era="1984"] .crimson-bio-banner,
-  [data-era="1984"] .btn-discovery-cta,
-  [data-era="1984"] .terminal-card,
-  [data-era="1984"] .terminal-banner,
-  [data-era="1984"] .form-control,
-  [data-era="1984"] .btn-transmit {
-    border-radius: 0px !important;
-    border-color: #EE2626 !important;
-    font-family: var(--font-mono) !important;
+  .u-hidden {
+    display: none !important;
   }
 
-  [data-era="1984"] .crimson-bio-banner {
+  /* ── 1984 ERA RETRO OVERRIDES ──────────────────────────────────── */
+  :global(html[data-era="1984"]) .hero-hud-bento,
+  :global(html[data-era="1984"]) .bento-card,
+  :global(html[data-era="1984"]) .executive-bio-banner,
+  :global(html[data-era="1984"]) .terminal-card,
+  :global(html[data-era="1984"]) .methodology-pillar-card,
+  :global(html[data-era="1984"]) .btn-hero-primary,
+  :global(html[data-era="1984"]) .btn-hero-secondary,
+  :global(html[data-era="1984"]) .btn-bio-cta,
+  :global(html[data-era="1984"]) .btn-copy-email,
+  :global(html[data-era="1984"]) .btn-transmit,
+  :global(html[data-era="1984"]) .btn-all-writing,
+  :global(html[data-era="1984"]) .bento-filters,
+  :global(html[data-era="1984"]) .filter-pill,
+  :global(html[data-era="1984"]) .research-citation-pill,
+  :global(html[data-era="1984"]) .research-preprint-badge,
+  :global(html[data-era="1984"]) .pillar-node-badge,
+  :global(html[data-era="1984"]) .bento-tag,
+  :global(html[data-era="1984"]) .form-control {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-color: #ee2626 !important;
+  }
+
+  :global(html[data-era="1984"]) .hero-hud-bento,
+  :global(html[data-era="1984"]) .bento-card,
+  :global(html[data-era="1984"]) .methodology-pillar-card,
+  :global(html[data-era="1984"]) .terminal-card,
+  :global(html[data-era="1984"]) .executive-bio-banner {
     background: #000000 !important;
-    border: 1px solid #EE2626 !important;
+  }
+
+  :global(html[data-era="1984"]) .btn-hero-primary,
+  :global(html[data-era="1984"]) .btn-bio-cta,
+  :global(html[data-era="1984"]) .btn-transmit,
+  :global(html[data-era="1984"]) .filter-pill.is-active {
+    background: #ee2626 !important;
+    color: #000000 !important;
   }
 </style>
