@@ -358,7 +358,17 @@ const indexSchema = [
             <span class="terminal-banner__sub">{siteConfig.contactDrawer.subtitle}</span>
           </div>
 
-          <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
+          <form
+            class="terminal-form"
+            id="contactForm"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="_gotcha"
+            action="/__forms.html"
+          >
+            {/* Netlify Form Identifier */}
+            <input type="hidden" name="form-name" value="contact" />
             {/* Honeypots */}
             <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
             <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
@@ -517,7 +527,7 @@ const indexSchema = [
       });
     }
 
-    // 4. Contact Form Dispatch to /api/contact
+    // 4. Contact Form Dispatch to Netlify Forms
     const form = document.getElementById('contactForm') as HTMLFormElement | null;
     const statusEl = document.getElementById('contactStatus');
     const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
@@ -526,24 +536,20 @@ const indexSchema = [
       form.dataset.listener = 'true';
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        statusEl.textContent = '[STATUS: TRANSMITTING PACKET TO /api/contact...]';
+        statusEl.textContent = '[STATUS: TRANSMITTING PACKET TO NETLIFY EDGE...]';
         statusEl.style.color = 'var(--color-text-muted)';
         submitBtn.disabled = true;
 
         try {
           const formData = new FormData(form);
-          const data: Record<string, string> = {};
-          formData.forEach((value, key) => {
-            data[key] = value.toString();
-          });
+          const body = new URLSearchParams(formData as any).toString();
 
-          const res = await fetch('/api/contact', {
+          const res = await fetch('/__forms.html', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify(data),
+            body,
           });
 
           if (res.ok) {

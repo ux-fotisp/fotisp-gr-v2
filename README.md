@@ -2,7 +2,7 @@
 
 **Personal portfolio of Fotis Pastrakis** — Lead Product Designer & Systems Architect (10+ years experience specializing in health-tech, clinical UX, enterprise design systems, and Object-Oriented UX).
 
-Live architecture fusing **Astro 5 static generation**, **React 19 interactive islands**, **Framer Motion physics**, and an **authentic 1-Bit OS / EDGE design system**. Hosted on **Cloudflare Pages** backed by **Cloudflare D1** and **Cloudflare Turnstile**.
+Live architecture fusing **Astro 5 static generation**, **React 19 interactive islands**, **Framer Motion physics**, and an **authentic 1-Bit OS / EDGE design system**. Hosted on **Netlify Edge Network** backed by **Netlify Forms** and Git-integrated CI/CD.
 
 ---
 
@@ -12,10 +12,9 @@ Live architecture fusing **Astro 5 static generation**, **React 19 interactive i
 - **Interactive Islands:** [React 19](https://react.dev/) via `@astrojs/react` for telemetry, motion physics, and interactive controls
 - **Motion Engine:** [Framer Motion](https://www.framer.com/motion/) (Titlebar window dragging, magnetic pull CTAs, clip-path text reveals, and CRT glitch era transitions)
 - **Styling Paradigm:** Custom Atomic CSS (`tokens.css`, `atomic.css`, `global.css`) — **Zero Tailwind**, pure CSS variables and pixel-perfect 1-bit borders
-- **Hosting & CDN:** [Cloudflare Pages](https://pages.cloudflare.com/) (`wrangler.jsonc`)
-- **Serverless Compute:** Cloudflare Pages Functions (`functions/api/contact.ts`)
-- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/) (`fotisp_db` / `fotisp-db`) for contact inquiries with SHA-256 IP hashing and era tracking
-- **Security & Anti-Abuse:** Cloudflare Turnstile human verification + dual invisible honeypots (`_gotcha`, `company_fax`)
+- **Hosting & CDN:** [Netlify](https://www.netlify.com/) (`netlify.toml`) with global edge propagation
+- **Form Ingestion:** [Netlify Forms](https://docs.netlify.com/forms/setup/) (Zero-backend build-time detection + spam honeypots)
+- **Security & Caching:** Strict HTTP security headers + 1-year immutable caching for build assets
 
 ---
 

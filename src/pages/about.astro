@@ -264,7 +264,16 @@ const careerSteps = [
             </div>
           </div>
 
-          <form class="terminal-form" id="contactForm" method="POST" action="/api/contact">
+          <form
+            class="terminal-form"
+            id="contactForm"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="_gotcha"
+            action="/__forms.html"
+          >
+            <input type="hidden" name="form-name" value="contact" />
             <!-- Honeypot anti-bot -->
             <input type="text" name="_gotcha" class="u-hidden" tabindex="-1" autocomplete="off" />
             <input type="text" name="company_fax" class="u-hidden" tabindex="-1" autocomplete="off" />
@@ -389,37 +398,32 @@ const careerSteps = [
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.textContent = '[STATUS: TRANSMITTING... DISPATCHING PACKET TO /api/contact]';
+      statusEl.textContent = '[STATUS: TRANSMITTING... DISPATCHING PACKET TO NETLIFY EDGE]';
       statusEl.style.color = 'var(--color-text-muted)';
       submitBtn.disabled = true;
 
       try {
         const formData = new FormData(form);
-        const data: Record<string, string> = {};
-        formData.forEach((value, key) => {
-          data[key] = value.toString();
-        });
+        const body = new URLSearchParams(formData as any).toString();
 
-        // Pass active client era
-        data.era = document.documentElement.dataset.era || '2026';
-
-        const res = await fetch('/api/contact', {
+        const res = await fetch('/__forms.html', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body,
         });
 
-        const json = await res.json();
-        if (res.ok && json.success) {
-          statusEl.textContent = '[STATUS: 200_OK — INQUIRY_LOGGED: DISPATCHED TO FOTIS]';
-          statusEl.style.color = 'var(--color-success)';
+        if (res.ok) {
+          statusEl.textContent = '[STATUS: 200_OK — INQUIRY LOGGED. DIRECT TRANSMISSION CONFIRMED]';
+          statusEl.style.color = 'var(--color-accent)';
           form.reset();
         } else {
-          statusEl.innerHTML = `[STATUS: ERR_RETRY_OR_MAILTO — ${json.error || 'VERIFICATION FAILED'}] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>`;
+          statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — TRANSMISSION FAILED] <a href="mailto:fotispastrakis@gmail.com" class="u-text-accent">[MAILTO FALLBACK]</a>';
           statusEl.style.color = 'var(--color-accent)';
         }
-      } catch (err) {
-        statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — CONNECTION DROPPED] <a href="mailto:fotis@fotisp.gr" class="u-text-accent">[MAILTO FALLBACK]</a>';
+      } catch (_err) {
+        statusEl.innerHTML = '[STATUS: ERR_RETRY_OR_MAILTO — CONNECTION DROPPED] <a href="mailto:fotispastrakis@gmail.com" class="u-text-accent">[MAILTO FALLBACK]</a>';
         statusEl.style.color = 'var(--color-accent)';
       } finally {
         submitBtn.disabled = false;
