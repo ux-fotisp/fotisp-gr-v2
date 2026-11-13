@@ -49,15 +49,15 @@ const DOMAIN_FILTERS = [
 
 const SERVICE_FILTERS = [
   { key: 'all', label: 'All Services' },
-  { key: 'ux-research', label: 'UX Research' },
-  { key: 'design-systems', label: 'Design Systems' },
-  { key: 'ux-strategy', label: 'UX Strategy & Leadership' },
+  { key: 'ux-research', label: 'OOUX & Domain Systems' },
+  { key: 'design-systems', label: 'Design Systems & Front-End' },
+  { key: 'ux-strategy', label: 'AI Systems & Advisory' },
 ];
 
 const SERVICE_LABELS: Record<string, string> = {
-  'ux-research': 'UX Research',
-  'design-systems': 'Design Systems',
-  'ux-strategy': 'UX Strategy & Leadership',
+  'ux-research': 'OOUX & Domain Systems',
+  'design-systems': 'Design Systems & Front-End',
+  'ux-strategy': 'AI Systems & Advisory',
 };
 
 // Card component with live coordinate telemetry

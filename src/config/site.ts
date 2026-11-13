@@ -157,7 +157,7 @@ export const siteConfig: SiteConfig = {
 
   bento: {
     sectionKicker: 'PROVEN ARCHITECTURE · SELECTED WORK',
-    sectionTitle: 'Systems engineered for zero ambiguity.',
+    sectionTitle: 'Not just screens. Systems that work.',
     cards: {
       medipulse: {
         id: 'bento-medipulse',

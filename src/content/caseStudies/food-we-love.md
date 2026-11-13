@@ -18,10 +18,10 @@ testimonials:
 tagline: "Redesigning the discovery and checkout experience for Greece's leading organic food e-tailer — from artisan marketplace to trust-first digital grocery."
 client: "FoodWeLove S.A."
 category: "e-commerce"
-tags: ["e-commerce", "food-tech", "discovery UX", "checkout optimisation", "trust design", "mobile-first"]
+tags: ["information architecture", "e-commerce", "faceted taxonomy", "checkout architecture", "trust design", "design system"]
 year: 2022
 duration: "5 months"
-team: "1 UX designer (Fotis), 2 engineers, 1 brand consultant, 1 copywriter"
+team: "1 UX designer (Fotis), 2 engineers, 1 product manager, 1 taxonomy specialist"
 featured: false
 protected: false
 cover:
