@@ -17,8 +17,8 @@ interface Props {
 }
 
 const {
-  title = 'Fotis Pastrakis — Senior UX Researcher & Product Designer',
-  description = 'Fotis Pastrakis: senior UX researcher, design systems lead, and health-tech product designer. Senior Associate at Pfizer, MSc University of the Aegean.',
+  title = siteConfig.brand.title,
+  description = siteConfig.hero.subheadline,
   schema,
   ogImage = '/og-default.svg',
 } = Astro.props;
@@ -37,7 +37,7 @@ const defaultSchema: Record<string, unknown>[] = [
       siteConfig.brand.social.linkedin,
       siteConfig.brand.social.github,
     ],
-    jobTitle: 'Senior Associate, CX Designer',
+    jobTitle: 'Systems Architect & Principal Product Designer',
     worksFor: [
       {
         '@type': 'Organization',
@@ -53,15 +53,20 @@ const defaultSchema: Record<string, unknown>[] = [
       },
     ],
     knowsAbout: [
-      'UX Research', 'Product Design', 'Design Systems',
-      'Health Technology', 'Clinical UX', 'Information Architecture',
-      'Cultural Heritage UX', 'Accessibility',
+      'Object-Oriented UX (OOUX)',
+      'Systems Architecture',
+      'Design Systems',
+      'Clinical & Regulated UX',
+      'Front-End Engineering',
+      'Local & Frontier AI Architecture',
+      'Information Architecture',
+      'Accessibility',
     ],
   },
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Fotis Pastrakis Portfolio',
+    name: siteConfig.brand.title,
     url: 'https://fotisp.gr',
     description,
     author: { '@type': 'Person', name: 'Fotios Pastrakis' },
