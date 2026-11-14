@@ -17,14 +17,18 @@
   --color-border-crimson:  rgba(238, 38, 38, 0.35);
   --color-border-subtle:   rgba(255, 255, 255, 0.08);
   --color-border-strong:   rgba(255, 255, 255, 0.15);
-  --color-border-figma-red:#ff1e56;
 
   /* Accent */
   --color-accent:          #EE2626;
   --color-accent-dim:      #9b1a1a;
   --color-accent-glow:     rgba(238, 38, 38, 0.25);
-  --color-accent-figma:    #ff1e56;
-  --color-accent-pink:     #ff4d6d;
+
+  /* Header System Tokens (Figma Home · Desktop v2) */
+  --color-header-bg:       rgba(10, 10, 12, 0.75);
+  --color-header-border:   #ff1e56;
+  --color-header-nav-bg:   #030304;
+  --color-header-cta-from: #fe113d;
+  --color-header-cta-to:   #56061a;
 
   /* Surface Radius Architecture (Stage 11 & Bento) */
   --radius-card:           16px;

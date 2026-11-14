@@ -52,8 +52,7 @@ html[data-era="1984"] {
 [data-era="1984"] .cinematic-3d-svg,
 [data-era="1984"] .lottie-container,
 [data-era="1984"] .case-card__cover,
-[data-era="1984"] .case-card__cover-placeholder,
-[data-era="1984"] .edge-cosmic-motif {
+[data-era="1984"] .case-card__cover-placeholder {
   image-rendering: pixelated;
   filter: url(#dither-1bit);
 }
