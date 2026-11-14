@@ -81,7 +81,11 @@ const indexSchema = [
 ];
 ---
 
-<BaseLayout schema={indexSchema}>
+<BaseLayout
+  title={siteConfig.brand.title}
+  description={siteConfig.hero.subheadline}
+  schema={indexSchema}
+>
   <div class="homepage" id="top">
     <!-- ── SECTION 1: 2-COLUMN HERO, ORBITAL RADAR HUD & AUTHORITY STRIP ── -->
     <section class="hero-section u-container" aria-labelledby="hero-title">
