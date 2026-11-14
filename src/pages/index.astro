@@ -438,8 +438,14 @@ const indexSchema = [
       <div class="footer-inner">
         <div class="footer-left">
           <div class="footer-brand">
-            <span class="footer-badge">[FP]</span>
-            <span class="footer-wordmark">{siteConfig.brand.name}</span>
+            <img
+              src="/images/fotisp-logo.png"
+              alt="Fotios Pastrakis Logo"
+              class="footer-logo"
+              width="24"
+              height="26"
+            />
+            <span class="footer-wordmark">Fotios Pastrakis</span>
           </div>
           <span class="footer-coords">
             NODE: {siteConfig.brand.coordinates.label.toUpperCase()} · {siteConfig.brand.coordinates.lat}, {siteConfig.brand.coordinates.lng} · STATIC SHIP
@@ -448,6 +454,8 @@ const indexSchema = [
 
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="#work" class="footer-link">Work</a>
+          <a href="#research" class="footer-link">Research</a>
+          <a href="#methodology" class="footer-link">Architecture</a>
           <a href="/about" class="footer-link">About</a>
           <a
             href={siteConfig.brand.social.linkedin}
@@ -1561,20 +1569,17 @@ const indexSchema = [
     gap: 0.5rem;
   }
 
-  .footer-badge {
-    background: var(--color-accent, #ee2626);
-    color: #ffffff;
-    font-family: var(--font-display, sans-serif);
-    font-weight: 900;
-    font-size: 0.7rem;
-    padding: 0.15rem 0.35rem;
-    border-radius: 4px;
+  .footer-logo {
+    width: 24px;
+    height: 26px;
+    object-fit: contain;
+    flex-shrink: 0;
   }
 
   .footer-wordmark {
-    font-family: var(--font-display, sans-serif);
+    font-family: var(--font-mono, monospace);
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 500;
     color: #f4f4f5;
   }
 

@@ -74,6 +74,7 @@ The CLI interactively:
 ### Keyboard Shortcuts
 - **`Shift + Alt + E`**: Toggle Era between **Modern 2026** (Crimson `#EE2626` / Obsidian `#080303`) and **Vintage 1984** (Amber `#FFB000` / Monochrome CRT) with hardware CRT glitch sweep.
 - **`Shift + Alt + D`**: Toggle System Diagnostic HUD overlay.
+- **`Shift + Alt + W`**: Reset draggable desktop windows back to their default viewport positions.
 
 ### Motion & UI Paradigms
 - **Draggable OS Windows (`DesktopWindow.astro` + `DraggableFrame.tsx`):** Windows support titlebar-only dragging with click-to-front z-index elevation. Automatically disabled on mobile viewports (`< 768px`) and when `prefers-reduced-motion` is enabled to preserve native touch scrolling.
@@ -111,26 +112,26 @@ The CLI interactively:
 
 ## ☁️ Deployment & Production
 
-### Cloudflare Pages Setup
-Configured in `wrangler.jsonc`:
-- **Build Output Directory:** `dist`
-- **Compatibility Date:** `2024-11-01`
-- **Compatibility Flags:** `["nodejs_compat"]`
-- **D1 Database Binding:** `fotisp_db` (ID: `168e7737-ecea-4c82-85a3-dbdd1e0c5fae`)
-
-### Environment Variables
-Configure in the Cloudflare Pages Dashboard (Settings > Environment Variables):
-- `TURNSTILE_SECRET_KEY`: Cloudflare Turnstile server-side validation secret.
-- `CONTACT_FORWARD_EMAIL`: Destination email for incoming contact inquiries.
+### Netlify Setup
+Configured in `netlify.toml`:
+- **Build Command:** `npm run build`
+- **Publish Directory:** `dist`
+- **Node Version:** `20`
+- **Security Headers:** Strict HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+- **Cache Rules:** 1-year immutable caching for `/_astro/*` and `/fonts/*`
+- **Form Handling:** Build-time zero-backend ingestion via `public/__forms.html` (`name="contact"`, honeypots `_gotcha`, `company_fax`)
 
 ### Deployment Workflow
-Production deploys are automated via Cloudflare Pages integration on pushes to `main`.
-For manual preview or production deployment via Wrangler:
+Production deploys are automated via Netlify Git integration on pushes to `main`. Deploy previews are automatically spun up on `dev` or feature branches.
 
+To test or deploy locally via Netlify CLI:
 ```bash
 # Build static site
 npm run build
 
-# Deploy to Cloudflare Pages
-npx wrangler pages deploy dist --project-name fotisp-gr-v2
+# Preview locally with Netlify routing and forms
+npx netlify dev
+
+# Deploy directly to Netlify
+npx netlify deploy --dir=dist --prod
 ```

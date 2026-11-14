@@ -4,13 +4,13 @@
 # Methodology: Object-Oriented User Experience (OOUX) / ORCA Framework
 # Author: Senior Creative Technologist & OOUX Systems Architect
 # Version: 2.6.0
-# Target System: Astro 5 Content Collections + Cloudflare Edge Architecture
+# Target System: Astro 5 Content Collections + Netlify Edge Architecture
 # ==============================================================================
 
 system:
   name: "Fotis Pastrakis Systems & Portfolio"
   domain: "fotisp.gr"
-  architecture_pattern: "Static Generation (SSG) with Cloudflare Edge Serverless Functions"
+  architecture_pattern: "Static Generation (SSG) with Netlify Forms & Edge Delivery"
   era_modes:
     - id: "2026"
       label: "Swiss Contemporary Precision (Obsidian #080303 & Crimson #EE2626)"
@@ -217,31 +217,27 @@ objects:
     plural: "Inquiries"
     definition: >
       An asynchronous communication packet dispatched by an external stakeholder
-      (recruiter, founder, academic collaborator) through the Cloudflare Pages edge
-      endpoint to Fotis Pastrakis, validated via anti-bot honeypots, Turnstile,
-      and persisted to Cloudflare D1.
+      (recruiter, founder, academic collaborator) through Netlify Forms
+      to Fotis Pastrakis, validated via anti-bot honeypots.
     desktop_metaphor:
       type: "Terminal Socket Packet (tty0 / console_inquiry.sh)"
       icon: "network-packet"
       titlebar: "packet_dispatch.log"
     cardinality_mcsfd:
-      in_system: "Unbounded (D1 SQL database records)"
-      per_user: "Rate-limited per IP hash (5 transmissions / hour)"
+      in_system: "Unbounded (Netlify Forms submissions)"
+      per_user: "Submission queue"
     attributes:
       transmission_data:
-        id: "integer (Auto-increment primary key in D1)"
+        id: "string (Netlify submission ID)"
         name: "string (Operator / Sender name, mandatory)"
         email: "string (Valid RFC 5322 email address, mandatory)"
         subject: "enum: [general, ux-research, design-systems, ux-strategy]"
         message: "string (Payload body, min 10 chars, max 5000 chars)"
       telemetry_metadata:
-        era_mode: "enum: [1984, 2026] (Active client visual mode during dispatch)"
-        ip_hash: "string (SHA-256 pseudonymized hash of CF-Connecting-IP)"
-        created_at: "timestamp (Edge server UTC timestamp)"
+        created_at: "timestamp (Submission timestamp)"
       security_tokens:
         _gotcha: "string (Must be empty; bot honeypot)"
         company_fax: "string (Must be empty; bot honeypot)"
-        turnstile_token: "string (Optional Cloudflare Turnstile token for verification)"
     relationships:
       scoped_service:
         target: "service"
@@ -250,27 +246,24 @@ objects:
     cta_matrix:
       guest:
         - action: "Transmit Packet"
-          target: "POST /api/contact"
-          intent: "Dispatch asynchronous inquiry to D1 database"
+          target: "POST /__forms.html"
+          intent: "Dispatch asynchronous inquiry to Netlify Forms"
         - action: "Reset Buffer"
           target: "DOM Form Reset"
           intent: "Clear draft payload"
         - action: "Mailto Fallback"
-          target: "mailto:fotis@fotisp.gr"
+          target: "mailto:fotispastrakis@gmail.com"
           intent: "Direct mailto invocation when offline or network drops"
       system:
         - action: "Evaluate Bot Honeypots"
-          target: "functions/api/contact.ts"
+          target: "Netlify Forms Processor"
           intent: "Silently discard if _gotcha or company_fax populated"
-        - action: "Hash Client IP"
-          target: "Web Crypto SHA-256"
-          intent: "GDPR-compliant anonymized rate-limiting"
-        - action: "Persist to D1"
-          target: "INSERT INTO inquiries ... bound to fotisp_db"
-          intent: "Durable Cloudflare D1 storage"
+        - action: "Persist to Netlify Forms"
+          target: "Netlify Forms Dashboard & Webhooks"
+          intent: "Encrypted serverless storage and email forwarding"
       owner:
         - action: "Inspect Inquiries"
-          target: "Wrangler D1 CLI / Cloudflare Dashboard"
+          target: "Netlify Dashboard / Form Webhooks"
           intent: "Review incoming client transmissions"
 
   # ────────────────────────────────────────────────────────────────────────────
@@ -373,9 +366,6 @@ react_islands:
   - component: "src/components/MagneticTarget.tsx"
     purpose: "Tactile spring-physics CTA magnetic pull respecting reduced motion"
     lifecycle: "client:load / client:visible"
-  - component: "src/components/RevealText.tsx"
-    purpose: "Swiss editorial bottom-up clip-path line reveal"
-    lifecycle: "client:load"
   - component: "src/components/SystemBar.tsx"
-    purpose: "Fixed top retro menu bar with era switcher (Shift+Alt+E) and diagnostic trigger (Shift+Alt+D)"
+    purpose: "Fixed header navigation aligned to Figma v2 with era switcher (Shift+Alt+E), diagnostic trigger (Shift+Alt+D), and window reset (Shift+Alt+W)"
     lifecycle: "client:load"

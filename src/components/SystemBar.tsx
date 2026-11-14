@@ -97,7 +97,7 @@ export default function SystemBar() {
     window.dispatchEvent(new CustomEvent('open-webdrift-installer'));
   }, []);
 
-  // Global Keyboard Shortcuts: Shift+Alt+E & Shift+Alt+D
+  // Global Keyboard Shortcuts: Shift+Alt+E, Shift+Alt+D & Shift+Alt+W
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isInteractiveElement(document.activeElement)) return;
@@ -112,6 +112,12 @@ export default function SystemBar() {
       if (e.shiftKey && e.altKey && (e.key === 'D' || e.key === 'd')) {
         e.preventDefault();
         triggerDiagnostic();
+      }
+
+      // Shift+Alt+W: Reset window positions
+      if (e.shiftKey && e.altKey && (e.key === 'W' || e.key === 'w')) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('reset-windows'));
       }
     };
 
@@ -194,15 +200,17 @@ export default function SystemBar() {
   const handleBookCall = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window === 'undefined') return;
     const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
-    if (isHomePage) {
-      const el = document.getElementById('contact-drawer');
-      if (el) {
-        e.preventDefault();
-        el.scrollIntoView({ behavior: 'smooth' });
-        window.history.pushState(null, '', '#contact-drawer');
-        const input = document.getElementById('contact-name');
-        if (input) input.focus();
-      }
+    const el = document.getElementById('contact-drawer');
+
+    if (el) {
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth' });
+      window.history.pushState(null, '', '#contact-drawer');
+      const input = document.getElementById('contact-name');
+      if (input) input.focus();
+    } else if (!isHomePage) {
+      e.preventDefault();
+      window.location.href = '/#contact-drawer';
     }
   };
 
@@ -271,7 +279,7 @@ export default function SystemBar() {
           <div className="systembar__actions">
             {/* Primary Action Button (data-node-id="33:13") */}
             <a
-              href="#contact-drawer"
+              href="/#contact-drawer"
               className="systembar__cta-btn"
               onClick={handleBookCall}
               data-node-id="33:13"

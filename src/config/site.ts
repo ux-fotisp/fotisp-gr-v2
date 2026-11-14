@@ -4,7 +4,7 @@
  */
 
 export interface NavLink {
-  id: 'top' | 'work' | 'research' | 'architecture' | 'about';
+  id: 'work' | 'research' | 'architecture' | 'about';
   label: string;
   href: string;
 }

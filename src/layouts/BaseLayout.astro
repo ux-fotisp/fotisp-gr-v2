@@ -4,6 +4,7 @@ import { ClientRouter } from 'astro:transitions';
 import SystemBar from '../components/SystemBar';
 import WebdriftInstaller from '../components/WebdriftInstaller';
 import JsonLd from '../components/JsonLd.astro';
+import { siteConfig } from '../config/site';
 import '../styles/global.css';
 import '../styles/systembar.css';
 import '../styles/era-toggle.css';
@@ -33,8 +34,8 @@ const defaultSchema: Record<string, unknown>[] = [
     alternateName: 'Fotis Pastrakis',
     url: 'https://fotisp.gr',
     sameAs: [
-      'https://linkedin.com/in/fotisp',
-      'https://github.com/fotisp',
+      siteConfig.brand.social.linkedin,
+      siteConfig.brand.social.github,
     ],
     jobTitle: 'Senior Associate, CX Designer',
     worksFor: [

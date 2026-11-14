@@ -2,7 +2,7 @@
 
 > **System:** `fotisp.gr-v2` (Fotis Pastrakis Personal Portfolio & Systems Architecture)  
 > **Methodology:** Sophia Prater's Object-Oriented UX (OOUX) & ORCA Framework  
-> **Stack:** Astro 5 (Static Output) · React 19 Islands · Atomic CSS (Zero Tailwind) · Cloudflare Pages & D1
+> **Stack:** Astro 5 (Static Output) · React 19 Islands · Atomic CSS (Zero Tailwind) · Netlify Edge & Netlify Forms
 
 ---
 
@@ -15,21 +15,21 @@ This document establishes the bidirectional traceability between the domain mode
          │                                       │
          ├───────────────────────────────────────┼─────────────────────────┐
          ▼                                       ▼                         ▼
-[ UI Component / Island ]               [ Static Page / Route ]   [ Edge Worker / D1 ]
- (DesktopWindow / SystemBar)              (work/[id].astro)         (/api/contact)
+[ UI Component / Island ]               [ Static Page / Route ]   [ Netlify Edge Forms ]
+ (DesktopWindow / SystemBar)              (work/[id].astro)         (/__forms.html)
 ```
 
 ---
 
 ## 2. Object Traceability Matrix
 
-| OOUX Object | Desktop Metaphor | Astro 5 Source / Schema | Static Page Route | Interactive Component | Edge / Database Store |
+| OOUX Object | Desktop Metaphor | Astro 5 Source / Schema | Static Page Route | Interactive Component | Ingestion & Storage Store |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Case Study** | `*.app` Executable Document | `src/content/case-studies/*.md` via `defineCollection()` | `src/pages/work/[id].astro`<br>`src/pages/work/index.astro` | `CaseStudyGrid.tsx`<br>`CaseStudyDiagram.astro` | `dist/work/*/index.html` (Static Pages) |
 | **Publication** | `reference_*.pdf` Volume | `src/content/publications/*.md` via `defineCollection()` | `src/pages/index.astro#publications`<br>`src/pages/about.astro` | `DesktopWindow.astro`<br>1-Bit DOI Badge | Canonical DOI Resolver (`https://doi.org/*`) |
 | **Service** | `service_*.daemon` Daemon | `src/content/services/*.md` via `defineCollection()` | `src/pages/index.astro#services`<br>`src/pages/work/index.astro` | `ServiceCard`<br>`data-service-select` | Statically baked in HTML |
 | **Testimonial** | `*.sig` Signature Certificate | `src/content/testimonials/*.md` via `defineCollection()` | `src/pages/about.astro#testimonials`<br>`src/pages/index.astro#testimonials` | `DesktopWindow.astro`<br>Verified Ref Badge | Statically baked in HTML |
-| **Inquiry** | `tty0 / console_inquiry.sh` | Dynamic Payload Interface in `functions/api/contact.ts` | `/#contact-drawer`<br>`/about#contact-drawer` | `#contactForm`<br>`Turnstile` (optional) | Cloudflare D1 `inquiries` table (`fotisp_db`) |
+| **Inquiry** | `tty0 / console_inquiry.sh` | Zero-backend Form Interface in `public/__forms.html` | `/#contact-drawer`<br>`/about#contact-drawer` | `#contactForm` | Netlify Forms (`contact` registry) |
 
 ---
 
@@ -101,18 +101,12 @@ This document establishes the bidirectional traceability between the domain mode
 ### 3.4 Inquiry (`inquiry`)
 - **Domain Role:** Edge-persisted communication packet from prospective clients.
 - **Transport & Storage:**
-  - Client submits JSON payload to `POST /api/contact`.
-  - Edge worker executes:
-    1. **Honeypot Validation:** Silent 200 OK discard if `_gotcha` or `company_fax` contains data.
-    2. **Payload Validation:** Name, email (RFC 5322 regex), and message required.
-    3. **Anonymized Telemetry:** SHA-256 hash of `CF-Connecting-IP` via Web Crypto API (`crypto.subtle.digest`).
-    4. **Era Mode Logging:** Captures whether client was in `1984` or `2026` visual mode.
-    5. **D1 Insertion:** SQL query executed on Cloudflare D1 (`fotisp-db`):
-       ```sql
-       INSERT INTO inquiries (name, email, subject, message, era_mode, ip_hash, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
-       ```
-    6. **Graceful Fallback:** If D1 table is absent or in local preview, returns structured success JSON with console trace, never terminating with an unhandled 500 error.
+  - Client submits form payload via `POST /__forms.html` (handled natively by Netlify Forms build-time ingestion).
+  - Security & Anti-Spam Pipeline:
+    1. **Dual Honeypot Validation:** Form includes invisible fields `_gotcha` and `company_fax`. Submissions with non-empty honeypots are dropped by security filters.
+    2. **Payload Validation:** Operator name, email (RFC 5322 regex validation), subject engagement scope, and message required.
+    3. **Zero-Backend Ingestion:** Form skeleton declared in `public/__forms.html` allows Netlify's post-processing engine to securely index and route submissions without cold starts or server maintenance.
+    4. **Edge Architecture Portability:** Architecture retains compatibility with Cloudflare Pages Functions (`functions/api/contact.ts`) and Cloudflare D1 serverless SQLite for alternative multi-cloud deployments.
 
 ### 3.5 Testimonial (`testimonial`)
 - **Domain Role:** Verified peer and leadership endorsements from senior executives at enterprise organizations (Pfizer, Deloitte) confirming Fotis Pastrakis's architectural rigor and UX execution.
@@ -160,10 +154,10 @@ This document establishes the bidirectional traceability between the domain mode
 | **GUEST** | `publication` | *Resolve DOI* | `https://doi.org/{doi}` | Opens external canonical journal link |
 | **GUEST** | `service` | *Initiate Scoped Inquiry* | `/#contact-drawer` | Pre-selects service option and focuses terminal input |
 | **GUEST** | `testimonial` | *Inspect Verified Reference* | `/about#testimonials` | Navigates to leadership endorsement grid |
-| **GUEST** | `inquiry` | *Transmit Packet* | `POST /api/contact` | Submits form, shows terminal dispatch confirmation |
-| **SYSTEM** | `inquiry` | *Filter Spam* | `functions/api/contact.ts` | Discards bot submissions silently |
-| **SYSTEM** | `inquiry` | *Persist Record* | `fotisp_db.inquiries` | Writes permanent audit record to D1 |
-| **OWNER** | `case_study` | *Update Case Study* | `src/content/case-studies/*.md` | Git commit on `dev` branch |
+| **GUEST** | `inquiry` | *Transmit Packet* | `POST /__forms.html` | Submits form to Netlify Forms with live client dispatch confirmation |
+| **SYSTEM** | `inquiry` | *Filter Spam* | Netlify Forms Engine | Rejects submissions containing non-empty `_gotcha` or `company_fax` |
+| **SYSTEM** | `inquiry` | *Persist Record* | Netlify Form Registry | Stores encrypted inquiry in Netlify dashboard with webhook triggers |
+| **OWNER** | `case_study` | *Update Case Study* | `src/content/caseStudies/*.md` | Git commit on `dev` branch |
 | **OWNER** | `publication` | *Register Publication* | `src/content/publications/*.md` | Git commit on `dev` branch |
 | **OWNER** | `testimonial` | *Register Endorsement* | `src/content/testimonials/*.md` | Git commit on `dev` branch |
 
@@ -175,10 +169,9 @@ This document establishes the bidirectional traceability between the domain mode
 | :--- | :--- | :--- | :--- |
 | **EdgeLottie** | `src/components/EdgeLottie.tsx` | `client:visible` | Wraps `@lottiefiles/dotlottie-react`. When `era === '1984'`, crushes canvas via `filter: url(#dither-1bit); image-rendering: pixelated;`. Animated Thessaloniki radar HUD fallback. |
 | **SplitButton** | `src/components/SplitButton.tsx` | `client:load` / `client:visible` | Primary action button with attached dropdown toggle (`[ v ]`), separated by `--border-1bit`. Framer Motion height disclosure (`height: 0` $\rightarrow$ `auto`), live `[ COPIED TO CLIPBOARD ]` state, keyboard navigation (`Escape`, `Tab`). |
-| **DraggableFrame** | `src/components/DraggableFrame.tsx` | `client:idle` | Titlebar-only handle drag with Framer Motion `useDragControls` and click-to-front `z-index`. **Disabled on `< 768px`** and `prefers-reduced-motion` so mobile touch scrolling is never hijacked. |
+| **DraggableFrame** | `src/components/DraggableFrame.tsx` | `client:idle` | Titlebar-only handle drag with Framer Motion `useDragControls` and click-to-front `z-index`. **Disabled on `< 768px`** and `prefers-reduced-motion` so mobile touch scrolling is never hijacked. Listens to `reset-windows` event. |
 | **MagneticTarget** | `src/components/MagneticTarget.tsx` | `client:load` / `client:visible` | Spring physics (`damping: 16, stiffness: 220`) pulling CTAs toward cursor within 40px radius. Disabled on touch (`pointerType === 'touch'`) and `prefers-reduced-motion`. |
-| **RevealText** | `src/components/RevealText.tsx` | `client:load` | Swiss editorial line-by-line staggered reveal using clip-path masks. Instant render when reduced motion is preferred. |
-| **SystemBar** | `src/components/SystemBar.tsx` | `client:load` | Fixed OS menu bar with 300ms hardware CRT static/glitch transition on era switch (`Shift+Alt+E`) with 150ms midpoint dataset swap. |
+| **SystemBar** | `src/components/SystemBar.tsx` | `client:load` | Fixed header navigation aligned to Figma v2 with 300ms hardware CRT glitch transition on era switch (`Shift+Alt+E`), diagnostic modal trigger (`Shift+Alt+D`), and window reset (`Shift+Alt+W`). |
 
 ---
 
